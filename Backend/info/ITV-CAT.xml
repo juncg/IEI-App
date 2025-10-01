@@ -1,0 +1,900 @@
+<response>
+	<row>
+		<row _id="row-393u.q4u7-hzdc" _uuid="00000000-0000-0000-472C-BA6822DDDF4F" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-393u.q4u7-hzdc">
+			<estaci>B16</estaci>
+			<denominaci>Còrsega</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Còrsega, 384-392</adre_a>
+			<cp>08037</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<lat>41399458</lat>
+			<long>2163486</long>
+			<geocoded_column>POINT (2163486 41399458)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.399458+2.163486"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h</horari_de_servei>
+			<correu_electr_nic>b16@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-u7yi-hzpw_473n" _uuid="00000000-0000-0000-710A-05058DC8754A" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-u7yi-hzpw_473n">
+			<estaci>B02</estaci>
+			<denominaci>Badalona</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer INDÚSTRIA 427-449</adre_a>
+			<cp>08918</cp>
+			<municipi>Badalona</municipi>
+			<codi_municipi>080155</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41435358</lat>
+			<long>2237464</long>
+			<geocoded_column>POINT (2237464 41435358)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.435358+2.237464"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7 a 21h i dissabtes de 8 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h.)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-esda-itjm_n6wf" _uuid="00000000-0000-0000-5821-BC0F86713E3E" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-esda-itjm_n6wf">
+			<estaci>B07</estaci>
+			<denominaci>Viladecans</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>c. Jocelyn Bell, 16</adre_a>
+			<cp>08440</cp>
+			<municipi>Viladecans</municipi>
+			<codi_municipi>083015</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>413028</lat>
+			<long>2019474</long>
+			<geocoded_column>POINT (2019474 413028)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.3028+2.019474"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23, 29 i 30 desemb.: Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-8shb~79b5~ie2p" _uuid="00000000-0000-0000-9227-CC72FA1FC1E4" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-8shb~79b5~ie2p">
+			<estaci>B12</estaci>
+			<denominaci>Igualada</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer PAÏSOS BAIXOS - POL. IND. LES COMES 18</adre_a>
+			<cp>08700</cp>
+			<municipi>Igualada</municipi>
+			<codi_municipi>081022</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41591438</lat>
+			<long>1635399</long>
+			<geocoded_column>POINT (1635399 41591438)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.591438+1.635399"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7 a 21h i dissabtes de 8 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h.)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-xpdw_6btq~kdrp" _uuid="00000000-0000-0000-CF5A-7E915B3F4F78" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-xpdw_6btq~kdrp">
+			<estaci>L11</estaci>
+			<denominaci>Borges Blanques</denominaci>
+			<operador>TuV-SUD</operador>
+			<adre_a>c. Verdunes: Parcel.la 25: Pol. Ind. Les Verdunes</adre_a>
+			<cp>25400</cp>
+			<municipi>Borges Blanques, les</municipi>
+			<codi_municipi>250582</codi_municipi>
+			<tel_atenc_public>973102046</tel_atenc_public>
+			<lat>41507973</lat>
+			<long>848644</long>
+			<geocoded_column>POINT (848644 41507973)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.507973+0.848644"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>Dill. a div. de 8:30 a 13:30 i de 15:30 a 18:30: Dissab. 8:30 a 13:30</horari_de_servei>
+			<correu_electr_nic>itv-borges@tuv-sud.es</correu_electr_nic>
+		</row>
+		<row _id="row-fed4~4ima~xv7s" _uuid="00000000-0000-0000-481E-173036E4268F" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-fed4~4ima~xv7s">
+			<estaci>B26</estaci>
+			<denominaci>Sant Celoni</denominaci>
+			<operador>TuV-SUD</operador>
+			<adre_a>Carretera Gualba, 41-43</adre_a>
+			<cp>08470</cp>
+			<municipi>Sant Celoni</municipi>
+			<codi_municipi>082021</codi_municipi>
+			<tel_atenc_public>931179070</tel_atenc_public>
+			<lat>41695043</lat>
+			<long>2504893</long>
+			<geocoded_column>POINT (2504893 41695043)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.695043+2.504893"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>DLL-DV: 06:00-21:00 , DS:07:00-14:00</horari_de_servei>
+			<correu_electr_nic>itv-stceloni@tuv-sud.es</correu_electr_nic>
+			<web url="http://www.tuvsud.com/itv"/>
+		</row>
+		<row _id="row-u7k6~22yh.s72z" _uuid="00000000-0000-0000-D72A-FA52706B46E6" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-u7k6~22yh.s72z">
+			<estaci>L06</estaci>
+			<denominaci>Solsona</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>Plaça de les Filadores, 5: Pol. Ind. "Els Ametllers"</adre_a>
+			<cp>25280</cp>
+			<municipi>Solsona</municipi>
+			<codi_municipi>252075</codi_municipi>
+			<tel_atenc_public>973481669</tel_atenc_public>
+			<lat>41990997</lat>
+			<long>154423</long>
+			<geocoded_column>POINT (154423 41990997)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.990997+1.54423"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 8h a 14h i de 15h a 17h</horari_de_servei>
+			<correu_electr_nic>l06@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-gtfn~im6u_nrsz" _uuid="00000000-0000-0000-C8FB-3B3B8D231D6C" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-gtfn~im6u_nrsz">
+			<estaci>G02</estaci>
+			<denominaci>Celrà</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer de la Tramuntana 9</adre_a>
+			<cp>17460</cp>
+			<municipi>Celrà</municipi>
+			<codi_municipi>170499</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>42032915</lat>
+			<long>2890031</long>
+			<geocoded_column>POINT (2890031 42032915)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.032915+2.890031"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: de dl a dv de 7 a 19. Agost, (4 al 29) de dl a dv de 7 a 14:15. Desembre: 22, 23, 29 i 30 de 8 a 14 i de 15 a 17.</horari_de_servei>
+			<correu_electr_nic>https://www.controlautoitv.com/</correu_electr_nic>
+			<web url="https://www.controlautoitv.com/"/>
+		</row>
+		<row _id="row-4c73-9x6n-xtej" _uuid="00000000-0000-0000-741A-8667AC9F56D0" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-4c73-9x6n-xtej">
+			<estaci>B22</estaci>
+			<denominaci>Sant Cugat</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Amposta, 2: Pol. Ind. Sant Mamet</adre_a>
+			<cp>08174</cp>
+			<municipi>Sant Cugat del Vallès</municipi>
+			<codi_municipi>082055</codi_municipi>
+			<lat>41480016</lat>
+			<long>206332</long>
+			<geocoded_column>POINT (206332 41480016)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.480016+2.06332"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21. Dissabte de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b22@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-kxd8_szcv.rjq7" _uuid="00000000-0000-0000-4719-93DFCDA74584" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-kxd8_szcv.rjq7">
+			<estaci>T05</estaci>
+			<denominaci>Montblanc</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera TV-7042 P.K. 11,200 S/N</adre_a>
+			<cp>43400</cp>
+			<municipi>Montblanc</municipi>
+			<codi_municipi>430862</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41364214</lat>
+			<long>1163645</long>
+			<geocoded_column>POINT (1163645 41364214)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.364214+1.163645"/>
+			<serveis_territorials>Tarragona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7 a 21'30h i dissabtes de 8 a 13h. (Els dies:2 i 3 gener.17 abril.2 maig.23,25,26 i 27 juny.De 4 agost a 14 setembre.31 octubre.5,22,23,29 i 30 desembre:Oberta de 7-14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-xkb2~vbqz-vqkk" _uuid="00000000-0000-0000-7A19-ABF92F6DEFC8" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-xkb2~vbqz-vqkk">
+			<estaci>G06</estaci>
+			<denominaci>Palamós</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer Arnau sa Bruguera s/n</adre_a>
+			<cp>17230</cp>
+			<municipi>Palamós</municipi>
+			<codi_municipi>171181</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>41860148</lat>
+			<long>3131805</long>
+			<geocoded_column>POINT (3131805 41860148)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.860148+3.131805"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: de dilluns a divendres de 7 a 21. Dissabtes de 8 a 14. Gener: 2 i 3 de 8 a 18. Agost: del 4 al 29 de dilluns a divendres de 7 a 20:15. Desembre: 22, 23, 29 i 30 de de 8 a 18.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-pu7c~an2c~guj4" _uuid="00000000-0000-0000-7720-BCA2BFC1BA18" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-pu7c~an2c~guj4">
+			<estaci>B03</estaci>
+			<denominaci>Viladecavalls</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Joan Lluis Vives, s/n, Parcel·la 1, Pol.Ind. "Can Trias"</adre_a>
+			<cp>08232</cp>
+			<municipi>Viladecavalls</municipi>
+			<codi_municipi>083008</codi_municipi>
+			<tel_atenc_public>937807555</tel_atenc_public>
+			<lat>41560908</lat>
+			<long>1977865</long>
+			<geocoded_column>POINT (1977865 41560908)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.560908+1.977865"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabte de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b03@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-4ivc.qjvz_q4ua" _uuid="00000000-0000-0000-B0AF-E210705DF8AF" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-4ivc.qjvz_q4ua">
+			<estaci>B08</estaci>
+			<denominaci>Argentona</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Polígon EL CROS - ZONA INDUSTRIAL SECTOR SUD S/N</adre_a>
+			<cp>08310</cp>
+			<municipi>Argentona</municipi>
+			<codi_municipi>080095</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41536412</lat>
+			<long>2416264</long>
+			<geocoded_column>POINT (2416264 41536412)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.536412+2.416264"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 6¿30 a 21h i dissabtes de 8 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h.)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-y3zp-9ba9.rxx7" _uuid="00000000-0000-0000-CCEB-E53F72689D90" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-y3zp-9ba9.rxx7">
+			<estaci>G05</estaci>
+			<denominaci>Puigcerdà</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer DE LA ZONA INDUSTRIAL POL. IND. ZONA ESTACIÓ 2</adre_a>
+			<cp>17520</cp>
+			<municipi>Puigcerdà</municipi>
+			<codi_municipi>171411</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>42426348</lat>
+			<long>1926391</long>
+			<geocoded_column>POINT (1926391 42426348)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.426348+1.926391"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dimarts a dissabte, matins 8-14h i tardes 15-17h,i dilluns tancat. (Agost: de dimarts a divendres,matins 8-14h i tardes 15-17h,i dissabtes 8-14h)(Els dies: 2,9,23 i 30 agost : oberta de 8 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-qy5y.28cb_g67q" _uuid="00000000-0000-0000-CC2D-1823949AD500" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-qy5y.28cb_g67q">
+			<estaci>L07</estaci>
+			<denominaci>Artesa de Segre</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera K 512 P.K. 0,900 D S/N</adre_a>
+			<cp>25730</cp>
+			<municipi>Artesa de Segre</municipi>
+			<codi_municipi>250349</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>4189709</lat>
+			<long>1059282</long>
+			<geocoded_column>POINT (1059282 4189709)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.89709+1.059282"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dill a div de 8-14h i 15-17h, i diss tancat. (D'1 a 31 agost: Oberta de dill a dij de 7-14'15h i div de 7-14h) (Els dies: 22,23,29 i 30 desembre: Oberta de 7-15h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-x735~4nec~ca87" _uuid="00000000-0000-0000-D0D9-14F47011E983" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-x735~4nec~ca87">
+			<estaci>B23</estaci>
+			<denominaci>BCN Caracas</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Caracas, 10 B</adre_a>
+			<cp>08030</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<tel_atenc_public>933457154</tel_atenc_public>
+			<lat>41441284</lat>
+			<long>2203403</long>
+			<geocoded_column>POINT (2203403 41441284)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.441284+2.203403"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabte de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b23@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-2tp3~m4gm.zszs" _uuid="00000000-0000-0000-D8FC-AC5328CCC255" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-2tp3~m4gm.zszs">
+			<estaci>L02</estaci>
+			<denominaci>Lleida</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer INGENIERO MIAS, PARC.508, POL. IND. SEGRE S/N</adre_a>
+			<cp>25191</cp>
+			<municipi>Lleida</municipi>
+			<codi_municipi>251207</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41624654</lat>
+			<long>66082</long>
+			<geocoded_column>POINT (66082 41624654)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.624654+0.66082"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>(Gen-maig i ago-des:dill-div 7-21h)(Juny-jul:dill-div 6-21h)(Dissab. 8-13¿30h)(Els dies:14,15,16,17 i 22 abril.2 i 13 maig.23 juny.De 4 agost a 12 set.30 set. 31 oct.22,23,29 i 30 des.:Oberta 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-jg5v-eq9a.mqns" _uuid="00000000-0000-0000-36A3-959BF434DF91" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-jg5v-eq9a.mqns">
+			<estaci>B11</estaci>
+			<denominaci>Cornellà</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Passeig DE LA CAMPSA 64</adre_a>
+			<cp>08940</cp>
+			<municipi>Cornellà de Llobregat</municipi>
+			<codi_municipi>080734</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41357138</lat>
+			<long>2095921</long>
+			<geocoded_column>POINT (2095921 41357138)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.357138+2.095921"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23,29 i 30 desemb.: Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-wne2~nv86-ycde" _uuid="00000000-0000-0000-41C7-C7A466A78B91" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-wne2~nv86-ycde">
+			<estaci>B15</estaci>
+			<denominaci>Motors</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer MOTORS 136</adre_a>
+			<cp>08040</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41351142</lat>
+			<long>214644</long>
+			<geocoded_column>POINT (214644 41351142)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.351142+2.14644"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23,29 i 30 desemb. : Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-nj7m_w7if~5w5h" _uuid="00000000-0000-0000-CA70-D267D2CD1293" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-nj7m_w7if~5w5h">
+			<estaci>L10</estaci>
+			<denominaci>Pont de Suert</denominaci>
+			<operador>ITEVELESA</operador>
+			<adre_a>Parcel·la E1: Polígon Industrial Sores</adre_a>
+			<cp>25520</cp>
+			<municipi>Pont de Suert, el</municipi>
+			<codi_municipi>251734</codi_municipi>
+			<tel_atenc_public>977079020</tel_atenc_public>
+			<lat>42422029</lat>
+			<long>736002</long>
+			<geocoded_column>POINT (736002 42422029)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.422029+0.736002"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 8h a 14h i de 15h a 17h.</horari_de_servei>
+			<correu_electr_nic>itv.elpontdesuert@itevelesa.com</correu_electr_nic>
+			<web url="http://www.itevelesa.cat"/>
+		</row>
+		<row _id="row-mwru~vvcn_sa3i" _uuid="00000000-0000-0000-09EA-328D50BA513F" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-mwru~vvcn_sa3i">
+			<estaci>B04</estaci>
+			<denominaci>Osona</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer Sant Llorenç Desmunts 22</adre_a>
+			<cp>08500</cp>
+			<municipi>Vic</municipi>
+			<codi_municipi>082981</codi_municipi>
+			<tel_atenc_public>937399191</tel_atenc_public>
+			<lat>41949148</lat>
+			<long>2280243</long>
+			<geocoded_column>POINT (2280243 41949148)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.949148+2.280243"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>General 2025: de dilluns a divendres de 7 a 21. Dissabtes de 8 a 14. Gener: 2 i 3 de 8 a 18. Agost: del 4 al 29 de dilluns a divendres de 7 a 15. Desembre: 22, 23, 29 i 30 de de 8 a 18.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-iz2d~g3e6~s2mc" _uuid="00000000-0000-0000-4155-2EF9A3D0FDB1" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-iz2d~g3e6~s2mc">
+			<estaci>G09</estaci>
+			<denominaci>Girona</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer Sarrià de Ter s/n</adre_a>
+			<cp>17005</cp>
+			<municipi>Girona</municipi>
+			<codi_municipi>170792</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>41963441</lat>
+			<long>2804696</long>
+			<geocoded_column>POINT (2804696 41963441)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.963441+2.804696"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: de dilluns a divendres de 7 a 21. Dissabtes de 8 a 14. Gener: 2 i 3 de 8 a 18. Agost: del 4 al 29 de dilluns a divendres de 7 a 15. Desembre: 22, 23, 29 i 30 de de 8 a 18.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-5y3e_mt3j~unxr" _uuid="00000000-0000-0000-B962-10F80E6E442F" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-5y3e_mt3j~unxr">
+			<estaci>L03</estaci>
+			<denominaci>Tremp</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera COMARCAL 1412 KM. 54 S/N</adre_a>
+			<cp>25620</cp>
+			<municipi>Tremp</municipi>
+			<codi_municipi>252347</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>421622</lat>
+			<long>90961</long>
+			<geocoded_column>POINT (90961 421622)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.1622+0.90961"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres, matins 8-14h i tardes 15-17h, i dissabtes tancat. (D'1 a 31 d'agost: Oberta de dilluns a dij de 7 a 14'15h i div de 7 a 14h) (Els dies 22,23,29 i 30 desemb: Oberta de 8 a 15h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-nm7v-y3c5_ezmb" _uuid="00000000-0000-0000-EF34-706E89A69D84" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-nm7v-y3c5_ezmb">
+			<estaci>T04</estaci>
+			<denominaci>Mora la Nova</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Polígon POL. IND. PARTIDA AUBALS CARRER D S/N</adre_a>
+			<cp>43770</cp>
+			<municipi>Móra la Nova</municipi>
+			<codi_municipi>430944</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41105076</lat>
+			<long>645727</long>
+			<geocoded_column>POINT (645727 41105076)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.105076+0.645727"/>
+			<serveis_territorials>Terres de l'Ebre</serveis_territorials>
+			<horari_de_servei>De dill a div de 8'30-14h i 16-18'30h, diss tancat. (Dies:De 14 a 17 abril.2 maig.23,25,26 i 27 juny.23 i 31 oct.9,10,11,12 i 19 desem:Oberta 7-15h)(De 5 agost a 14 setemb:Oberta de 7-14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-bz5i_7cxq~486d" _uuid="00000000-0000-0000-633D-B1FAC9DAE6BB" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-bz5i_7cxq~486d">
+			<estaci>B19</estaci>
+			<denominaci>Àvila</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>Calle Ávila 130-134</adre_a>
+			<cp>08018</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<tel_atenc_public>933092990</tel_atenc_public>
+			<lat>41400287</lat>
+			<long>2191192</long>
+			<geocoded_column>POINT (2191192 41400287)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.400287+2.191192"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21. Dissabte de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b19@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-cvcc.ibtr_iqfp" _uuid="00000000-0000-0000-5A61-931B028D9F2C" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-cvcc.ibtr_iqfp">
+			<estaci>B24</estaci>
+			<denominaci>Sabadell</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer CAN CAMPS - POLÍGON CAN ROQUETA 1</adre_a>
+			<cp>08200</cp>
+			<municipi>Sabadell</municipi>
+			<codi_municipi>081878</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41534279</lat>
+			<long>2132535</long>
+			<geocoded_column>POINT (2132535 41534279)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.534279+2.132535"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7 a 21h i dissabtes de 8 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h.)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-ktwk-weaw~gwm6" _uuid="00000000-0000-0000-4699-9BA1B0E0BDFF" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-ktwk-weaw~gwm6">
+			<estaci>T03</estaci>
+			<denominaci>Tortosa</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Polígon POL. IND. BAIX EBRE PARC. 81-84 S/N</adre_a>
+			<cp>43500</cp>
+			<municipi>Tortosa</municipi>
+			<codi_municipi>431554</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>40765372</lat>
+			<long>55414</long>
+			<geocoded_column>POINT (55414 40765372)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=40.765372+0.55414"/>
+			<serveis_territorials>Terres de l'Ebre</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 6'30 a 21'30h i dissab de 8 a 13h (Els dies: 2 i 3 gener. De 14 a 17 abril.2 maig. 23,25,26,27 i 30 juny.De 4 agost al 14 setemb.31 oct.22,23,29 i 30 desemb.: Oberta 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-ax2f_9uhe.k5ks" _uuid="00000000-0000-0000-EA1A-ECA6EFB5AFED" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-ax2f_9uhe.k5ks">
+			<estaci>G04</estaci>
+			<denominaci>Olot</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer França s/n</adre_a>
+			<cp>17800</cp>
+			<municipi>Olot</municipi>
+			<codi_municipi>171143</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>4218958</lat>
+			<long>2479758</long>
+			<geocoded_column>POINT (2479758 4218958)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.18958+2.479758"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: dl a dv de 8 a 14 i de 15 a 19. Gener: 2 i 3: 8 a 14 i 15 a 17. Agost: del 4 al 29 de dl a dv de 7 a 14:15. Desembre: 22, 23, 29 i 30: 8 a 14 i de 15 a 17.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-x9wd.m3xk-p62m" _uuid="00000000-0000-0000-CCF4-C85958EF97DD" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-x9wd.m3xk-p62m">
+			<estaci>B14</estaci>
+			<denominaci>Diputació</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carrer DIPUTACIÓ 158-160</adre_a>
+			<cp>08011</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41383509</lat>
+			<long>2158162</long>
+			<geocoded_column>POINT (2158162 41383509)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.383509+2.158162"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23,29 i 30 desemb.: Oberta de  7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-nps9_pkiw_6vyc" _uuid="00000000-0000-0000-7ECA-A8C85A01284C" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-nps9_pkiw_6vyc">
+			<estaci>T08</estaci>
+			<denominaci>Amposta</denominaci>
+			<operador>TuV-SUD</operador>
+			<adre_a>c. Po, 18: Polígon Industrial L’Oriola</adre_a>
+			<cp>43870</cp>
+			<municipi>Amposta</municipi>
+			<codi_municipi>430141</codi_municipi>
+			<tel_atenc_public>977087243</tel_atenc_public>
+			<lat>40688064</lat>
+			<long>579809</long>
+			<geocoded_column>POINT (579809 40688064)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=40.688064+0.579809"/>
+			<serveis_territorials>Terres de l'Ebre</serveis_territorials>
+			<horari_de_servei>Dill. a div. de 8:30 a 13:30 i de 15:30 a 18:30: Dissab. 8:30 a 13:30</horari_de_servei>
+			<correu_electr_nic>itv-amposta@tuv-sud.es</correu_electr_nic>
+		</row>
+		<row _id="row-3qzv-jh7v-kt4t" _uuid="00000000-0000-0000-71FD-D2243ECA2576" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-3qzv-jh7v-kt4t">
+			<estaci>B09</estaci>
+			<denominaci>Olèrdola</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Avinguda HOSTAL NOU S/N</adre_a>
+			<cp>08734</cp>
+			<municipi>Olèrdola</municipi>
+			<codi_municipi>081458</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41357229</lat>
+			<long>173028</long>
+			<geocoded_column>POINT (173028 41357229)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.357229+1.73028"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23,29 i 30 desemb. : Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-mydu~9kiu.ubua" _uuid="00000000-0000-0000-3DA3-BE7B55C5F678" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-mydu~9kiu.ubua">
+			<estaci>L08</estaci>
+			<denominaci>Vielha</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera DE VIELHA A BOSSOST KM. 164,00 S/N</adre_a>
+			<cp>25555</cp>
+			<municipi>Vielha e Mijaran</municipi>
+			<codi_municipi>252430</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>42712861</lat>
+			<long>797632</long>
+			<geocoded_column>POINT (797632 42712861)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.712861+0.797632"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dill a div de 8-13'30h i 14'30-17~h, i diss tancat. (D'1 a 31 agost: Oberta de dill a dij de 7-14'15h i div de 7-14h) (Els dies: 22,23,29 i 30 desembre: Oberta de 8-15h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-cz29_nj4g.mpdn" _uuid="00000000-0000-0000-ADFC-75EB46835267" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-cz29_nj4g.mpdn">
+			<estaci>B05</estaci>
+			<denominaci>Sant Just Desvern</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Avinguda DE LA RIERA - POL. IND. NÚM. 1 19-21</adre_a>
+			<cp>08960</cp>
+			<municipi>Sant Just Desvern</municipi>
+			<codi_municipi>082212</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41384595</lat>
+			<long>20618</long>
+			<geocoded_column>POINT (20618 41384595)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.384595+2.061800"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:De 14 a 17 abril.2 maig.23 juny.De 4 agost al 12 setemb.31 octub.22, 23, 29 i 30 desembre. : Oberta de 7 a  14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-igmd-jbv2.b2qe" _uuid="00000000-0000-0000-5B07-3F373DFF1320" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-igmd-jbv2.b2qe">
+			<estaci>L04</estaci>
+			<denominaci>Montferrer</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>Ctra. N-260, Km. 230,5: "Eix Pirenenc" de Puigcerdà a Sabiñànigo</adre_a>
+			<cp>25711</cp>
+			<municipi>Montferrer i Castellbò</municipi>
+			<codi_municipi>251403</codi_municipi>
+			<tel_atenc_public>937351654</tel_atenc_public>
+			<lat>42346625</lat>
+			<long>1429275</long>
+			<geocoded_column>POINT (1429275 42346625)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.346625+1.429275"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 8h a 14h i de 15h a 17h</horari_de_servei>
+			<correu_electr_nic>l04@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-5pw6_z6jb-7cpv" _uuid="00000000-0000-0000-DD72-211365AA6912" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-5pw6_z6jb-7cpv">
+			<estaci>T07</estaci>
+			<denominaci>Baix Penedès</denominaci>
+			<operador>ITEVELESA</operador>
+			<adre_a>Sector 8, C/V3, Parcel·les 21-22-23: Polígon Industrial Els Massets</adre_a>
+			<cp>43719</cp>
+			<municipi>Bellvei</municipi>
+			<codi_municipi>430249</codi_municipi>
+			<tel_atenc_public>977079020</tel_atenc_public>
+			<lat>41229744</lat>
+			<long>1553195</long>
+			<geocoded_column>POINT (1553195 41229744)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.229744+1.553195"/>
+			<serveis_territorials>Tarragona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabtes de 8:30h a 13:30h</horari_de_servei>
+			<correu_electr_nic>itv.bellvei@itevelesa.com</correu_electr_nic>
+			<web url="http://www.itevelesa.cat"/>
+		</row>
+		<row _id="row-dr47_czw7~evjm" _uuid="00000000-0000-0000-39C0-700E2EC58827" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-dr47_czw7~evjm">
+			<estaci>B20</estaci>
+			<denominaci>CIM Vallès</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Pont Vell, s/n. Parc. 13: Zona A: Centre Integral de Mercaderies: Pol. Ind. "Les Minetes"</adre_a>
+			<cp>08130</cp>
+			<municipi>Santa Perpètua de Mogoda</municipi>
+			<codi_municipi>082606</codi_municipi>
+			<tel_atenc_public>935602688</tel_atenc_public>
+			<lat>41537387</lat>
+			<long>2189371</long>
+			<geocoded_column>POINT (2189371 41537387)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.537387+2.189371"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabtes de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b20@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-cp99_e4z8-9gdn" _uuid="00000000-0000-0000-B634-931DF5A399D1" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-cp99_e4z8-9gdn">
+			<estaci>B18</estaci>
+			<denominaci>Granollers</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Avinguda SANT JULIÀ - POL. IND. EL CONGOST 253-255</adre_a>
+			<cp>08400</cp>
+			<municipi>Granollers</municipi>
+			<codi_municipi>080961</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>4157743</lat>
+			<long>2273602</long>
+			<geocoded_column>POINT (2273602 4157743)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.57743+2.273602"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 6¿30 a 21h i dissabtes de 8 a 14h. (Els dies:De 14 a 17 abril. 2 maig. De 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-6w8u-4y3b_cbbc" _uuid="00000000-0000-0000-804A-49DA305AE12B" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-6w8u-4y3b_cbbc">
+			<estaci>G08</estaci>
+			<denominaci>Ripoll</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Passeig d'Ordina s/n</adre_a>
+			<cp>17500</cp>
+			<municipi>Ripoll</municipi>
+			<codi_municipi>171479</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>42200316</lat>
+			<long>2186197</long>
+			<geocoded_column>POINT (2186197 42200316)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.200316+2.186197"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025, dl a dv de 8 a 14 i de 15 a 17. Agost:(4 al 29) de dl a dv de 7 a 14:15.</horari_de_servei>
+			<correu_electr_nic>https://www.citaprevia.cat/</correu_electr_nic>
+			<web url="https://www.citaprevia.cat/"/>
+		</row>
+		<row _id="row-i367_g3mt~uv8v" _uuid="00000000-0000-0000-3827-5F842AC610A0" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-i367_g3mt~uv8v">
+			<estaci>B13</estaci>
+			<denominaci>Berga</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>Camí de St. Bartomeu, s/n, Parcel.la 1: Pol. Ind. "La Valldan"</adre_a>
+			<cp>08600</cp>
+			<municipi>Berga</municipi>
+			<codi_municipi>080229</codi_municipi>
+			<tel_atenc_public>938222011</tel_atenc_public>
+			<lat>42089542</lat>
+			<long>1828489</long>
+			<geocoded_column>POINT (1828489 42089542)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.089542+1.828489"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 8h a 14h i de 15h a 17h</horari_de_servei>
+			<correu_electr_nic>b13@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-cypw_az9s~adkb" _uuid="00000000-0000-0000-B884-8787754371D2" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-cypw_az9s~adkb">
+			<estaci>T02</estaci>
+			<denominaci>Reus</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera VALENCIA-TARRAGONA KM. 1155,14 S/N</adre_a>
+			<cp>43206</cp>
+			<municipi>Reus</municipi>
+			<codi_municipi>431233</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41114431</lat>
+			<long>1164596</long>
+			<geocoded_column>POINT (1164596 41114431)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.114431+1.164596"/>
+			<serveis_territorials>Tarragona</serveis_territorials>
+			<horari_de_servei>De dill. a div. de 6 a 14h i 14'30 a 21'30h i dissab. de 8 a 13h (Els dies:2 i 5 gener.16,17 i 30 abril.2 maig.23,25,26 i 27 juny.De 4 agost al 12 set.26 set.31 oct.22,23,29 i 30 des.:Oberta 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-s6fe~rsdf_xwnj" _uuid="00000000-0000-0000-3928-1E63E0CF9C06" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-s6fe~rsdf_xwnj">
+			<estaci>L09</estaci>
+			<denominaci>Sort</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera N-260 P.K. 284,200 S/N</adre_a>
+			<cp>25560</cp>
+			<municipi>Sort</municipi>
+			<codi_municipi>252094</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>4238009</lat>
+			<long>1111185</long>
+			<geocoded_column>POINT (1111185 4238009)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.38009+1.111185"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>De dill a div de 8-13'30h i 14'30-17h, i diss tancat. (D'1 a 31 agost: Oberta de dill a dij de 7-14'15h i div de 7-14h) (Els dies: 22,23,29 i 30 desembre: Oberta de 8-15h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-4wai~7b3j-exth" _uuid="00000000-0000-0000-08A5-80E71C55A7D4" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-4wai~7b3j-exth">
+			<estaci>G03</estaci>
+			<denominaci>Vilamalla</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Carrer Castelló s/n</adre_a>
+			<cp>17469</cp>
+			<municipi>Vilamalla</municipi>
+			<codi_municipi>172266</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>42225825</lat>
+			<long>2983268</long>
+			<geocoded_column>POINT (2983268 42225825)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=42.225825+2.983268"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: dl a dv de 7 a 21. Dissabtes de 8 a 14. Gener: 2 i 3: 8 a 18. Agost: del 4 al 29 de dl a dv de 7 a 15:00. Desembre: 22, 23, 29 i 30: 8 a 18.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-bkhc.duzp_n7pt" _uuid="00000000-0000-0000-91D1-FA493C9390CC" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-bkhc.duzp_n7pt">
+			<estaci>B25</estaci>
+			<denominaci>Sant Fruitós</denominaci>
+			<operador>ITEVELESA</operador>
+			<adre_a>c. Les Malloles, P-C7a: Polígon Industrial El Grau</adre_a>
+			<cp>08272</cp>
+			<municipi>Sant Fruitós de Bages</municipi>
+			<codi_municipi>082135</codi_municipi>
+			<tel_atenc_public>977079020</tel_atenc_public>
+			<lat>417404</lat>
+			<long>1858494</long>
+			<geocoded_column>POINT (1858494 417404)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.7404+1.858494"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabtes de 8:30h a 13:30h</horari_de_servei>
+			<correu_electr_nic>itv.santfruitos@itevelesa.com</correu_electr_nic>
+			<web url="http://www.itevelesa.cat"/>
+		</row>
+		<row _id="row-wgba~a4qf_hzaq" _uuid="00000000-0000-0000-0227-1228D59999E0" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-wgba~a4qf_hzaq">
+			<estaci>B10</estaci>
+			<denominaci>Puigmadrona</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Passatge PUIGMADRONA 9-15</adre_a>
+			<cp>08026</cp>
+			<municipi>Barcelona</municipi>
+			<codi_municipi>080193</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41411428</lat>
+			<long>218495</long>
+			<geocoded_column>POINT (218495 41411428)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.411428+2.18495"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7 a 21h i dissabtes de 8 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setembre. 31 octubre. 22, 23, 29 i 30 desembre. : Oberta de 7 a 14h.)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-4i8w~35yu_ztny" _uuid="00000000-0000-0000-2FDE-F52A76C4119F" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-4i8w~35yu_ztny">
+			<estaci>L05</estaci>
+			<denominaci>Granyanella</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera N-II P.K. 512,7 S/N</adre_a>
+			<cp>25218</cp>
+			<municipi>Granyanella</municipi>
+			<codi_municipi>251039</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41661686</lat>
+			<long>1201793</long>
+			<geocoded_column>POINT (1201793 41661686)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.661686+1.201793"/>
+			<serveis_territorials>Lleida</serveis_territorials>
+			<horari_de_servei>(Gen-maig i ago-des:dill-div 7-21h)(Juny-jul:dill-div 6-21h)(Dissabtes 8-13¿30h)(Els dies: 16,17,22 i 23 abril. 2 maig. 23 juny. De 4 agost al 12 setem. 22,23,29 i 30 desemb.: Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-cbwx.9rg3~pjuh" _uuid="00000000-0000-0000-DE2E-57D415D470D3" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-cbwx.9rg3~pjuh">
+			<estaci>G07</estaci>
+			<denominaci>Blanes</denominaci>
+			<operador>Revisions de Vehicles, S.A.</operador>
+			<adre_a>Avinguda de l¿estació 47</adre_a>
+			<cp>17300</cp>
+			<municipi>Blanes</municipi>
+			<codi_municipi>170237</codi_municipi>
+			<tel_atenc_public>972492912</tel_atenc_public>
+			<lat>41675735</lat>
+			<long>2777621</long>
+			<geocoded_column>POINT (2777621 41675735)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.675735+2.777621"/>
+			<serveis_territorials>Girona</serveis_territorials>
+			<horari_de_servei>General 2025: de dilluns a divendres de 7 a 21. Dissabtes de 8 a 14. Gener: 2 i 3 de 8 a 18. Agost: del 4 al 29 de dilluns a divendres de 7 a 15. Desembre: 22, 23, 29 i 30 de de 8 a 18.</horari_de_servei>
+			<correu_electr_nic>https://controlautoitv.com/</correu_electr_nic>
+			<web url="https://controlautoitv.com/"/>
+		</row>
+		<row _id="row-gqwk.ppd7.d56j" _uuid="00000000-0000-0000-635F-3EB7E7A295A7" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-gqwk.ppd7.d56j">
+			<estaci>B21</estaci>
+			<denominaci>Sant Andreu</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Carretera N-II P.K. 592,5 s/n</adre_a>
+			<cp>08740</cp>
+			<municipi>Sant Andreu de la Barca</municipi>
+			<codi_municipi>081960</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41461042</lat>
+			<long>1958902</long>
+			<geocoded_column>POINT (1958902 41461042)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.461042+1.958902"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies: De 14 a 17 abril. 2 maig. 23 juny. Del 4 agost al 12 setemb. 31 octub. 22,23,29 i 30 desemb.: Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-u7qa.ngpb_tmdh" _uuid="00000000-0000-0000-B6D8-9E920FA2C026" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-u7qa.ngpb_tmdh">
+			<estaci>B06</estaci>
+			<denominaci>Manresa</denominaci>
+			<operador>TuV-RHEINLAND</operador>
+			<adre_a>c. Esteve Terrades, 2-4: Pol.Ind. "Bufalvent"</adre_a>
+			<cp>80242</cp>
+			<municipi>Manresa</municipi>
+			<codi_municipi>081136</codi_municipi>
+			<tel_atenc_public>938745111</tel_atenc_public>
+			<lat>41714116</lat>
+			<long>1844852</long>
+			<geocoded_column>POINT (1844852 41714116)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.714116+1.844852"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres de 7h a 21h. Dissabte de 8h a 14h</horari_de_servei>
+			<correu_electr_nic>b06@certio.com</correu_electr_nic>
+			<web url="http://www.itv-tuvrheinland.es"/>
+		</row>
+		<row _id="row-z2ws.u3w8-99s2" _uuid="00000000-0000-0000-0833-7EB2956BEF28" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-z2ws.u3w8-99s2">
+			<estaci>T06</estaci>
+			<denominaci>Tarragona</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Camí DE LA BUDELLERA S/N</adre_a>
+			<cp>43007</cp>
+			<municipi>Tarragona</municipi>
+			<codi_municipi>431482</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>41124588</lat>
+			<long>1274854</long>
+			<geocoded_column>POINT (1274854 41124588)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.124588+1.274854"/>
+			<serveis_territorials>Tarragona</serveis_territorials>
+			<horari_de_servei>De dilluns a divendres 6-14h i 14'30-21'30h i dissabt 8'30-13'30h. (Dies:2 i 3 gener.De 14 a 17 abril.2 maig.23 juny.De 4 agost a 14 setemb.22 setemb.9,10,11,12,22,23,29 i 30 desemb:Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+		<row _id="row-9i4w-vk6i.75ws" _uuid="00000000-0000-0000-7A68-68D7ED48ECE3" _position="0" _address="https://analisi.transparenciacatalunya.cat/resource/_7dyp-y4dd/row-9i4w-vk6i.75ws">
+			<estaci>B17</estaci>
+			<denominaci>Vilanova</denominaci>
+			<operador>APPLUS ITV</operador>
+			<adre_a>Ronda EUROPA S/N</adre_a>
+			<cp>08800</cp>
+			<municipi>Vilanova i la Geltrú</municipi>
+			<codi_municipi>083073</codi_municipi>
+			<tel_atenc_public>902930200</tel_atenc_public>
+			<lat>4122158</lat>
+			<long>1739638</long>
+			<geocoded_column>POINT (1739638 4122158)</geocoded_column>
+			<localitzador_a_google_maps url="http://maps.google.com/maps?t=k&amp;q=41.22158+1.739638"/>
+			<serveis_territorials>Barcelona</serveis_territorials>
+			<horari_de_servei>De dilluns a dijous de 7 a 22h, divendres de 7 a 21h i dissabtes de 9 a 14h. (Els dies:7 febrer. De 14 a 17 abril. 2 maig.23 juny.De 4 agost al 12 set. 31 oct. 22,23,29 i 30 desemb.:Oberta de 7 a 14h)</horari_de_servei>
+			<correu_electr_nic>www.applusiteuve.com</correu_electr_nic>
+			<web url="http://www.applusiteuve.com"/>
+		</row>
+	</row>
+</response>
