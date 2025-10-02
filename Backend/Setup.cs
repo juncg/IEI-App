@@ -294,7 +294,7 @@ public class Setup
                 cmd.Parameters["@cita"].Value = fields.Length > 7 ? fields[7] : "";
                 cmd.Parameters["@email"].Value = fields.Length > 8 ? fields[8] : "";
                 
-                // store zz full string in coordinates
+                // store full string in coordinates
                 string coords = fields.Length > 9 ? fields[9] : "";
                 cmd.Parameters["@coordenadas"].Value = coords;
                 
