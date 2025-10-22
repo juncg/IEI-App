@@ -81,7 +81,7 @@ public class Setup
                 HORARIO TEXT,
                 SOLICITUD_CITA_PREVIA TEXT,
                 EMAIL TEXT,
-                COORDENADAS_GGOGLE_MAPS TEXT,
+                COORDENADAS_GOOGLE_MAPS TEXT,
                 LATITUD TEXT,
                 LONGITUD TEXT
             );";
@@ -255,7 +255,7 @@ public class Setup
             cmd.CommandText = @"
                 INSERT INTO ESTACIONES_CSV 
                 (ESTACION, ENDEREZO, CONCELLO, CODIGO_POSTAL, PROVINCIA, TELEFONO, HORARIO, 
-                 SOLICITUD_CITA_PREVIA, EMAIL, COORDENADAS_GGOGLE_MAPS, LATITUD, LONGITUD)
+                 SOLICITUD_CITA_PREVIA, EMAIL, COORDENADAS_GOOGLE_MAPS, LATITUD, LONGITUD)
                 VALUES (@estacion, @enderezo, @concello, @codigo, @provincia, @telefono, @horario,
                         @cita, @email, @coordenadas, @latitud, @longitud)";
 
