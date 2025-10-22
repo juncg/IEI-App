@@ -43,10 +43,15 @@ public class Transformations
             {
                 foreach (var item in jsonData.EnumerateArray())
                 {
-                    string province = item.TryGetProperty("PROVINCIA", out var prov) ? prov.GetString() : "";
+                    if (!item.TryGetProperty("PROVINCIA", out var prov)) continue;
+                    string province = prov.GetString();
                     Inserter.InsertProvince(province, conn);
+
+                    if (!item.TryGetProperty("MUNICIPIO", out var mun)) continue;
+                    string locality = mun.GetString();
+                    Inserter.InsertLocality(locality, conn);
+                    
                     // cmd.Parameters["@tipo"].Value = item.TryGetProperty("TIPO ESTACIÓN", out var tipo) ? tipo.GetString() : "";
-                    // cmd.Parameters["@municipio"].Value = item.TryGetProperty("MUNICIPIO", out var mun) ? mun.GetString() : "";
                     // cmd.Parameters["@codigo"].Value = item.TryGetProperty("C.POSTAL", out var cod) ? cod.ToString() : "";
                     // cmd.Parameters["@direccion"].Value = item.TryGetProperty("DIRECCIÓN", out var dir) ? dir.GetString() : "";
                     // cmd.Parameters["@numero"].Value = item.TryGetProperty("Nº ESTACIÓN", out var num) ? num.ToString() : "";

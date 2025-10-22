@@ -21,12 +21,11 @@ public class Inserter
         return (int)id;
     }
 
-    public static int InsertLocality(string name, int provinceCode, SqliteConnection conn)
+    public static int InsertLocality(string name, SqliteConnection conn)
     {
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "INSERT INTO Localidad (nombre, codigo_provincia) VALUES (@name, @province_code); SELECT last_insert_rowid();";
         cmd.Parameters.AddWithValue("@name", name);
-        cmd.Parameters.AddWithValue("@province_code", provinceCode);
         long id = (long)cmd.ExecuteScalar();
         return (int)id;
     }
@@ -70,7 +69,7 @@ public class Inserter
 
                     if (!localityDict.ContainsKey(municipio))
                     {
-                        int localidadId = InsertLocality(municipio, provinceDict[provincia], conn);
+                        int localidadId = InsertLocality(municipio, conn);
                         localityDict[municipio] = localidadId;
                         Console.WriteLine($"Inserted locality: {municipio} with ID: {localidadId}");
                     }
