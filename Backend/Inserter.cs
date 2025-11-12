@@ -8,6 +8,7 @@ using CsvHelper;
 using System.Globalization;
 using Microsoft.Data.Sqlite;
 using System.Linq;
+using Backend.Models;
 
 namespace Backend.Inserter;
 
@@ -26,6 +27,16 @@ public class Inserter
     {
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "INSERT INTO Localidad (nombre, codigo_provincia) VALUES (@name, @province_code); SELECT last_insert_rowid();";
+        cmd.Parameters.AddWithValue("@name", name);
+        cmd.Parameters.AddWithValue("@province_code", provinceCode);
+        long id = (long)cmd.ExecuteScalar();
+        return (int)id;
+    }
+
+    static int InsertStation(string name, int code, StationType type, string address, string postal_code, double longitude, SqliteConnection conn)
+    {
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "INSERT INTO Estacion (nombre, codigo_provincia) VALUES (@name, @province_code); SELECT last_insert_rowid();";
         cmd.Parameters.AddWithValue("@name", name);
         cmd.Parameters.AddWithValue("@province_code", provinceCode);
         long id = (long)cmd.ExecuteScalar();
