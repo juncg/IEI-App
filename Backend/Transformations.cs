@@ -14,11 +14,179 @@ public class Transformations
 {
     public static void Main(string[] args)
     {
+        // convert any xml/csv files in the info folder to .json first
+        ConvertFileToJson("info");
+
         string dbPath = "Data Source=databases/iei.db;";
         using var conn = new SqliteConnection(dbPath);
         conn.Open();
 
         InsertJsonData(conn, args[0]);
+    }
+
+    static void ConvertFileToJson(string folderPath = "info")
+    {
+        if (!Directory.Exists(folderPath))
+        {
+            Console.WriteLine($"Folder not found: {folderPath}");
+            return;
+        }
+
+        var csvFiles = Directory.GetFiles(folderPath, "*.csv", SearchOption.TopDirectoryOnly);
+        var xmlFiles = Directory.GetFiles(folderPath, "*.xml", SearchOption.TopDirectoryOnly);
+
+        foreach (var csv in csvFiles)
+        {
+            try
+            {
+                var jsonPath = Path.ChangeExtension(csv, ".json");
+                // if a json already exists, skip conversion
+                if (File.Exists(jsonPath))
+                {
+                    Console.WriteLine($"JSON already exists for {Path.GetFileName(csv)} - skipping.");
+                    continue;
+                }
+
+                ConvertCsvFileToJson(csv, jsonPath);
+                Console.WriteLine($"Converted CSV -> JSON: {Path.GetFileName(csv)} -> {Path.GetFileName(jsonPath)}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting CSV {csv}: {ex.Message}");
+            }
+        }
+
+        foreach (var xml in xmlFiles)
+        {
+            try
+            {
+                var jsonPath = Path.ChangeExtension(xml, ".json");
+                if (File.Exists(jsonPath))
+                {
+                    Console.WriteLine($"JSON already exists for {Path.GetFileName(xml)} - skipping.");
+                    continue;
+                }
+
+                ConvertXmlFileToJson(xml, jsonPath);
+                Console.WriteLine($"Converted XML -> JSON: {Path.GetFileName(xml)} -> {Path.GetFileName(jsonPath)}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting XML {xml}: {ex.Message}");
+            }
+        }
+    }
+
+    static void ConvertCsvFileToJson(string csvPath, string jsonPath)
+    {
+        // assume semicolon separated and ISO-8859-1 encoding as in existing code
+        var lines = File.ReadAllLines(csvPath, Encoding.GetEncoding("ISO-8859-1"));
+        if (lines.Length == 0)
+        {
+            File.WriteAllText(jsonPath, "[]", Encoding.UTF8);
+            return;
+        }
+
+        var headers = lines[0].Split(';').Select(h => SanitizeHeader(h)).ToArray();
+        var result = new List<Dictionary<string, string>>();
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(lines[i]))
+                continue;
+
+            var fields = lines[i].Split(';');
+            var obj = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int j = 0; j < headers.Length; j++)
+            {
+                var key = headers[j];
+                var val = j < fields.Length ? fields[j] : "";
+                obj[key] = val;
+            }
+
+            result.Add(obj);
+        }
+
+        var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(jsonPath, json, Encoding.UTF8);
+    }
+
+    static void ConvertXmlFileToJson(string xmlPath, string jsonPath)
+    {
+        var doc = XDocument.Load(xmlPath);
+
+        // try to find repeating "row" elements; fall back to top-level elements if none
+        var rows = doc.Descendants("row").ToList();
+        if (rows.Count == 0)
+        {
+            // if no <row>, try to pick the first level of child elements under the root
+            rows = doc.Root != null ? doc.Root.Elements().ToList() : new List<XElement>();
+        }
+
+        var result = new List<Dictionary<string, object>>();
+
+        foreach (var row in rows)
+        {
+            var obj = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+            // include attributes on the row itself (prefixed with @)
+            foreach (var attr in row.Attributes())
+                obj[$"@{attr.Name.LocalName}"] = attr.Value;
+
+            // include child elements
+            foreach (var child in row.Elements())
+            {
+                // if element has child elements, produce nested object/array
+                if (child.HasElements)
+                {
+                    // simple conversion: map child element names to their string values or nested dictionaries
+                    var nested = new Dictionary<string, object>();
+                    foreach (var sub in child.Elements())
+                        nested[sub.Name.LocalName] = sub.HasElements ? (object)sub.Elements().ToDictionary(e => e.Name.LocalName, e => (object)e.Value) : sub.Value;
+
+                    obj[child.Name.LocalName] = nested;
+                }
+                else
+                {
+                    // include attributes for the element, if any
+                    if (child.HasAttributes)
+                    {
+                        var container = new Dictionary<string, object>();
+                        foreach (var a in child.Attributes())
+                            container[$"@{a.Name.LocalName}"] = a.Value;
+
+                        // if element has a value as well, put it under "#text"
+                        if (!string.IsNullOrEmpty(child.Value))
+                            container["#text"] = child.Value;
+
+                        obj[child.Name.LocalName] = container;
+                    }
+                    else
+                    {
+                        obj[child.Name.LocalName] = child.Value;
+                    }
+                }
+            }
+
+            result.Add(obj);
+        }
+
+        var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(jsonPath, json, Encoding.UTF8);
+    }
+
+    static string SanitizeHeader(string header)
+    {
+        if (string.IsNullOrWhiteSpace(header))
+            return "_unknown";
+
+        var s = header.Trim();
+        // remove BOM or stray characters
+        s = s.Trim('\uFEFF', '\u200B');
+        // replace spaces with underscore
+        s = string.Join("_", s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+        return s;
     }
 
     static void InsertJsonData(SqliteConnection conn, string filePath)
