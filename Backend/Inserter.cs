@@ -33,12 +33,42 @@ public class Inserter
         return (int)id;
     }
 
-    static int InsertStation(string name, int code, StationType type, string address, string postal_code, double longitude, SqliteConnection conn)
+    static int InsertStation(Station station, SqliteConnection conn)
     {
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO Estacion (nombre, codigo_provincia) VALUES (@name, @province_code); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@name", name);
-        cmd.Parameters.AddWithValue("@province_code", provinceCode);
+        cmd.CommandText = @"
+            INSERT INTO Estacion
+                (codigo, nombre, tipo, direccion, codigo_postal, longitud, latitud, descripcion, horario, contacto, url, codigo_localidad)
+            VALUES
+                (@codigo, @nombre, @tipo, @direccion, @codigo_postal, @longitud, @latitud, @descripcion, @horario, @contacto, @url, @codigo_localidad);
+            SELECT last_insert_rowid();";
+
+        cmd.Parameters.AddWithValue("@codigo", station.code);
+        cmd.Parameters.AddWithValue("@nombre", station.name ?? string.Empty);
+        cmd.Parameters.AddWithValue("@tipo", station.type.ToString());
+        cmd.Parameters.AddWithValue("@direccion", station.address ?? string.Empty);
+        cmd.Parameters.AddWithValue("@codigo_postal", station.postal_code ?? string.Empty);
+
+        if (station.longitude.HasValue)
+            cmd.Parameters.AddWithValue("@longitud", station.longitude.Value);
+        else
+            cmd.Parameters.AddWithValue("@longitud", DBNull.Value);
+
+        if (station.latitude.HasValue)
+            cmd.Parameters.AddWithValue("@latitud", station.latitude.Value);
+        else
+            cmd.Parameters.AddWithValue("@latitud", DBNull.Value);
+
+        cmd.Parameters.AddWithValue("@descripcion", station.description ?? string.Empty);
+        cmd.Parameters.AddWithValue("@horario", station.schedule ?? string.Empty);
+        cmd.Parameters.AddWithValue("@contacto", station.contact ?? string.Empty);
+        cmd.Parameters.AddWithValue("@url", station.url ?? string.Empty);
+
+        if (station.locality_code != 0)
+            cmd.Parameters.AddWithValue("@codigo_localidad", station.locality_code);
+        else
+            cmd.Parameters.AddWithValue("@codigo_localidad", DBNull.Value);
+
         long id = (long)cmd.ExecuteScalar();
         return (int)id;
     }

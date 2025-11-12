@@ -95,3 +95,14 @@ C:\Users\JC\Desktop\Studs\IEI-App\IEI-App\Backend\bin\Debug\net8.0\runtimes\win-
 C:\Users\JC\Desktop\Studs\IEI-App\IEI-App\Backend\bin\Debug\net8.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\JC\Desktop\Studs\IEI-App\IEI-App\Backend\bin\Debug\net8.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\JC\Desktop\Studs\IEI-App\IEI-App\Backend\bin\Debug\net8.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.csproj.AssemblyReference.cache
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.AssemblyInfoInputs.cache
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.AssemblyInfo.cs
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.csproj.CoreCompileInputs.cache
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.sourcelink.json
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.dll
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\refint\Backend.dll
+C:\Users\Carlos\Documents\Repositories\IEI-App\Backend\obj\Debug\net8.0\Backend.pdb
