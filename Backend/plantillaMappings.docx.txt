@@ -1,0 +1,387 @@
+﻿INTEGRACIÓN E INTEROPERABILIDAD. CURSO 2025-26
+		PLANTILLA DE DEFINICIÓN DE MAPPING SEMÁNTICO
+	Equipo de prácticas: M1.01
+	
+
+
+
+Esquema origen: CV (json)
+E = Estación L = Localidad P = Provincia
+
+
+Dato esquema global
+	Dato(s) esquema origen 
+	Transformación(es)
+	Comentarios
+	E.cod_estacion
+	Nº ESTACIÓN
+	Autogenerar
+	
+
+	E.nombre
+	
+
+	Estación ITV de + “Nombre” (si no tiene, municipio) + código estación
+	
+
+	E.tipo = “Estación_fija”
+	TIPO ESTACIÓN 
+	TIPO ESTACIÓN = “Estación_fija”
+	
+
+	E.tipo = “Estación_movil”
+	TIPO ESTACIÓN
+	TIPO ESTACIÓN = “Estación_movil”
+	
+
+	E.tipo = “Otros”
+	TIPO ESTACIÓN
+	TIPO ESTACIÓN = “Otros”
+	
+
+	E.dirección
+	DIRECCIÓN
+	Dirección, sin necesidad de transformar
+	
+
+	E.codigo_postal
+	C.POSTAL
+	Código postal, sin necesidad de transformar
+	
+
+	E.longitud
+	DIRECCIÓN
+	Sacar la longitud a partir de la dirección y el código postal
+	
+
+	E.latitud
+	DIRECCIÓN
+	Sacar la latitud a partir de la dirección y el código postal
+	
+
+	E.descripcion
+	—
+	Se deja vacía ya que no es crítica
+	
+
+	E.horario
+	HORARIOS
+	No lo transformamos
+	
+
+	E.contacto
+	CORREO
+	Correo, sin necesidad de transformar
+	
+
+	E.URL
+	
+
+	Dejarlo como https://sitval.com
+	
+
+	
+
+	
+
+	
+
+	
+
+	L.codigo
+	C.POSTAL
+	Autogenerar
+	
+
+	L.nombre
+	MUNICIPIO
+	Nombre, sin necesidad de transformar
+	
+
+	
+
+	
+
+	
+
+	
+
+	P.codigo
+	
+
+	Autogenerar
+	
+
+	P.nombre 
+
+
+	PROVINCIA
+	Nombre, sin necesidad de transformar
+	
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Esquema origen: GAL (csv)
+E = Estación L = Localidad P = Provincia
+
+
+Dato esquema global
+	Dato(s) esquema origen 
+	Transformación(es)
+	Comentarios
+	E.cod_estacion
+	—
+	Autogenerar
+	
+
+	E.nombre
+	NOME DA ESTACIÓN
+	Estación ITV de + “Nombre” (si no tiene, municipio) + código estación
+	
+
+	E.tipo = “Estación_fija”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.tipo = “Estación_movil”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.tipo = “Otros”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.dirección
+	ENDEREZO
+	Dirección, sin necesidad de transformar
+	
+
+	E.codigo_postal
+	CÓDIGO POSTAL
+	Código postal, sin necesidad de transformar
+	
+
+	E.longitud
+	Primera columna después de COORDENADAS GMAPS
+	Número que precede el º + (el decimal que precede el ‘ / 60)
+	
+
+	E.latitud
+	Segunda columna después de COORDENADAS GMAPS
+	Número que precede el º + (el decimal que precede el ‘ / 60)
+	
+
+	E.descripcion
+	—
+	Se deja vacía ya que no es crítica
+	
+
+	E.horario
+	HORARIO
+	No lo transformamos
+	
+
+	E.contacto
+	CORREO ELECTRÓNICO, TELÉFONO
+	Se concatena la información de ambos datos en un solo string
+	
+
+	E.URL
+	SOLICITUDE DE CITA PREVIA
+	Url, sin necesidad de transformar
+	
+
+	
+
+	
+
+	
+
+	
+
+	L.codigo
+	
+
+	Autogenerar
+	
+
+	L.nombre
+	CONCELLO
+	Nombre, sin necesidad de transformar
+	
+
+	
+
+	
+
+	
+
+	
+
+	P.codigo
+	
+
+	Autogenerar
+	
+
+	P.nombre 
+
+
+	PROVINCIA
+	Nombre, sin necesidad de transformar
+	
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Esquema origen: CAT (xml)
+E = Estación L = Localidad P = Provincia
+
+
+Dato esquema global
+	Dato(s) esquema origen 
+	Transformación(es)
+	Comentarios
+	E.cod_estacion
+	ESTACION
+	Autogenerar
+	
+
+	E.nombre
+	DENOMINACION
+	Estación ITV de + “Nombre” (si no tiene, municipio) + código estación
+	
+
+	E.tipo = “Estación_fija”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.tipo = “Estación_movil”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.tipo = “Otros”
+	
+
+	Todas a “Estación_fija”
+	
+
+	E.dirección
+	DIRECCION
+	Dirección, sin necesidad de transformar
+	
+
+	E.codigo_postal
+	CODIGO POSTAL
+	Código postal, sin necesidad de transformar
+	
+
+	E.longitud
+	LONGITUD
+	LONGITUD / 100000
+	
+
+	E.latitud
+	LATITUD
+	LATITUD / 100000
+	
+
+	E.descripcion
+	—
+	Se deja vacía ya que no es crítica
+	
+
+	E.horario
+	HORARIO
+	No lo transformamos
+	
+
+	E.contacto
+	EMAIL
+	Email, sin necesidad de transformar
+	
+
+	E.URL
+	WEB
+	Url, sin necesidad de transformar
+	
+
+	
+
+	
+
+	
+
+	
+
+	L.codigo
+	CODIGO MUNICIPIO
+	Autogenerar
+	
+
+	L.nombre
+	MUNICIPIO
+	Nombre, sin necesidad de transformar
+	
+
+	
+
+	
+
+	
+
+	
+
+	P.código
+	
+
+	Autogenerar
+	
+
+	P.nombre*
+	SERVICIOS TERRITORIALES
+	Nombre después de comprobar si es una provincia
+	Si el elemento no es una provincia, dejarlo vacío

@@ -13,7 +13,7 @@ public class Setup
 {
     public static void Main(string[] args)
     {
-        string dbPath = "Data Source=databases/iei.db;";
+        string dbPath = "Data Source=databases/iei2.db;";
         using var conn = new SqliteConnection(dbPath);
         conn.Open();
 

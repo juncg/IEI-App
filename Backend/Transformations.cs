@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
-using CsvHelper;
 using System.Globalization;
 using Microsoft.Data.Sqlite;
 using System.Linq;
@@ -239,186 +238,284 @@ public class Transformations
         }
     }
 
-    static void InsertXmlData(SqliteConnection conn, string filePath)
+    static void Mapper(SqliteConnection conn, string filePath)
     {
-        if (!File.Exists(filePath))
+        if (!Directory.Exists(filePath))
         {
-            Console.WriteLine($"XML file not found: {filePath}");
+            Console.WriteLine($"Directory not found: {filePath}");
             return;
         }
 
         try
         {
-            var doc = XDocument.Load(filePath);
-            var elements = doc.Descendants("row").Where(r => r.Attribute("_id") != null).ToList();
+            var jsonFiles = Directory.GetFiles(filePath, "*.json", SearchOption.TopDirectoryOnly);
+            int stationCounter = 1;
+            int locationCounter = 1;
+            int provinceCounter = 1;
 
-            Console.WriteLine($"Found {elements.Count} station records in XML");
-
-            if (elements.Count == 0)
+            foreach (var jsonFile in jsonFiles)
             {
-                Console.WriteLine("Could not find any suitable elements in XML");
-                return;
+                string fileName = Path.GetFileName(jsonFile).ToLower();
+                string jsonContent = File.ReadAllText(jsonFile);
+                var jsonData = JsonSerializer.Deserialize<JsonElement>(jsonContent);
+
+                var mappedData = new List<object>();
+
+                if (jsonData.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in jsonData.EnumerateArray())
+                    {
+                        object mappedItem = null;
+
+                        // Detect source type based on field names
+                        if (item.TryGetProperty("PROVINCIA", out _) && item.TryGetProperty("Nº ESTACIÓN", out _))
+                        {
+                            // CV (Comunidad Valenciana) source
+                            mappedItem = MapCVData(item, ref stationCounter, ref locationCounter, ref provinceCounter);
+                        }
+                        else if (item.TryGetProperty("NOME DA ESTACIÓN", out _) || item.TryGetProperty("COORDENADAS GMAPS", out _))
+                        {
+                            // GAL (Galicia) source
+                            mappedItem = MapGALData(item, ref stationCounter, ref locationCounter, ref provinceCounter);
+                        }
+                        else if (item.TryGetProperty("ESTACION", out _) || item.TryGetProperty("DENOMINACION", out _))
+                        {
+                            // CAT (Catalunya) source
+                            mappedItem = MapCATData(item, ref stationCounter, ref locationCounter, ref provinceCounter);
+                        }
+
+                        if (mappedItem != null)
+                        {
+                            mappedData.Add(mappedItem);
+                        }
+                    }
+                }
+
+                // Write mapped data to output directory
+                string outputDir = Path.Combine(filePath, "mapped");
+                Directory.CreateDirectory(outputDir);
+                string outputFile = Path.Combine(outputDir, $"mapped_{Path.GetFileName(jsonFile)}");
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string mappedJson = JsonSerializer.Serialize(mappedData, options);
+                File.WriteAllText(outputFile, mappedJson);
             }
 
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"
-                INSERT INTO ESTACIONES_XML 
-                (ESTACION, DENOMINACION, OPERADOR, DIRECCION, CODIGO_POSTAL, MUNICIPIO, CODIGO_MUNICIPIO, 
-                 LATITUD, LONGITUD, COLUMNA_GEOCODIFICADA, LOCALIZADOR_GOOGLE_MAPS, SERVICIOS_TERRITORIALES, 
-                 HORARIO_SERVICIO, EMAIL, WEB)
-                VALUES (@estacion, @denominacion, @operador, @direccion, @codigo, @municipio, @codigoMun,
-                        @latitud, @longitud, @columna, @localizador, @servicios, @horario, @email, @web)";
-
-            cmd.Parameters.AddWithValue("@estacion", "");
-            cmd.Parameters.AddWithValue("@denominacion", "");
-            cmd.Parameters.AddWithValue("@operador", "");
-            cmd.Parameters.AddWithValue("@direccion", "");
-            cmd.Parameters.AddWithValue("@codigo", "");
-            cmd.Parameters.AddWithValue("@municipio", "");
-            cmd.Parameters.AddWithValue("@codigoMun", "");
-            cmd.Parameters.AddWithValue("@latitud", "");
-            cmd.Parameters.AddWithValue("@longitud", "");
-            cmd.Parameters.AddWithValue("@columna", "");
-            cmd.Parameters.AddWithValue("@localizador", "");
-            cmd.Parameters.AddWithValue("@servicios", "");
-            cmd.Parameters.AddWithValue("@horario", "");
-            cmd.Parameters.AddWithValue("@email", "");
-            cmd.Parameters.AddWithValue("@web", "");
-
-            int recordsInserted = 0;
-
-            foreach (var element in elements)
-            {
-                cmd.Parameters["@estacion"].Value = element.Element("estaci")?.Value ?? "";
-                cmd.Parameters["@denominacion"].Value = element.Element("denominaci")?.Value ?? "";
-                cmd.Parameters["@operador"].Value = element.Element("operador")?.Value ?? "";
-                cmd.Parameters["@direccion"].Value = element.Element("adre_a")?.Value ?? "";
-                cmd.Parameters["@codigo"].Value = element.Element("cp")?.Value ?? "";
-                cmd.Parameters["@municipio"].Value = element.Element("municipi")?.Value ?? "";
-                cmd.Parameters["@codigoMun"].Value = element.Element("codi_municipi")?.Value ?? "";
-                cmd.Parameters["@latitud"].Value = element.Element("lat")?.Value ?? "";
-                cmd.Parameters["@longitud"].Value = element.Element("long")?.Value ?? "";
-                cmd.Parameters["@columna"].Value = element.Element("geocoded_column")?.Value ?? "";
-                cmd.Parameters["@localizador"].Value = element.Element("localitzador_a_google_maps")?.Attribute("url")?.Value ?? "";
-                cmd.Parameters["@servicios"].Value = element.Element("serveis_territorials")?.Value ?? "";
-                cmd.Parameters["@horario"].Value = element.Element("horari_de_servei")?.Value ?? "";
-                cmd.Parameters["@email"].Value = element.Element("correu_electr_nic")?.Value ?? "";
-                cmd.Parameters["@web"].Value = element.Element("web")?.Attribute("url")?.Value ?? "";
-
-                cmd.ExecuteNonQuery();
-                recordsInserted++;
-            }
-
-            Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_XML");
+            Console.WriteLine($"Successfully mapped {jsonFiles.Length} JSON files.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error processing XML: {ex.Message}");
+            Console.WriteLine($"Error processing directory: {ex.Message}");
             Console.WriteLine(ex.StackTrace);
         }
     }
 
-    static void InsertCsvData(SqliteConnection conn, string filePath)
+    static object MapCVData(JsonElement item, ref int stationCounter, ref int locationCounter, ref int provinceCounter)
     {
-        if (!File.Exists(filePath))
-        {
-            Console.WriteLine($"CSV file not found: {filePath}");
-            return;
-        }
+        string tipoEstacion = item.TryGetProperty("TIPO ESTACIÓN", out var tipo) ? tipo.GetString() : "";
+        string municipio = item.TryGetProperty("MUNICIPIO", out var mun) ? mun.GetString() : "";
+        string numeroEstacion = item.TryGetProperty("Nº ESTACIÓN", out var num) ? num.GetString() : "";
 
-        try
-        {
-            string[] lines = File.ReadAllLines(filePath, Encoding.GetEncoding("ISO-8859-1"));
+        string nombre = string.IsNullOrEmpty(municipio) ?
+            $"Estación ITV de {numeroEstacion}" :
+            $"Estación ITV de {municipio} {numeroEstacion}";
 
-            if (lines.Length == 0)
+        return new
+        {
+            Estacion = new
             {
-                Console.WriteLine("CSV file is empty");
-                return;
-            }
-
-            string[] headers = lines[0].Split(';');
-            Console.WriteLine($"CSV has {headers.Length} columns: {string.Join(", ", headers)}");
-
-            using var cmd = conn.CreateCommand();
-            cmd.CommandText = @"
-                INSERT INTO ESTACIONES_CSV 
-                (ESTACION, ENDEREZO, CONCELLO, CODIGO_POSTAL, PROVINCIA, TELEFONO, HORARIO, 
-                 SOLICITUD_CITA_PREVIA, EMAIL, COORDENADAS_GOOGLE_MAPS, LATITUD, LONGITUD)
-                VALUES (@estacion, @enderezo, @concello, @codigo, @provincia, @telefono, @horario,
-                        @cita, @email, @coordenadas, @latitud, @longitud)";
-
-            cmd.Parameters.AddWithValue("@estacion", "");
-            cmd.Parameters.AddWithValue("@enderezo", "");
-            cmd.Parameters.AddWithValue("@concello", "");
-            cmd.Parameters.AddWithValue("@codigo", "");
-            cmd.Parameters.AddWithValue("@provincia", "");
-            cmd.Parameters.AddWithValue("@telefono", "");
-            cmd.Parameters.AddWithValue("@horario", "");
-            cmd.Parameters.AddWithValue("@cita", "");
-            cmd.Parameters.AddWithValue("@email", "");
-            cmd.Parameters.AddWithValue("@coordenadas", "");
-            cmd.Parameters.AddWithValue("@latitud", "");
-            cmd.Parameters.AddWithValue("@longitud", "");
-
-            int recordsInserted = 0;
-
-            for (int i = 1; i < lines.Length; i++)
+                cod_estacion = stationCounter++,
+                nombre = nombre,
+                tipo = MapTipoEstacion(tipoEstacion),
+                direccion = item.TryGetProperty("DIRECCIÓN", out var dir) ? dir.GetString() : "",
+                codigo_postal = item.TryGetProperty("C.POSTAL", out var cp) ? cp.GetString() : "",
+                longitud = "", // TODO: Geocode from address
+                latitud = "", // TODO: Geocode from address
+                descripcion = "",
+                horario = item.TryGetProperty("HORARIOS", out var hor) ? hor.GetString() : "",
+                contacto = item.TryGetProperty("CORREO", out var cor) ? cor.GetString() : "",
+                url = "https://sitval.com"
+            },
+            Localidad = new
             {
-                if (string.IsNullOrWhiteSpace(lines[i]))
-                    continue;
-
-                string[] fields = lines[i].Split(';');
-
-                cmd.Parameters["@estacion"].Value = fields.Length > 0 ? fields[0] : "";
-                cmd.Parameters["@enderezo"].Value = fields.Length > 1 ? fields[1] : "";
-                cmd.Parameters["@concello"].Value = fields.Length > 2 ? fields[2] : "";
-                cmd.Parameters["@codigo"].Value = fields.Length > 3 ? fields[3] : "";
-                cmd.Parameters["@provincia"].Value = fields.Length > 4 ? fields[4] : "";
-                cmd.Parameters["@telefono"].Value = fields.Length > 5 ? fields[5] : "";
-                cmd.Parameters["@horario"].Value = fields.Length > 6 ? fields[6] : "";
-                cmd.Parameters["@cita"].Value = fields.Length > 7 ? fields[7] : "";
-                cmd.Parameters["@email"].Value = fields.Length > 8 ? fields[8] : "";
-
-                string coords = fields.Length > 9 ? fields[9] : "";
-                cmd.Parameters["@coordenadas"].Value = coords;
-
-                if (!string.IsNullOrEmpty(coords))
-                {
-                    string[] parts = coords.Split(',');
-                    cmd.Parameters["@latitud"].Value = parts.Length > 0 ? parts[0].Trim() : "";
-                    cmd.Parameters["@longitud"].Value = parts.Length > 1 ? parts[1].Trim() : "";
-                }
-                else
-                {
-                    cmd.Parameters["@latitud"].Value = "";
-                    cmd.Parameters["@longitud"].Value = "";
-                }
-
-                cmd.ExecuteNonQuery();
-                recordsInserted++;
+                codigo = locationCounter++,
+                nombre = municipio
+            },
+            Provincia = new
+            {
+                codigo = provinceCounter++,
+                nombre = item.TryGetProperty("PROVINCIA", out var prov) ? prov.GetString() : ""
             }
-
-            Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_CSV");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error processing CSV: {ex.Message}");
-            Console.WriteLine(ex.StackTrace);
-        }
+        };
     }
 
-    static string GetFieldByIndex(CsvReader csv, int index)
+    static object MapGALData(JsonElement item, ref int stationCounter, ref int locationCounter, ref int provinceCounter)
     {
-        if (index < 0 || index >= csv.Parser.Count)
-            return "";
+        string nombreEstacion = item.TryGetProperty("NOME DA ESTACIÓN", out var nom) ? nom.GetString() : "";
+        string concello = item.TryGetProperty("CONCELLO", out var con) ? con.GetString() : "";
+
+        string nombre = string.IsNullOrEmpty(nombreEstacion) ?
+            $"Estación ITV de {concello}" :
+            $"Estación ITV de {nombreEstacion}";
+
+        // Parse coordinates: "42º 52' 47'' N 8º 32' 44'' O"
+        string coordenadas = item.TryGetProperty("COORDENADAS GMAPS", out var coord) ? coord.GetString() : "";
+        var (latitud, longitud) = ParseGaliciaCoordinates(coordenadas);
+
+        string correo = item.TryGetProperty("CORREO ELECTRÓNICO", out var email) ? email.GetString() : "";
+        string telefono = item.TryGetProperty("TELÉFONO", out var tel) ? tel.GetString() : "";
+        string contacto = string.IsNullOrEmpty(correo) ? telefono :
+                          string.IsNullOrEmpty(telefono) ? correo :
+                          $"{correo}, {telefono}";
+
+        return new
+        {
+            Estacion = new
+            {
+                cod_estacion = stationCounter++,
+                nombre = nombre,
+                tipo = "Estación_fija",
+                direccion = item.TryGetProperty("ENDEREZO", out var end) ? end.GetString() : "",
+                codigo_postal = item.TryGetProperty("CÓDIGO POSTAL", out var cp) ? cp.GetString() : "",
+                longitud = longitud,
+                latitud = latitud,
+                descripcion = "",
+                horario = item.TryGetProperty("HORARIO", out var hor) ? hor.GetString() : "",
+                contacto = contacto,
+                url = item.TryGetProperty("SOLICITUDE DE CITA PREVIA", out var url) ? url.GetString() : ""
+            },
+            Localidad = new
+            {
+                codigo = locationCounter++,
+                nombre = concello
+            },
+            Provincia = new
+            {
+                codigo = provinceCounter++,
+                nombre = item.TryGetProperty("PROVINCIA", out var prov) ? prov.GetString() : ""
+            }
+        };
+    }
+
+    static object MapCATData(JsonElement item, ref int stationCounter, ref int locationCounter, ref int provinceCounter)
+    {
+        string denominacion = item.TryGetProperty("DENOMINACION", out var denom) ? denom.GetString() : "";
+        string municipio = item.TryGetProperty("MUNICIPIO", out var mun) ? mun.GetString() : "";
+        string estacionId = item.TryGetProperty("ESTACION", out var est) ? est.GetString() : "";
+
+        string nombre = string.IsNullOrEmpty(denominacion) ?
+            $"Estación ITV de {municipio} {estacionId}" :
+            $"Estación ITV de {denominacion} {estacionId}";
+
+        // Parse coordinates (divide by 100000)
+        double longitud = 0, latitud = 0;
+        if (item.TryGetProperty("LONGITUD", out var lon) && lon.TryGetInt64(out long lonValue))
+        {
+            longitud = lonValue / 100000.0;
+        }
+        if (item.TryGetProperty("LATITUD", out var lat) && lat.TryGetInt64(out long latValue))
+        {
+            latitud = latValue / 100000.0;
+        }
+
+        // Check if SERVICIOS TERRITORIALES is a valid province
+        string serviciosTerritoriales = item.TryGetProperty("SERVICIOS TERRITORIALES", out var st) ? st.GetString() : "";
+        string provinciaNombre = IsValidProvince(serviciosTerritoriales) ? serviciosTerritoriales : "";
+
+        return new
+        {
+            Estacion = new
+            {
+                cod_estacion = stationCounter++,
+                nombre = nombre,
+                tipo = "Estación_fija",
+                direccion = item.TryGetProperty("DIRECCION", out var dir) ? dir.GetString() : "",
+                codigo_postal = item.TryGetProperty("CODIGO POSTAL", out var cp) ? cp.GetString() : "",
+                longitud = longitud.ToString(CultureInfo.InvariantCulture),
+                latitud = latitud.ToString(CultureInfo.InvariantCulture),
+                descripcion = "",
+                horario = item.TryGetProperty("HORARIO", out var hor) ? hor.GetString() : "",
+                contacto = item.TryGetProperty("EMAIL", out var email) ? email.GetString() : "",
+                url = item.TryGetProperty("WEB", out var web) ? web.GetString() : ""
+            },
+            Localidad = new
+            {
+                codigo = item.TryGetProperty("CODIGO MUNICIPIO", out var codMun) ? codMun.GetString() : locationCounter++.ToString(),
+                nombre = municipio
+            },
+            Provincia = new
+            {
+                codigo = provinceCounter++,
+                nombre = provinciaNombre
+            }
+        };
+    }
+
+    static string MapTipoEstacion(string tipoOriginal)
+    {
+        if (string.IsNullOrEmpty(tipoOriginal)) return "Estación_fija";
+
+        string tipoLower = tipoOriginal.ToLower();
+        if (tipoLower.Contains("fija")) return "Estación_fija";
+        if (tipoLower.Contains("movil") || tipoLower.Contains("móvil")) return "Estación_movil";
+        return "Otros";
+    }
+
+    static (string latitud, string longitud) ParseGaliciaCoordinates(string coordenadas)
+    {
+        // Example: "42º 52' 47'' N 8º 32' 44'' O"
+        // Formula: degrees + (minutes / 60)
+        if (string.IsNullOrEmpty(coordenadas)) return ("", "");
 
         try
         {
-            return csv.GetField(index) ?? "";
+            var parts = coordenadas.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Parse latitude (first coordinate with N/S)
+            double latDeg = 0, latMin = 0;
+            double lonDeg = 0, lonMin = 0;
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (parts[i].Contains("º"))
+                {
+                    if (i + 2 < parts.Length && (parts[i + 2].Contains("N") || parts[i + 2].Contains("S")))
+                    {
+                        latDeg = double.Parse(parts[i].Replace("º", ""), CultureInfo.InvariantCulture);
+                        latMin = double.Parse(parts[i + 1].Replace("'", ""), CultureInfo.InvariantCulture);
+                    }
+                    else if (i + 2 < parts.Length && (parts[i + 2].Contains("O") || parts[i + 2].Contains("E")))
+                    {
+                        lonDeg = double.Parse(parts[i].Replace("º", ""), CultureInfo.InvariantCulture);
+                        lonMin = double.Parse(parts[i + 1].Replace("'", ""), CultureInfo.InvariantCulture);
+                    }
+                }
+            }
+
+            double lat = latDeg + (latMin / 60.0);
+            double lon = lonDeg + (lonMin / 60.0);
+
+            // Western longitude is negative
+            if (coordenadas.Contains("O")) lon = -lon;
+
+            return (lat.ToString(CultureInfo.InvariantCulture), lon.ToString(CultureInfo.InvariantCulture));
         }
         catch
         {
-            return "";
+            return ("", "");
         }
+    }
+
+    static bool IsValidProvince(string name)
+    {
+        // Check if the name is a known Spanish province
+        var provinces = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Barcelona", "Girona", "Lleida", "Tarragona", "A Coruña", "Lugo", "Ourense", "Pontevedra",
+            "Alicante", "Castellón", "Valencia", "Madrid", "Sevilla", "Málaga", "Cádiz", "Córdoba"
+            // Add more provinces as needed
+        };
+
+        return provinces.Contains(name);
     }
 }
