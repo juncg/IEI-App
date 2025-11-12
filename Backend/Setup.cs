@@ -13,7 +13,7 @@ public class Setup
 {
     public static void Main(string[] args)
     {
-        string dbPath = "Data Source=databases/iei.db;";
+        string dbPath = "Data Source=databases/iei2.db;";
         using var conn = new SqliteConnection(dbPath);
         conn.Open();
 
@@ -26,14 +26,14 @@ public class Setup
     static void CreateTables(SqliteConnection conn)
     {
         using var cmd = conn.CreateCommand();
-        
+
         cmd.CommandText = @"
             DROP TABLE IF EXISTS ESTACIONES_JSON;
             DROP TABLE IF EXISTS ESTACIONES_XML;
             DROP TABLE IF EXISTS ESTACIONES_CSV;
         ";
         cmd.ExecuteNonQuery();
-        
+
         cmd.CommandText = @"
             CREATE TABLE IF NOT EXISTS ESTACIONES_JSON (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,7 +47,7 @@ public class Setup
                 CORREO TEXT
             );";
         cmd.ExecuteNonQuery();
-        
+
         cmd.CommandText = @"
             CREATE TABLE IF NOT EXISTS ESTACIONES_XML (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,7 +68,7 @@ public class Setup
                 WEB TEXT
             );";
         cmd.ExecuteNonQuery();
-        
+
         cmd.CommandText = @"
             CREATE TABLE IF NOT EXISTS ESTACIONES_CSV (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,12 +131,12 @@ public class Setup
                     cmd.Parameters["@numero"].Value = item.TryGetProperty("Nº ESTACIÓN", out var num) ? num.ToString() : "";
                     cmd.Parameters["@horario"].Value = item.TryGetProperty("HORARIOS", out var hor) ? hor.GetString() : "";
                     cmd.Parameters["@correo"].Value = item.TryGetProperty("CORREO", out var cor) ? cor.GetString() : "";
-                    
+
                     cmd.ExecuteNonQuery();
                     recordsInserted++;
                 }
             }
-            
+
             Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_JSON");
         }
         catch (Exception ex)
@@ -157,12 +157,12 @@ public class Setup
         try
         {
             var doc = XDocument.Load(filePath);
-            
+
             // target nested row elements inside the outer container row
             var elements = doc.Descendants("row").Where(r => r.Attribute("_id") != null).ToList();
-            
+
             Console.WriteLine($"Found {elements.Count} station records in XML");
-            
+
             if (elements.Count == 0)
             {
                 Console.WriteLine("Could not find any suitable elements in XML");
@@ -195,7 +195,7 @@ public class Setup
             cmd.Parameters.AddWithValue("@web", "");
 
             int recordsInserted = 0;
-            
+
             // map to correct field names in the XML
             foreach (var element in elements)
             {
@@ -214,11 +214,11 @@ public class Setup
                 cmd.Parameters["@horario"].Value = element.Element("horari_de_servei")?.Value ?? "";
                 cmd.Parameters["@email"].Value = element.Element("correu_electr_nic")?.Value ?? "";
                 cmd.Parameters["@web"].Value = element.Element("web")?.Attribute("url")?.Value ?? "";
-                
+
                 cmd.ExecuteNonQuery();
                 recordsInserted++;
             }
-            
+
             Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_XML");
         }
         catch (Exception ex)
@@ -240,17 +240,17 @@ public class Setup
         {
             // handle semicolon separated format
             string[] lines = File.ReadAllLines(filePath, Encoding.GetEncoding("ISO-8859-1")); // encoding for accents
-            
+
             if (lines.Length == 0)
             {
                 Console.WriteLine("CSV file is empty");
                 return;
             }
-            
+
             // get column headers
             string[] headers = lines[0].Split(';');
             Console.WriteLine($"CSV has {headers.Length} columns: {string.Join(", ", headers)}");
-            
+
             using var cmd = conn.CreateCommand();
             cmd.CommandText = @"
                 INSERT INTO ESTACIONES_CSV 
@@ -273,16 +273,16 @@ public class Setup
             cmd.Parameters.AddWithValue("@longitud", "");
 
             int recordsInserted = 0;
-            
+
             // skip the header while processing lines
             for (int i = 1; i < lines.Length; i++)
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
-                    
+
                 // semicolon split
                 string[] fields = lines[i].Split(';');
-                
+
                 // map fields to columns using direct indexing
                 cmd.Parameters["@estacion"].Value = fields.Length > 0 ? fields[0] : "";
                 cmd.Parameters["@enderezo"].Value = fields.Length > 1 ? fields[1] : "";
@@ -293,11 +293,11 @@ public class Setup
                 cmd.Parameters["@horario"].Value = fields.Length > 6 ? fields[6] : "";
                 cmd.Parameters["@cita"].Value = fields.Length > 7 ? fields[7] : "";
                 cmd.Parameters["@email"].Value = fields.Length > 8 ? fields[8] : "";
-                
+
                 // store full string in coordinates
                 string coords = fields.Length > 9 ? fields[9] : "";
                 cmd.Parameters["@coordenadas"].Value = coords;
-                
+
                 // parse lat/long from the coordinates field if possible because of different formats
                 if (!string.IsNullOrEmpty(coords))
                 {
@@ -310,11 +310,11 @@ public class Setup
                     cmd.Parameters["@latitud"].Value = "";
                     cmd.Parameters["@longitud"].Value = "";
                 }
-                
+
                 cmd.ExecuteNonQuery();
                 recordsInserted++;
             }
-            
+
             Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_CSV");
         }
         catch (Exception ex)
@@ -328,7 +328,7 @@ public class Setup
     {
         if (index < 0 || index >= csv.Parser.Count)
             return "";
-            
+
         try
         {
             return csv.GetField(index) ?? "";
