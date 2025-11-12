@@ -14,83 +14,104 @@ public class Transformations
 {
     public static void Main(string[] args)
     {
-        // convert any xml/csv files in the info folder to .json first
-        ConvertFileToJson("info");
+        // Ejemplo de uso
+        ConvertToJson("info/archivo.csv");
+        ConvertToJson("info/archivo.xml");
 
-        string dbPath = "Data Source=databases/iei.db;";
-        using var conn = new SqliteConnection(dbPath);
-        conn.Open();
-
-        InsertJsonData(conn, "info/estaciones.json");
-        InsertXmlData(conn, "info/ITV-CAT.xml");
-        InsertCsvData(conn, "info/Estacions_ITV.csv");
+        // O convertir toda una carpeta
+        ConvertFolderToJson("info");
     }
 
-    static void ConvertFileToJson(string folderPath = "info")
+    /// <summary>
+    /// Convierte un archivo (CSV o XML) a JSON automáticamente según su extensión
+    /// </summary>
+    public static void ConvertToJson(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine($"Archivo no encontrado: {filePath}");
+            return;
+        }
+
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+        var jsonPath = Path.ChangeExtension(filePath, ".json");
+
+        // Verificar si ya existe el JSON
+        if (File.Exists(jsonPath))
+        {
+            Console.WriteLine($"JSON ya existe para {Path.GetFileName(filePath)} - omitiendo.");
+            return;
+        }
+
+        try
+        {
+            List<Dictionary<string, object>> result;
+
+            switch (extension)
+            {
+                case ".csv":
+                    result = ConvertCsvToList(filePath);
+                    break;
+                case ".xml":
+                    result = ConvertXmlToList(filePath);
+                    break;
+                default:
+                    Console.WriteLine($"Formato no soportado: {extension}");
+                    return;
+            }
+
+            // Serializar a JSON con codificación UTF-8
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+            var json = JsonSerializer.Serialize(result, options);
+            File.WriteAllText(jsonPath, json, new UTF8Encoding(true));
+
+            Console.WriteLine($"✓ Convertido {extension.ToUpper()} -> JSON: {Path.GetFileName(filePath)} -> {Path.GetFileName(jsonPath)}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al convertir {filePath}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Convierte todos los archivos CSV y XML de una carpeta a JSON
+    /// </summary>
+    public static void ConvertFolderToJson(string folderPath = "info")
     {
         if (!Directory.Exists(folderPath))
         {
-            Console.WriteLine($"Folder not found: {folderPath}");
+            Console.WriteLine($"Carpeta no encontrada: {folderPath}");
             return;
         }
 
-        var csvFiles = Directory.GetFiles(folderPath, "*.csv", SearchOption.TopDirectoryOnly);
-        var xmlFiles = Directory.GetFiles(folderPath, "*.xml", SearchOption.TopDirectoryOnly);
+        var files = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
+            .Where(f => f.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
+                       f.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
-        foreach (var csv in csvFiles)
+        Console.WriteLine($"Encontrados {files.Count} archivos para convertir en {folderPath}\n");
+
+        foreach (var file in files)
         {
-            try
-            {
-                var jsonPath = Path.ChangeExtension(csv, ".json");
-                // if a json already exists, skip conversion
-                if (File.Exists(jsonPath))
-                {
-                    Console.WriteLine($"JSON already exists for {Path.GetFileName(csv)} - skipping.");
-                    continue;
-                }
-
-                ConvertCsvFileToJson(csv, jsonPath);
-                Console.WriteLine($"Converted CSV -> JSON: {Path.GetFileName(csv)} -> {Path.GetFileName(jsonPath)}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error converting CSV {csv}: {ex.Message}");
-            }
+            ConvertToJson(file);
         }
 
-        foreach (var xml in xmlFiles)
-        {
-            try
-            {
-                var jsonPath = Path.ChangeExtension(xml, ".json");
-                if (File.Exists(jsonPath))
-                {
-                    Console.WriteLine($"JSON already exists for {Path.GetFileName(xml)} - skipping.");
-                    continue;
-                }
-
-                ConvertXmlFileToJson(xml, jsonPath);
-                Console.WriteLine($"Converted XML -> JSON: {Path.GetFileName(xml)} -> {Path.GetFileName(jsonPath)}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error converting XML {xml}: {ex.Message}");
-            }
-        }
+        Console.WriteLine($"\n✓ Conversión completada. Procesados {files.Count} archivos.");
     }
 
-    static void ConvertCsvFileToJson(string csvPath, string jsonPath)
+    private static List<Dictionary<string, object>> ConvertCsvToList(string csvPath)
     {
-        // assume semicolon separated and ISO-8859-1 encoding as in existing code
         var lines = File.ReadAllLines(csvPath, Encoding.GetEncoding("ISO-8859-1"));
+        var result = new List<Dictionary<string, object>>();
+
         if (lines.Length == 0)
-        {
-            File.WriteAllText(jsonPath, "[]", Encoding.UTF8);
-            return;
-        }
+            return result;
 
         var headers = lines[0].Split(';').Select(h => SanitizeHeader(h)).ToArray();
-        var result = new List<Dictionary<string, string>>();
 
         for (int i = 1; i < lines.Length; i++)
         {
@@ -98,7 +119,7 @@ public class Transformations
                 continue;
 
             var fields = lines[i].Split(';');
-            var obj = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var obj = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             for (int j = 0; j < headers.Length; j++)
             {
@@ -110,55 +131,52 @@ public class Transformations
             result.Add(obj);
         }
 
-        var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(jsonPath, json, Encoding.UTF8);
+        return result;
     }
 
-    static void ConvertXmlFileToJson(string xmlPath, string jsonPath)
+    private static List<Dictionary<string, object>> ConvertXmlToList(string xmlPath)
     {
-        var doc = XDocument.Load(xmlPath);
+        var doc = XDocument.Load(xmlPath, LoadOptions.None);
+        var result = new List<Dictionary<string, object>>();
 
-        // try to find repeating "row" elements; fall back to top-level elements if none
+        // Buscar elementos "row" repetidos; si no hay, usar elementos de primer nivel
         var rows = doc.Descendants("row").ToList();
         if (rows.Count == 0)
         {
-            // if no <row>, try to pick the first level of child elements under the root
             rows = doc.Root != null ? doc.Root.Elements().ToList() : new List<XElement>();
         }
-
-        var result = new List<Dictionary<string, object>>();
 
         foreach (var row in rows)
         {
             var obj = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-            // include attributes on the row itself (prefixed with @)
+            // Incluir atributos del row (prefijados con @)
             foreach (var attr in row.Attributes())
                 obj[$"@{attr.Name.LocalName}"] = attr.Value;
 
-            // include child elements
+            // Incluir elementos hijo
             foreach (var child in row.Elements())
             {
-                // if element has child elements, produce nested object/array
                 if (child.HasElements)
                 {
-                    // simple conversion: map child element names to their string values or nested dictionaries
+                    // Conversión simple: mapear nombres de elementos hijo a sus valores
                     var nested = new Dictionary<string, object>();
                     foreach (var sub in child.Elements())
-                        nested[sub.Name.LocalName] = sub.HasElements ? (object)sub.Elements().ToDictionary(e => e.Name.LocalName, e => (object)e.Value) : sub.Value;
+                        nested[sub.Name.LocalName] = sub.HasElements
+                            ? (object)sub.Elements().ToDictionary(e => e.Name.LocalName, e => (object)e.Value)
+                            : sub.Value;
 
                     obj[child.Name.LocalName] = nested;
                 }
                 else
                 {
-                    // include attributes for the element, if any
+                    // Incluir atributos del elemento, si los hay
                     if (child.HasAttributes)
                     {
                         var container = new Dictionary<string, object>();
                         foreach (var a in child.Attributes())
                             container[$"@{a.Name.LocalName}"] = a.Value;
 
-                        // if element has a value as well, put it under "#text"
                         if (!string.IsNullOrEmpty(child.Value))
                             container["#text"] = child.Value;
 
@@ -174,8 +192,7 @@ public class Transformations
             result.Add(obj);
         }
 
-        var json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(jsonPath, json, Encoding.UTF8);
+        return result;
     }
 
     static string SanitizeHeader(string header)
@@ -184,9 +201,7 @@ public class Transformations
             return "_unknown";
 
         var s = header.Trim();
-        // remove BOM or stray characters
         s = s.Trim('\uFEFF', '\u200B');
-        // replace spaces with underscore
         s = string.Join("_", s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
         return s;
     }
@@ -201,27 +216,16 @@ public class Transformations
 
         try
         {
-            string jsonContent = File.ReadAllText(filePath);
+            string jsonContent = File.ReadAllText(filePath, Encoding.UTF8);
             var jsonData = JsonSerializer.Deserialize<JsonElement>(jsonContent);
 
             int recordsInserted = 0;
 
-            // map correct field names from the JSON
             if (jsonData.ValueKind == JsonValueKind.Array)
             {
                 foreach (var item in jsonData.EnumerateArray())
                 {
                     string province = item.TryGetProperty("PROVINCIA", out var prov) ? prov.GetString() : "";
-                    // InsertProvince(province, conn);
-                    // cmd.Parameters["@tipo"].Value = item.TryGetProperty("TIPO ESTACIÓN", out var tipo) ? tipo.GetString() : "";
-                    // cmd.Parameters["@municipio"].Value = item.TryGetProperty("MUNICIPIO", out var mun) ? mun.GetString() : "";
-                    // cmd.Parameters["@codigo"].Value = item.TryGetProperty("C.POSTAL", out var cod) ? cod.ToString() : "";
-                    // cmd.Parameters["@direccion"].Value = item.TryGetProperty("DIRECCIÓN", out var dir) ? dir.GetString() : "";
-                    // cmd.Parameters["@numero"].Value = item.TryGetProperty("Nº ESTACIÓN", out var num) ? num.ToString() : "";
-                    // cmd.Parameters["@horario"].Value = item.TryGetProperty("HORARIOS", out var hor) ? hor.GetString() : "";
-                    // cmd.Parameters["@correo"].Value = item.TryGetProperty("CORREO", out var cor) ? cor.GetString() : "";
-
-                    // cmd.ExecuteNonQuery();
                     recordsInserted++;
                 }
             }
@@ -246,8 +250,6 @@ public class Transformations
         try
         {
             var doc = XDocument.Load(filePath);
-
-            // target nested row elements inside the outer container row
             var elements = doc.Descendants("row").Where(r => r.Attribute("_id") != null).ToList();
 
             Console.WriteLine($"Found {elements.Count} station records in XML");
@@ -285,7 +287,6 @@ public class Transformations
 
             int recordsInserted = 0;
 
-            // map to correct field names in the XML
             foreach (var element in elements)
             {
                 cmd.Parameters["@estacion"].Value = element.Element("estaci")?.Value ?? "";
@@ -327,8 +328,7 @@ public class Transformations
 
         try
         {
-            // handle semicolon separated format
-            string[] lines = File.ReadAllLines(filePath, Encoding.GetEncoding("ISO-8859-1")); // encoding for accents
+            string[] lines = File.ReadAllLines(filePath, Encoding.GetEncoding("ISO-8859-1"));
 
             if (lines.Length == 0)
             {
@@ -336,7 +336,6 @@ public class Transformations
                 return;
             }
 
-            // get column headers
             string[] headers = lines[0].Split(';');
             Console.WriteLine($"CSV has {headers.Length} columns: {string.Join(", ", headers)}");
 
@@ -363,16 +362,13 @@ public class Transformations
 
             int recordsInserted = 0;
 
-            // skip the header while processing lines
             for (int i = 1; i < lines.Length; i++)
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                // semicolon split
                 string[] fields = lines[i].Split(';');
 
-                // map fields to columns using direct indexing
                 cmd.Parameters["@estacion"].Value = fields.Length > 0 ? fields[0] : "";
                 cmd.Parameters["@enderezo"].Value = fields.Length > 1 ? fields[1] : "";
                 cmd.Parameters["@concello"].Value = fields.Length > 2 ? fields[2] : "";
@@ -383,11 +379,9 @@ public class Transformations
                 cmd.Parameters["@cita"].Value = fields.Length > 7 ? fields[7] : "";
                 cmd.Parameters["@email"].Value = fields.Length > 8 ? fields[8] : "";
 
-                // store full string in coordinates
                 string coords = fields.Length > 9 ? fields[9] : "";
                 cmd.Parameters["@coordenadas"].Value = coords;
 
-                // parse lat/long from the coordinates field if possible because of different formats
                 if (!string.IsNullOrEmpty(coords))
                 {
                     string[] parts = coords.Split(',');
