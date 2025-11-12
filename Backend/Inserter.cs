@@ -10,6 +10,7 @@ using Microsoft.Data.Sqlite;
 using System.Linq;
 
 namespace Backend.Inserter;
+
 public class Inserter
 {
     static int InsertProvince(string name, SqliteConnection conn)
