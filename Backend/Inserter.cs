@@ -1,132 +1,147 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Text.Json;
-using System.Xml.Linq;
-using CsvHelper;
-using System.Globalization;
-using Microsoft.Data.Sqlite;
-using System.Linq;
 using Backend.Models;
+using Microsoft.Data.Sqlite;
 
-namespace Backend.Inserter;
-
-public class Inserter
+namespace Backend
 {
-    static int InsertProvince(string name, SqliteConnection conn)
+    public class Inserter
     {
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO Provincia (nombre) VALUES (@name); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@name", name);
-        long id = (long)cmd.ExecuteScalar();
-        return (int)id;
-    }
+        private const string ConnectionString = "Data Source=databases/iei2.db";
 
-    static int InsertLocality(string name, int provinceCode, SqliteConnection conn)
-    {
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO Localidad (nombre, codigo_provincia) VALUES (@name, @province_code); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@name", name);
-        cmd.Parameters.AddWithValue("@province_code", provinceCode);
-        long id = (long)cmd.ExecuteScalar();
-        return (int)id;
-    }
-
-    static int InsertStation(Station station, SqliteConnection conn)
-    {
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = @"
-            INSERT INTO Estacion
-                (codigo, nombre, tipo, direccion, codigo_postal, longitud, latitud, descripcion, horario, contacto, url, codigo_localidad)
-            VALUES
-                (@codigo, @nombre, @tipo, @direccion, @codigo_postal, @longitud, @latitud, @descripcion, @horario, @contacto, @url, @codigo_localidad);
-            SELECT last_insert_rowid();";
-
-        cmd.Parameters.AddWithValue("@codigo", station.code);
-        cmd.Parameters.AddWithValue("@nombre", station.name ?? string.Empty);
-        cmd.Parameters.AddWithValue("@tipo", station.type.ToString());
-        cmd.Parameters.AddWithValue("@direccion", station.address ?? string.Empty);
-        cmd.Parameters.AddWithValue("@codigo_postal", station.postal_code ?? string.Empty);
-
-        if (station.longitude.HasValue)
-            cmd.Parameters.AddWithValue("@longitud", station.longitude.Value);
-        else
-            cmd.Parameters.AddWithValue("@longitud", DBNull.Value);
-
-        if (station.latitude.HasValue)
-            cmd.Parameters.AddWithValue("@latitud", station.latitude.Value);
-        else
-            cmd.Parameters.AddWithValue("@latitud", DBNull.Value);
-
-        cmd.Parameters.AddWithValue("@descripcion", station.description ?? string.Empty);
-        cmd.Parameters.AddWithValue("@horario", station.schedule ?? string.Empty);
-        cmd.Parameters.AddWithValue("@contacto", station.contact ?? string.Empty);
-        cmd.Parameters.AddWithValue("@url", station.url ?? string.Empty);
-
-        if (station.locality_code != 0)
-            cmd.Parameters.AddWithValue("@codigo_localidad", station.locality_code);
-        else
-            cmd.Parameters.AddWithValue("@codigo_localidad", DBNull.Value);
-
-        long id = (long)cmd.ExecuteScalar();
-        return (int)id;
-    }
-
-    static void TemporalMethod(SqliteConnection conn, string filePath)
-    {
-        if (!File.Exists(filePath))
+        public static void Run(List<UnifiedData> data)
         {
-            Console.WriteLine($"JSON file not found: {filePath}");
-            return;
+            using var conn = new SqliteConnection(ConnectionString);
+            conn.Open();
+
+            InitializeDatabase(conn);
+
+            var provinceCache = new Dictionary<string, int>();
+            var localityCache = new Dictionary<string, int>();
+
+            using var transaction = conn.BeginTransaction();
+            try
+            {
+                foreach (var item in data)
+                {
+                    string provName = string.IsNullOrWhiteSpace(item.ProvinceName) ? "Desconocida" : item.ProvinceName.Trim();
+                    if (!provinceCache.TryGetValue(provName, out int provinceId))
+                    {
+                        provinceId = InsertProvince(conn, provName, transaction);
+                        provinceCache[provName] = provinceId;
+                    }
+
+                    string locName = string.IsNullOrWhiteSpace(item.LocalityName) ? "Desconocida" : item.LocalityName.Trim();
+                    string locKey = $"{provinceId}-{locName}";
+                    if (!localityCache.TryGetValue(locKey, out int localityId))
+                    {
+                        localityId = InsertLocality(conn, locName, provinceId, transaction);
+                        localityCache[locKey] = localityId;
+                    }
+
+                    InsertStation(conn, item.Station, localityId, transaction);
+                }
+
+                transaction.Commit();
+                Console.WriteLine("Database population completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Console.WriteLine($"Error inserting data: {ex.Message}");
+            }
         }
 
-        try
+        private static void InitializeDatabase(SqliteConnection conn)
         {
-            string jsonContent = File.ReadAllText(filePath);
-            var jsonData = JsonSerializer.Deserialize<JsonElement>(jsonContent);
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+                CREATE TABLE IF NOT EXISTS Province (
+                    code INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL UNIQUE
+                );
+                CREATE TABLE IF NOT EXISTS Locality (
+                    code INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    province_code INTEGER,
+                    FOREIGN KEY(province_code) REFERENCES Province(code)
+                );
+                CREATE TABLE IF NOT EXISTS Station (
+                    code INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    type INTEGER,
+                    address TEXT,
+                    postal_code TEXT,
+                    longitude REAL,
+                    latitude REAL,
+                    description TEXT,
+                    schedule TEXT,
+                    contact TEXT,
+                    url TEXT,
+                    locality_code INTEGER,
+                    FOREIGN KEY(locality_code) REFERENCES Locality(code)
+                );
+            ";
+            cmd.ExecuteNonQuery();
+        }
 
-            var provinceDict = new Dictionary<string, int>();
-            var localityDict = new Dictionary<string, int>();
-
-            int recordsInserted = 0;
-
-            // map correct field names from the JSON
-            if (jsonData.ValueKind == JsonValueKind.Array)
+        private static int InsertProvince(SqliteConnection conn, string name, SqliteTransaction trans)
+        {
+            using (var checkCmd = conn.CreateCommand())
             {
-                foreach (var item in jsonData.EnumerateArray())
-                {
-                    string provincia = item.TryGetProperty("PROVINCIA", out var prov) ? prov.GetString() ?? "" : "";
-                    string municipio = item.TryGetProperty("MUNICIPIO", out var mun) ? mun.GetString() ?? "" : "";
-
-                    if (string.IsNullOrWhiteSpace(provincia) || string.IsNullOrWhiteSpace(municipio))
-                        continue;
-
-                    if (!provinceDict.ContainsKey(provincia))
-                    {
-                        int provinciaId = InsertProvince(provincia, conn);
-                        provinceDict[provincia] = provinciaId;
-                        Console.WriteLine($"Inserted province: {provincia} with ID: {provinciaId}");
-                    }
-
-
-                    if (!localityDict.ContainsKey(municipio))
-                    {
-                        int localidadId = InsertLocality(municipio, provinceDict[provincia], conn);
-                        localityDict[municipio] = localidadId;
-                        Console.WriteLine($"Inserted locality: {municipio} with ID: {localidadId}");
-                    }
-
-                    recordsInserted++;
-                }
+                checkCmd.Transaction = trans;
+                checkCmd.CommandText = "SELECT code FROM Province WHERE name = @name";
+                checkCmd.Parameters.AddWithValue("@name", name);
+                var result = checkCmd.ExecuteScalar();
+                if (result != null) return Convert.ToInt32(result);
             }
 
-            Console.WriteLine($"Successfully inserted {recordsInserted} records into ESTACIONES_JSON");
+            using var cmd = conn.CreateCommand();
+            cmd.Transaction = trans;
+            cmd.CommandText = "INSERT INTO Province (name) VALUES (@name); SELECT last_insert_rowid();";
+            cmd.Parameters.AddWithValue("@name", name);
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
-        catch (Exception ex)
+
+        private static int InsertLocality(SqliteConnection conn, string name, int provinceId, SqliteTransaction trans)
         {
-            Console.WriteLine($"Error processing JSON: {ex.Message}");
-            Console.WriteLine(ex.StackTrace);
+            using (var checkCmd = conn.CreateCommand())
+            {
+                checkCmd.Transaction = trans;
+                checkCmd.CommandText = "SELECT code FROM Locality WHERE name = @name AND province_code = @provId";
+                checkCmd.Parameters.AddWithValue("@name", name);
+                checkCmd.Parameters.AddWithValue("@provId", provinceId);
+                var result = checkCmd.ExecuteScalar();
+                if (result != null) return Convert.ToInt32(result);
+            }
+
+            using var cmd = conn.CreateCommand();
+            cmd.Transaction = trans;
+            cmd.CommandText = "INSERT INTO Locality (name, province_code) VALUES (@name, @provId); SELECT last_insert_rowid();";
+            cmd.Parameters.AddWithValue("@name", name);
+            cmd.Parameters.AddWithValue("@provId", provinceId);
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        private static void InsertStation(SqliteConnection conn, Station s, int localityId, SqliteTransaction trans)
+        {
+            using var cmd = conn.CreateCommand();
+            cmd.Transaction = trans;
+            cmd.CommandText = @"
+                INSERT INTO Station (name, type, address, postal_code, longitude, latitude, description, schedule, contact, url, locality_code)
+                VALUES (@name, @type, @address, @postal, @lon, @lat, @desc, @schedule, @contact, @url, @locId)";
+            
+            cmd.Parameters.AddWithValue("@name", s.name ?? "");
+            cmd.Parameters.AddWithValue("@type", (int)s.type);
+            cmd.Parameters.AddWithValue("@address", s.address ?? "");
+            cmd.Parameters.AddWithValue("@postal", s.postal_code ?? "");
+            cmd.Parameters.AddWithValue("@lon", s.longitude ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@lat", s.latitude ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@desc", s.description ?? "");
+            cmd.Parameters.AddWithValue("@schedule", s.schedule ?? "");
+            cmd.Parameters.AddWithValue("@contact", s.contact ?? "");
+            cmd.Parameters.AddWithValue("@url", s.url ?? "");
+            cmd.Parameters.AddWithValue("@locId", localityId);
+            
+            cmd.ExecuteNonQuery();
         }
     }
 }

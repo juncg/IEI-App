@@ -1,4 +1,21 @@
-Setup.Main(args);
+using Backend;
+
+// --- INICIO DEL PROCESO ETL ---
+Console.WriteLine("Starting ETL Process...");
+
+// 1. Transformación: Convertir fuentes a JSON
+string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
+string convertedFolder = Path.Combine(Directory.GetCurrentDirectory(), "converted_data");
+Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
+
+// 2. Mapeo: Unificar datos
+var unifiedData = Mapper.ExecuteMapping(convertedFolder);
+
+// 3. Inserción: Poblar base de datos
+Inserter.Run(unifiedData);
+
+Console.WriteLine("ETL Process Finished.");
+// --- FIN DEL PROCESO ETL ---
 
 var builder = WebApplication.CreateBuilder(args);
 

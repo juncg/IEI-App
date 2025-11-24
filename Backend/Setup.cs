@@ -17,7 +17,7 @@ public class Setup
         using var conn = new SqliteConnection(dbPath);
         conn.Open();
 
-        Transformations.ConvertFolderToJson("info");
+        //Transformations.ConvertFolderToJson("info");
 
         /*CreateTables(conn);
         InsertJsonData(conn, "info/estaciones.json");
