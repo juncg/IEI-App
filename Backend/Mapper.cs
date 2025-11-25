@@ -98,7 +98,7 @@ namespace Backend
                 u.Station.contact = (string)item["correu_electr_nic"];
                 u.Station.schedule = (string)item["horari_de_servei"];
                 u.Station.url = (string)item["web"]?["@url"];
-                u.Station.type = StationType.Fixed_station; // Todas fijas según mapping
+                u.Station.type = StationType.Fixed_station;
 
                 if (double.TryParse((string)item["lat"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
                     u.Station.latitude = lat / 100000.0;
@@ -120,30 +120,71 @@ namespace Backend
                 u.LocalityName = (string)item["CONCELLO"] ?? "Desconocido";
 
                 string nombre = (string)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
-                u.Station.name = $"Estación ITV de {nombre}";
+                u.Station.name = nombre;
                 
                 u.Station.address = (string)item["ENDEREZO"];
                 u.Station.postal_code = (string)item["CÓDIGO POSTAL"];
-                u.Station.contact = $"{item["TELEFONO"]} {item["EMAIL"]}";
+                u.Station.contact = $"{item["TELÉFONO"]} {item["CORREO ELECTRÓNICO"]}";
                 u.Station.schedule = (string)item["HORARIO"];
-                u.Station.url = (string)item["SOLICITUD CITA PREVIA"];
+                u.Station.url = (string)item["SOLICITUDE DE CITA PREVIA"];
                 u.Station.type = StationType.Fixed_station; 
 
-                string coords = (string)item["COORDENADAS_GOOGLE_MAPS"];
+                string coords = (string)item["COORDENADAS GMAPS"];
                 if (!string.IsNullOrEmpty(coords))
                 {
-                    var parts = coords.Split(',');
-                    if (parts.Length == 2)
+                    var coordsParsed = ParseDegreesMinutesCoordinates(coords);
+                    if (coordsParsed.HasValue)
                     {
-                        if (double.TryParse(parts[0].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
-                            u.Station.latitude = lat;
-                        if (double.TryParse(parts[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
-                            u.Station.longitude = lon;
+                        u.Station.latitude = coordsParsed.Value.lat;
+                        u.Station.longitude = coordsParsed.Value.lon;
                     }
                 }
 
                 list.Add(u);
             }
+        }
+
+        private static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
+        {
+            try
+            {
+                if (!coords.Contains("°"))
+                {
+                    var parts = coords.Split(',');
+                    if (parts.Length == 2)
+                    {
+                        if (double.TryParse(parts[0].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
+                            double.TryParse(parts[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
+                        {
+                            return (lat, lon);
+                        }
+                    }
+                }
+                else
+                {
+                    var pattern = @"(-?\d+)°\s*(\d+\.?\d*)',?\s*(-?\d+)°\s*(\d+\.?\d*)";
+                    var match = Regex.Match(coords, pattern);
+                    
+                    if (match.Success)
+                    {
+                        double latDegrees = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                        double latMinutes = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                        double lonDegrees = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
+                        double lonMinutes = double.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
+
+                        double lat = latDegrees + (latMinutes / 60.0);
+                        double lon = lonDegrees + (lonMinutes / 60.0);
+
+                        return (lat, lon);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing coordinates '{coords}': {ex.Message}");
+            }
+            
+            return null;
         }
     }
 }
