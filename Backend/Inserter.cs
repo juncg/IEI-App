@@ -54,30 +54,30 @@ namespace Backend
         {
             using var cmd = conn.CreateCommand();
             cmd.CommandText = @"
-                CREATE TABLE IF NOT EXISTS Province (
-                    code INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL UNIQUE
+                CREATE TABLE IF NOT EXISTS Provincia (
+                    codigo INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL UNIQUE
                 );
-                CREATE TABLE IF NOT EXISTS Locality (
-                    code INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    province_code INTEGER,
-                    FOREIGN KEY(province_code) REFERENCES Province(code)
+                CREATE TABLE IF NOT EXISTS Localidad (
+                    codigo INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL,
+                    en_provincia INTEGER,
+                    FOREIGN KEY(en_provincia) REFERENCES Provincia(codigo)
                 );
-                CREATE TABLE IF NOT EXISTS Station (
-                    code INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT,
-                    type INTEGER,
-                    address TEXT,
-                    postal_code TEXT,
-                    longitude REAL,
-                    latitude REAL,
-                    description TEXT,
-                    schedule TEXT,
-                    contact TEXT,
-                    url TEXT,
-                    locality_code INTEGER,
-                    FOREIGN KEY(locality_code) REFERENCES Locality(code)
+                CREATE TABLE IF NOT EXISTS Estacion (
+                    cod_estacion INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT,
+                    tipo INTEGER,
+                    direccion TEXT,
+                    codigo_postal TEXT,
+                    longitud REAL,
+                    latitud REAL,
+                    descripcion TEXT,
+                    horario TEXT,
+                    contacto TEXT,
+                    URL TEXT,
+                    en_localidad INTEGER,
+                    FOREIGN KEY(en_localidad) REFERENCES Localidad(codigo)
                 );
             ";
             cmd.ExecuteNonQuery();
@@ -88,16 +88,16 @@ namespace Backend
             using (var checkCmd = conn.CreateCommand())
             {
                 checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT code FROM Province WHERE name = @name";
-                checkCmd.Parameters.AddWithValue("@name", name);
+                checkCmd.CommandText = "SELECT codigo FROM Provincia WHERE nombre = @nombre";
+                checkCmd.Parameters.AddWithValue("@nombre", name);
                 var result = checkCmd.ExecuteScalar();
                 if (result != null) return Convert.ToInt32(result);
             }
 
             using var cmd = conn.CreateCommand();
             cmd.Transaction = trans;
-            cmd.CommandText = "INSERT INTO Province (name) VALUES (@name); SELECT last_insert_rowid();";
-            cmd.Parameters.AddWithValue("@name", name);
+            cmd.CommandText = "INSERT INTO Provincia (nombre) VALUES (@nombre); SELECT last_insert_rowid();";
+            cmd.Parameters.AddWithValue("@nombre", name);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
@@ -106,8 +106,8 @@ namespace Backend
             using (var checkCmd = conn.CreateCommand())
             {
                 checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT code FROM Locality WHERE name = @name AND province_code = @provId";
-                checkCmd.Parameters.AddWithValue("@name", name);
+                checkCmd.CommandText = "SELECT codigo FROM Localidad WHERE nombre = @nombre AND en_provincia = @provId";
+                checkCmd.Parameters.AddWithValue("@nombre", name);
                 checkCmd.Parameters.AddWithValue("@provId", provinceId);
                 var result = checkCmd.ExecuteScalar();
                 if (result != null) return Convert.ToInt32(result);
@@ -115,8 +115,8 @@ namespace Backend
 
             using var cmd = conn.CreateCommand();
             cmd.Transaction = trans;
-            cmd.CommandText = "INSERT INTO Locality (name, province_code) VALUES (@name, @provId); SELECT last_insert_rowid();";
-            cmd.Parameters.AddWithValue("@name", name);
+            cmd.CommandText = "INSERT INTO Localidad (nombre, en_provincia) VALUES (@nombre, @provId); SELECT last_insert_rowid();";
+            cmd.Parameters.AddWithValue("@nombre", name);
             cmd.Parameters.AddWithValue("@provId", provinceId);
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
@@ -126,18 +126,18 @@ namespace Backend
             using var cmd = conn.CreateCommand();
             cmd.Transaction = trans;
             cmd.CommandText = @"
-                INSERT INTO Station (name, type, address, postal_code, longitude, latitude, description, schedule, contact, url, locality_code)
-                VALUES (@name, @type, @address, @postal, @lon, @lat, @desc, @schedule, @contact, @url, @locId)";
+                INSERT INTO Estacion (nombre, tipo, direccion, codigo_postal, longitud, latitud, descripcion, horario, contacto, URL, en_localidad)
+                VALUES (@nombre, @tipo, @direccion, @postal, @lon, @lat, @desc, @horario, @contacto, @url, @locId)";
             
-            cmd.Parameters.AddWithValue("@name", s.name ?? "");
-            cmd.Parameters.AddWithValue("@type", (int)s.type);
-            cmd.Parameters.AddWithValue("@address", s.address ?? "");
+            cmd.Parameters.AddWithValue("@nombre", s.name ?? "");
+            cmd.Parameters.AddWithValue("@tipo", (int)s.type);
+            cmd.Parameters.AddWithValue("@direccion", s.address ?? "");
             cmd.Parameters.AddWithValue("@postal", s.postal_code ?? "");
             cmd.Parameters.AddWithValue("@lon", s.longitude ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@lat", s.latitude ?? (object)DBNull.Value);
             cmd.Parameters.AddWithValue("@desc", s.description ?? "");
-            cmd.Parameters.AddWithValue("@schedule", s.schedule ?? "");
-            cmd.Parameters.AddWithValue("@contact", s.contact ?? "");
+            cmd.Parameters.AddWithValue("@horario", s.schedule ?? "");
+            cmd.Parameters.AddWithValue("@contacto", s.contact ?? "");
             cmd.Parameters.AddWithValue("@url", s.url ?? "");
             cmd.Parameters.AddWithValue("@locId", localityId);
             

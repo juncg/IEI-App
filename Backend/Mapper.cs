@@ -1,6 +1,7 @@
 using Backend.Models;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Backend
 {
@@ -50,19 +51,27 @@ namespace Backend
                 u.ProvinceName = (string)item["PROVINCIA"] ?? "Desconocida";
                 u.LocalityName = (string)item["MUNICIPIO"] ?? "Desconocido";
 
-                u.Station.name = $"Estación ITV de {u.LocalityName} {(string)item["Nº ESTACIÓN"]}";
+                string tipo = ((string)item["TIPO ESTACIÓN"] ?? "").ToLower();
+                if (tipo.Contains("móvil")) u.Station.type = StationType.Mobile_station;
+                else if (tipo.Contains("fija")) u.Station.type = StationType.Fixed_station;
+                else u.Station.type = StationType.Others;
+
+                if (u.Station.type == StationType.Fixed_station)
+                {
+                    u.Station.name = $"Estación ITV de {u.LocalityName} ({(string)item["Nº ESTACIÓN"]})";
+                }
+                else
+                {
+                    string direccion = (string)item["DIRECCIÓN"] ?? u.LocalityName;
+                    direccion = Regex.Replace(direccion, @"\.+", "");
+                    u.Station.name = $"Estación " + direccion + $" ({(string)item["Nº ESTACIÓN"]})";
+                }
+
                 u.Station.address = (string)item["DIRECCIÓN"];
                 u.Station.postal_code = (string)item["C.POSTAL"];
                 u.Station.contact = (string)item["CORREO"];
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
-                
-                // Mapeo de tipo
-                string tipo = ((string)item["TIPO ESTACIÓN"] ?? "").ToLower();
-                if (tipo.Contains("movil")) u.Station.type = StationType.Mobile_station;
-                else if (tipo.Contains("fija")) u.Station.type = StationType.Fixed_station;
-                else u.Station.type = StationType.Others;
-
                 
                 list.Add(u);
             }
@@ -82,7 +91,7 @@ namespace Backend
 
                 string nombre = (string)item["denominaci"] ?? u.LocalityName;
                 string codigo = (string)item["cod_estacion"] ?? "";
-                u.Station.name = $"Estación ITV de {nombre} {codigo}";
+                u.Station.name = $"Estación ITV de {nombre} ({codigo})";
                 
                 u.Station.address = (string)item["adre_a"];
                 u.Station.postal_code = (string)item["cp"];
@@ -118,7 +127,7 @@ namespace Backend
                 u.Station.contact = $"{item["TELEFONO"]} {item["EMAIL"]}";
                 u.Station.schedule = (string)item["HORARIO"];
                 u.Station.url = (string)item["SOLICITUD CITA PREVIA"];
-                u.Station.type = StationType.Fixed_station; // Todas fijas según mapping
+                u.Station.type = StationType.Fixed_station; 
 
                 string coords = (string)item["COORDENADAS_GOOGLE_MAPS"];
                 if (!string.IsNullOrEmpty(coords))
