@@ -105,8 +105,16 @@ namespace Backend
                 u.Station.name = $"Estación ITV de {nombre}";
 
                 u.Station.address = (string)item["adre_a"];
-                u.Station.postal_code = (string)item["cp"];
-                u.Station.contact = (string)item["correu_electr_nic"];
+
+                string cp = (string)item["cp"];
+                u.Station.postal_code = cp.Length >= 5 ? cp.Substring(0, 5) : cp;
+
+                string contact = (string)item["correu_electr_nic"];
+                if (!string.IsNullOrWhiteSpace(contact) && !IsUrl(contact))
+                {
+                    u.Station.contact = contact;
+                }
+
                 u.Station.schedule = (string)item["horari_de_servei"];
                 u.Station.url = (string)item["web"]?["@url"];
                 u.Station.type = StationType.Fixed_station;
@@ -135,7 +143,18 @@ namespace Backend
 
                 u.Station.address = (string)item["ENDEREZO"];
                 u.Station.postal_code = (string)item["CÓDIGO POSTAL"];
-                u.Station.contact = $"{item["TELÉFONO"]} {item["CORREO ELECTRÓNICO"]}";
+
+                string telefono = (string)item["TELÉFONO"];
+                string correo = (string)item["CORREO ELECTRÓNICO"];
+
+                var contactParts = new List<string>();
+                if (!string.IsNullOrWhiteSpace(telefono))
+                    contactParts.Add($"Teléfono: {telefono}");
+                if (!string.IsNullOrWhiteSpace(correo))
+                    contactParts.Add($"Correo: {correo}");
+
+                u.Station.contact = contactParts.Count > 0 ? string.Join(" ", contactParts) : null;
+
                 u.Station.schedule = (string)item["HORARIO"];
                 u.Station.url = (string)item["SOLICITUDE DE CITA PREVIA"];
                 u.Station.type = StationType.Fixed_station;
@@ -207,7 +226,7 @@ namespace Backend
             int maxAttempts = 5;
             int delayMs = 1000;
 
-            await Task.Delay(1000); // nominatim has a 1 request per second limit
+            await Task.Delay(1000);
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
@@ -340,6 +359,17 @@ namespace Backend
                 return "Girona";
 
             return provinceName;
+        }
+
+        private static bool IsUrl(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            return text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                   text.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                   text.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ||
+                   Regex.IsMatch(text, @"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}");
         }
     }
 }
