@@ -5,7 +5,23 @@ namespace Backend
 {
     public class Inserter
     {
-        private const string ConnectionString = "Data Source=databases/iei3.db";
+        private static string GetUniqueDatabasePath(string basePath)
+        {
+            string dir = Path.GetDirectoryName(basePath);
+            string file = Path.GetFileNameWithoutExtension(basePath);
+            string ext = Path.GetExtension(basePath);
+
+            string candidate = basePath;
+            int counter = 1;
+            while (File.Exists(candidate))
+            {
+                candidate = Path.Combine(dir, $"{file}{counter}{ext}");
+                counter++;
+            }
+            return candidate;
+        }
+
+        private static readonly string ConnectionString = $"Data Source={GetUniqueDatabasePath("databases/iei.db")}";
 
         public static void Run(List<UnifiedData> data)
         {

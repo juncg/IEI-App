@@ -9,7 +9,7 @@ string convertedFolder = Path.Combine(Directory.GetCurrentDirectory(), "converte
 Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
 
 // 2. Mapeo: Unificar datos
-var unifiedData = Mapper.ExecuteMapping(convertedFolder);
+var unifiedData = await Mapper.ExecuteMapping(convertedFolder);
 
 // 3. Inserción: Poblar base de datos
 Inserter.Run(unifiedData);

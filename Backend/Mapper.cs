@@ -2,6 +2,7 @@ using Backend.Models;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Backend
 {
@@ -14,7 +15,7 @@ namespace Backend
 
     public class Mapper
     {
-        public static List<UnifiedData> ExecuteMapping(string folderPath)
+        public static async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
         {
             var unifiedList = new List<UnifiedData>();
             var files = Directory.GetFiles(folderPath, "*.json");
@@ -26,15 +27,18 @@ namespace Backend
 
                 if (fileName.Contains("estaciones")) // CV (Comunidad Valenciana)
                 {
-                    MapCV(json, unifiedList);
+                    await MapCV(json, unifiedList);
+                    Console.WriteLine($"Finished CV");
                 }
                 else if (fileName.Contains("itv-cat")) // CAT (Cataluña)
                 {
                     MapCAT(json, unifiedList);
+                    Console.WriteLine($"Finished CAT");
                 }
                 else if (fileName.Contains("estacions_itv")) // GAL (Galicia)
                 {
                     MapGAL(json, unifiedList);
+                    Console.WriteLine($"Finished GAL");
                 }
             }
 
@@ -42,7 +46,7 @@ namespace Backend
             return unifiedList;
         }
 
-        private static async void MapCV(string json, List<UnifiedData> list)
+        private static async Task MapCV(string json, List<UnifiedData> list)
         {
             var data = JArray.Parse(json);
             foreach (var item in data)
@@ -58,13 +62,13 @@ namespace Backend
 
                 if (u.Station.type == StationType.Fixed_station)
                 {
-                    u.Station.name = $"Estación ITV de {u.LocalityName} ({(string)item["Nº ESTACIÓN"]})";
+                    u.Station.name = $"Estación ITV de {u.LocalityName}";
                 }
                 else
                 {
                     string direccion = (string)item["DIRECCIÓN"] ?? u.LocalityName;
                     direccion = Regex.Replace(direccion, @"\.+", "");
-                    u.Station.name = $"Estación ITV de " + direccion + $" ({(string)item["Nº ESTACIÓN"]})";
+                    u.Station.name = $"Estación ITV de {direccion}";
                 }
 
                 u.Station.address = (string)item["DIRECCIÓN"];
@@ -72,8 +76,13 @@ namespace Backend
                 u.Station.contact = (string)item["CORREO"];
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
-                
-                var (lat, lon) = await GeocodeAddressAsync(u.Station.address, u.Station.postal_code);
+
+                //string cleanedAddress = CleanAddress(u.Station.address);
+                var (lat, lon) = await GeocodeAddressWithPhotonAsync(
+                    u.Station.address,
+                    u.Station.postal_code,
+                    u.LocalityName,
+                    u.ProvinceName);
                 u.Station.latitude = lat;
                 u.Station.longitude = lon;
 
@@ -94,8 +103,7 @@ namespace Backend
                 u.LocalityName = (string)item["municipi"] ?? "Desconocido";
 
                 string nombre = (string)item["denominaci"] ?? u.LocalityName;
-                string codigo = (string)item["cod_estacion"] ?? "";
-                u.Station.name = $"Estación ITV de {nombre} ({codigo})";
+                u.Station.name = $"Estación ITV de {nombre}";
                 
                 u.Station.address = (string)item["adre_a"];
                 u.Station.postal_code = (string)item["cp"];
@@ -191,29 +199,116 @@ namespace Backend
             return null;
         }
 
-        public static async Task<(double? lat, double? lon)> GeocodeAddressAsync(string address, string postalCode)
+        // returns lots of empty responses
+        public static async Task<(double? lat, double? lon)> GeocodeAddressWithNominatimAsync(string address, string postalCode)
         {
             string query = Uri.EscapeDataString($"{address} {postalCode}");
             string url = $"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1";
 
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
+            int maxAttempts = 5;
+            int delayMs = 1000;
 
-            var response = await client.GetAsync(url);
-            if (response.IsSuccessStatusCode)
+            await Task.Delay(1000); // nominatim has a 1 request per second limit
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                var arr = JArray.Parse(json);
-                Console.WriteLine($"Nominatim response: {json}");
-                if (arr.Count > 0)
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
                 {
-                    double lat = double.Parse(arr[0]["lat"].ToString(), CultureInfo.InvariantCulture);
-                    double lon = double.Parse(arr[0]["lon"].ToString(), CultureInfo.InvariantCulture);
-                    Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
-                    return (lat, lon);
+                    var json = await response.Content.ReadAsStringAsync();
+                    var arr = JArray.Parse(json);
+                    Console.WriteLine($"Nominatim response (attempt {attempt}): {json}");
+                    if (arr.Count > 0)
+                    {
+                        double lat = double.Parse(arr[0]["lat"].ToString(), CultureInfo.InvariantCulture);
+                        double lon = double.Parse(arr[0]["lon"].ToString(), CultureInfo.InvariantCulture);
+                        Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
+                        return (lat, lon);
+                    }
+                }
+                if (attempt < maxAttempts)
+                {
+                    await Task.Delay(delayMs);
                 }
             }
+            Console.WriteLine($"Nominatim geocoding failed for '{address} {postalCode}' after {maxAttempts} attempts.");
             return (null, null);
+        }
+
+        // faster and returns less empty responses
+        public static async Task<(double? lat, double? lon)> GeocodeAddressWithPhotonAsync(
+            string address, string postalCode, string localityName = "", string provinceName = "")
+        {
+            string query = Uri.EscapeDataString($"{address} {postalCode} {localityName} {provinceName} España");
+            string url = $"https://photon.komoot.io/api/?q={query}&limit=1";
+
+            int maxAttempts = 5;
+            int delayMs = 1000;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var obj = JObject.Parse(json);
+                    Console.WriteLine($"Photon response (attempt {attempt}): {json}");
+                    var features = obj["features"];
+                    if (features != null && features.Any())
+                    {
+                        var coords = features[0]?["geometry"]?["coordinates"];
+                        if (coords != null && coords.Count() == 2)
+                        {
+                            double lon = coords[0].Value<double>();
+                            double lat = coords[1].Value<double>();
+                            Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
+                            return (lat, lon);
+                        }
+                    }
+                }
+                if (attempt < maxAttempts)
+                {
+                    await Task.Delay(delayMs);
+                }
+            }
+            Console.WriteLine($"Photon geocoding failed for '{address} {postalCode}' after {maxAttempts} attempts.");
+            return (null, null);
+        }
+
+        private static string CleanAddress(string address)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+                return "";
+
+            // common abbreviations
+            address = Regex.Replace(address, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bKm\.?\b", "Kilómetro", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bC/\b", "Calle ", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bs/n\b", "", RegexOptions.IgnoreCase);
+            address = Regex.Replace(address, @"\bPlá\b", "Pla", RegexOptions.IgnoreCase);
+
+            // replace periods with commas, unless part of decimal numbers
+            address = Regex.Replace(address, @"(?<!\d)\.(?!\d)", ",");
+
+            // add space after comma if missing
+            address = Regex.Replace(address, @",(\S)", ", $1");
+
+            // remove duplicate spaces
+            address = Regex.Replace(address, @"\s+", " ");
+
+            // trim trailing spaces and commas
+            address = address.Trim(' ', ',');
+
+            return address;
         }
     }
 }
