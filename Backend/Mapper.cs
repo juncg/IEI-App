@@ -42,7 +42,7 @@ namespace Backend
             return unifiedList;
         }
 
-        private static void MapCV(string json, List<UnifiedData> list)
+        private static async void MapCV(string json, List<UnifiedData> list)
         {
             var data = JArray.Parse(json);
             foreach (var item in data)
@@ -64,7 +64,7 @@ namespace Backend
                 {
                     string direccion = (string)item["DIRECCIÓN"] ?? u.LocalityName;
                     direccion = Regex.Replace(direccion, @"\.+", "");
-                    u.Station.name = $"Estación " + direccion + $" ({(string)item["Nº ESTACIÓN"]})";
+                    u.Station.name = $"Estación ITV de " + direccion + $" ({(string)item["Nº ESTACIÓN"]})";
                 }
 
                 u.Station.address = (string)item["DIRECCIÓN"];
@@ -73,6 +73,10 @@ namespace Backend
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
                 
+                var (lat, lon) = await GeocodeAddressAsync(u.Station.address, u.Station.postal_code);
+                u.Station.latitude = lat;
+                u.Station.longitude = lon;
+
                 list.Add(u);
             }
         }
@@ -185,6 +189,31 @@ namespace Backend
             }
             
             return null;
+        }
+
+        public static async Task<(double? lat, double? lon)> GeocodeAddressAsync(string address, string postalCode)
+        {
+            string query = Uri.EscapeDataString($"{address} {postalCode}");
+            string url = $"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
+
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var arr = JArray.Parse(json);
+                Console.WriteLine($"Nominatim response: {json}");
+                if (arr.Count > 0)
+                {
+                    double lat = double.Parse(arr[0]["lat"].ToString(), CultureInfo.InvariantCulture);
+                    double lon = double.Parse(arr[0]["lon"].ToString(), CultureInfo.InvariantCulture);
+                    Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
+                    return (lat, lon);
+                }
+            }
+            return (null, null);
         }
     }
 }

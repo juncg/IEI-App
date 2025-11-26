@@ -5,7 +5,7 @@ namespace Backend
 {
     public class Inserter
     {
-        private const string ConnectionString = "Data Source=databases/iei2.db";
+        private const string ConnectionString = "Data Source=databases/iei3.db";
 
         public static void Run(List<UnifiedData> data)
         {
