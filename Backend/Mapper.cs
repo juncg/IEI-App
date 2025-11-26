@@ -68,7 +68,7 @@ namespace Backend
                 {
                     string direccion = (string)item["DIRECCIÓN"] ?? u.LocalityName;
                     direccion = Regex.Replace(direccion, @"\.+", "");
-                    u.Station.name = $"Estación ITV de {direccion}";
+                    u.Station.name = $"Estación {direccion}";
                 }
 
                 u.Station.address = (string)item["DIRECCIÓN"];
@@ -104,7 +104,7 @@ namespace Backend
 
                 string nombre = (string)item["denominaci"] ?? u.LocalityName;
                 u.Station.name = $"Estación ITV de {nombre}";
-                
+
                 u.Station.address = (string)item["adre_a"];
                 u.Station.postal_code = (string)item["cp"];
                 u.Station.contact = (string)item["correu_electr_nic"];
@@ -114,7 +114,7 @@ namespace Backend
 
                 if (double.TryParse((string)item["lat"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
                     u.Station.latitude = lat / 100000.0;
-                
+
                 if (double.TryParse((string)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
                     u.Station.longitude = lon / 100000.0;
 
@@ -133,13 +133,13 @@ namespace Backend
 
                 string nombre = (string)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
                 u.Station.name = nombre;
-                
+
                 u.Station.address = (string)item["ENDEREZO"];
                 u.Station.postal_code = (string)item["CÓDIGO POSTAL"];
                 u.Station.contact = $"{item["TELÉFONO"]} {item["CORREO ELECTRÓNICO"]}";
                 u.Station.schedule = (string)item["HORARIO"];
                 u.Station.url = (string)item["SOLICITUDE DE CITA PREVIA"];
-                u.Station.type = StationType.Fixed_station; 
+                u.Station.type = StationType.Fixed_station;
 
                 string coords = (string)item["COORDENADAS GMAPS"];
                 if (!string.IsNullOrEmpty(coords))
@@ -176,7 +176,7 @@ namespace Backend
                 {
                     var pattern = @"(-?\d+)°\s*(\d+\.?\d*)',?\s*(-?\d+)°\s*(\d+\.?\d*)";
                     var match = Regex.Match(coords, pattern);
-                    
+
                     if (match.Success)
                     {
                         double latDegrees = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
@@ -195,7 +195,7 @@ namespace Backend
             {
                 Console.WriteLine($"Error parsing coordinates '{coords}': {ex.Message}");
             }
-            
+
             return null;
         }
 
