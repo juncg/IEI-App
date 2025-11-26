@@ -52,7 +52,7 @@ namespace Backend
             foreach (var item in data)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = (string)item["PROVINCIA"] ?? "Desconocida";
+                u.ProvinceName = NormalizeProvinceName((string)item["PROVINCIA"] ?? "Desconocida");
                 u.LocalityName = (string)item["MUNICIPIO"] ?? "Desconocido";
 
                 string tipo = ((string)item["TIPO ESTACIÓN"] ?? "").ToLower();
@@ -77,7 +77,6 @@ namespace Backend
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
 
-                //string cleanedAddress = CleanAddress(u.Station.address);
                 var (lat, lon) = await GeocodeAddressWithPhotonAsync(
                     u.Station.address,
                     u.Station.postal_code,
@@ -99,7 +98,7 @@ namespace Backend
             foreach (var item in rows)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = (string)item["serveis_territorials"] ?? "Barcelona"; // Default o mapeo específico
+                u.ProvinceName = NormalizeProvinceName((string)item["serveis_territorials"] ?? "Barcelona"); // Default o mapeo específico
                 u.LocalityName = (string)item["municipi"] ?? "Desconocido";
 
                 string nombre = (string)item["denominaci"] ?? u.LocalityName;
@@ -128,7 +127,7 @@ namespace Backend
             foreach (var item in data)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = (string)item["PROVINCIA"] ?? "Desconocida";
+                u.ProvinceName = NormalizeProvinceName((string)item["PROVINCIA"] ?? "Desconocida");
                 u.LocalityName = (string)item["CONCELLO"] ?? "Desconocido";
 
                 string nombre = (string)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
@@ -309,6 +308,38 @@ namespace Backend
             address = address.Trim(' ', ',');
 
             return address;
+        }
+
+        private static string NormalizeProvinceName(string provinceName)
+        {
+            if (string.IsNullOrWhiteSpace(provinceName))
+                return "Desconocida";
+
+            provinceName = provinceName.Trim();
+
+            if (provinceName.Equals("Castellón", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("Castelló", StringComparison.OrdinalIgnoreCase))
+                return "Castellón";
+
+            if (provinceName.Equals("Valencia", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("València", StringComparison.OrdinalIgnoreCase))
+                return "Valencia";
+
+            if (provinceName.Equals("Alicante", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("Aligante", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("Alacant", StringComparison.OrdinalIgnoreCase))
+                return "Alicante";
+
+            if (provinceName.Equals("A Coruña", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("CoruÃ±a", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("Coruña", StringComparison.OrdinalIgnoreCase))
+                return "A Coruña";
+
+            if (provinceName.Equals("Girona", StringComparison.OrdinalIgnoreCase) ||
+                provinceName.Equals("Gerona", StringComparison.OrdinalIgnoreCase))
+                return "Girona";
+
+            return provinceName;
         }
     }
 }
