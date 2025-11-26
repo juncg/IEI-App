@@ -56,9 +56,14 @@ namespace Backend
                 u.LocalityName = (string)item["MUNICIPIO"] ?? "Desconocido";
 
                 string tipo = ((string)item["TIPO ESTACIÓN"] ?? "").ToLower();
-                if (tipo.Contains("móvil")) u.Station.type = StationType.Mobile_station;
-                else if (tipo.Contains("fija")) u.Station.type = StationType.Fixed_station;
-                else u.Station.type = StationType.Others;
+
+                // Asignar tipo de estación
+                if (tipo.Contains("móvil"))
+                    u.Station.type = StationType.Mobile_station;
+                else if (tipo.Contains("fija"))
+                    u.Station.type = StationType.Fixed_station;
+                else
+                    u.Station.type = StationType.Others;
 
                 if (u.Station.type == StationType.Fixed_station)
                 {
@@ -77,13 +82,23 @@ namespace Backend
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
 
-                var (lat, lon) = await GeocodeAddressWithPhotonAsync(
-                    u.Station.address,
-                    u.Station.postal_code,
-                    u.LocalityName,
-                    u.ProvinceName);
-                u.Station.latitude = lat;
-                u.Station.longitude = lon;
+                if (u.Station.type == StationType.Fixed_station)
+                {
+                    Console.WriteLine($"Geocoding fixed station: {u.Station.name}");
+                    var (lat, lon) = await GeocodeAddressWithPhotonAsync(
+                        u.Station.address,
+                        u.Station.postal_code,
+                        u.LocalityName,
+                        u.ProvinceName);
+                    u.Station.latitude = lat;
+                    u.Station.longitude = lon;
+                }
+                else
+                {
+                    Console.WriteLine($"Skipping geocoding for mobile/other station: {u.Station.name}");
+                    u.Station.latitude = null;
+                    u.Station.longitude = null;
+                }
 
                 list.Add(u);
             }
