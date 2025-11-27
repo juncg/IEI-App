@@ -3,6 +3,10 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
 
 namespace Backend
 {
@@ -15,6 +19,8 @@ namespace Backend
 
     public class Mapper
     {
+        //static string oldLatLong = "";
+
         public static async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
         {
             var unifiedList = new List<UnifiedData>();
@@ -27,7 +33,7 @@ namespace Backend
 
                 if (fileName.Contains("estaciones")) // CV (Comunidad Valenciana)
                 {
-                    await MapCV(json, unifiedList);
+                    MapCV(json, unifiedList);
                     Console.WriteLine($"Finished CV");
                 }
                 else if (fileName.Contains("itv-cat")) // CAT (Cataluña)
@@ -46,9 +52,24 @@ namespace Backend
             return unifiedList;
         }
 
-        private static async Task MapCV(string json, List<UnifiedData> list)
+        private static void MapCV(string json, List<UnifiedData> list)
         {
             var data = JArray.Parse(json);
+
+            // options for consistency / to trick google into thinking we are a normal user
+            var options = new ChromeOptions();
+            options.AddArgument("--headless");
+            options.AddArgument("--disable-gpu");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-dev-shm-usage");
+            options.AddArgument("--lang=es");
+            options.AddArgument("--window-size=1920,1080");
+            options.AddArgument("--disable-blink-features=AutomationControlled");
+            options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            
+            using var driver = new ChromeDriver(options);
+            bool cookiesAccepted = false;
+
             foreach (var item in data)
             {
                 var u = new UnifiedData();
@@ -77,18 +98,161 @@ namespace Backend
                 u.Station.schedule = (string)item["HORARIOS"];
                 u.Station.url = "https://sitval.com";
 
-                //string cleanedAddress = CleanAddress(u.Station.address);
-                var (lat, lon) = await GeocodeAddressWithPhotonAsync(
-                    u.Station.address,
-                    u.Station.postal_code,
-                    u.LocalityName,
-                    u.ProvinceName);
+                var (lat, lon) = GetLatLonSeleniumGoogleMaps(driver, u.Station.address, ref cookiesAccepted, u.Station.postal_code, u.LocalityName, u.ProvinceName);
+
                 u.Station.latitude = lat;
                 u.Station.longitude = lon;
 
                 list.Add(u);
             }
         }
+
+        private static (double? lat, double? lon) GetLatLonSeleniumGoogleMaps(IWebDriver driver, string address, ref bool cookiesAccepted, string postalCode = "", string localityName = "", string provinceName = "")
+        {
+            string fullAddress = $"{address} {postalCode} {localityName} {provinceName} España".Trim();
+            if (string.IsNullOrEmpty(fullAddress) || fullAddress == "España") return (null, null);
+
+            try
+            {
+                string searchUrl = $"https://www.google.com/maps/search/{Uri.EscapeDataString(fullAddress)}";
+                driver.Navigate().GoToUrl(searchUrl);
+
+                Console.WriteLine($"1. Buscando coordenadas de: {fullAddress}");
+
+                if (!cookiesAccepted)
+                {
+                    Console.WriteLine("1a. Pausando busqueda para responder al consentimiento de cookies.");
+                    AcceptCookies(driver);
+                    cookiesAccepted = true;
+                    Thread.Sleep(1000);
+                    Console.WriteLine("1c. Reanudando busqueda.");
+                }
+
+                // wait until coords are loaded
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                wait.Until(d => d.Url.Contains("@"));
+
+                string currentUrl = driver.Url;
+                var match = Regex.Match(currentUrl, @"@(-?\d+\.\d+),(-?\d+\.\d+)");
+                if (match.Success)
+                {
+                    double lat = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                    double lon = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                    Console.WriteLine($"2. Latitud encontrada: {lat}. Longitud encontrada: {lon}.\n");
+                    return (lat, lon);
+                }
+
+                Console.WriteLine($"!!! Coordenadas no encontradas para: {fullAddress}\n");
+                return (null, null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"!!! ERROR procesando coordenadas para '{fullAddress}': {ex.Message}\n");
+                return (null, null);
+            }
+        }
+
+        private static void AcceptCookies(IWebDriver driver)
+        {
+            try
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+                string[] selectors = {
+                    "//button[contains(., 'Rechazar todo')]",
+                    "//button[contains(., 'Rechazar')]",
+                    "button[aria-label='Rechazar todo']",
+                };
+
+                foreach (var selector in selectors)
+                {
+                    try
+                    {
+                        IWebElement button = selector.StartsWith("//") 
+                            ? wait.Until(d => d.FindElement(By.XPath(selector))) 
+                            : wait.Until(d => d.FindElement(By.CssSelector(selector)));
+                        button.Click();
+                        Console.WriteLine("1b. Cookies rechazadas");
+                        return;
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        /*
+        private static (double? lat, double? lon) GetLatLonWithSeleniumInstance(
+            IWebDriver driver, string address, string postalCode = "", string localityName = "", string provinceName = "", string oldLatLong = "", int attempt = 1)
+        {
+            string fullQuery = $"{address} {postalCode} {localityName} {provinceName} España";
+
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            try
+            {
+                var searchBox = wait.Until(d => d.FindElement(By.Id("address")));
+                searchBox.Clear();
+                searchBox.SendKeys(fullQuery);
+                Console.WriteLine($"Query introducida en gps-coordinates.net: {fullQuery}");
+
+                var getAddressButton = wait.Until(d => d.FindElement(By.CssSelector("button[onclick='codeAddress()']")));
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", getAddressButton);
+
+
+                Console.WriteLine($"Intento de obtener LatLong: {attempt}");
+                Thread.Sleep(1000);
+                string latlong = driver.FindElement(By.Id("latlong")).GetAttribute("value");
+                if ((latlong == oldLatLong) && (attempt < 5))
+                {
+                    Thread.Sleep(1000);
+                    GetLatLonWithSeleniumInstance(driver, address, postalCode, localityName, provinceName, oldLatLong, attempt + 1);
+                }
+
+                oldLatLong = latlong;
+                
+                var parts = latlong.Split(',');
+                double? latitude = double.Parse(parts[0]);
+                double? longitude = double.Parse(parts[1]);
+
+                Console.WriteLine($"Latitud encontrada: {latitude}. Longitud encontrada: {longitude}.");
+
+                return (latitude, longitude);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return (null, null);
+            }
+        }
+
+        private static void PrepareSiteForSelenium(IWebDriver driver, int attempt = 1)
+        {
+            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            try
+            {
+                Console.WriteLine($"Intento de preparar web para Selenium: {attempt + 1}");
+
+                var consentButton = driver.FindElement(By.CssSelector("button.fc-cta-consent"));
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", consentButton);
+
+                var preSearch = wait.Until(d => d.FindElement(By.Id("address")));
+                Thread.Sleep(1000);
+                preSearch.SendKeys("a");
+                preSearch.Clear();
+                Console.WriteLine("Dado consentimiento a gps-coordinates.net.");
+            }
+            catch (Exception)
+            {
+                if (attempt < 5)
+                {
+                    Thread.Sleep(1000);
+                    PrepareSiteForSelenium(driver, attempt + 1);
+                }
+            }
+        }
+        */
 
         private static void MapCAT(string json, List<UnifiedData> list)
         {
@@ -197,88 +361,6 @@ namespace Backend
             }
             
             return null;
-        }
-
-        // returns lots of empty responses
-        public static async Task<(double? lat, double? lon)> GeocodeAddressWithNominatimAsync(string address, string postalCode)
-        {
-            string query = Uri.EscapeDataString($"{address} {postalCode}");
-            string url = $"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1";
-
-            int maxAttempts = 5;
-            int delayMs = 1000;
-
-            await Task.Delay(1000); // nominatim has a 1 request per second limit
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
-
-                var response = await client.GetAsync(url);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var arr = JArray.Parse(json);
-                    Console.WriteLine($"Nominatim response (attempt {attempt}): {json}");
-                    if (arr.Count > 0)
-                    {
-                        double lat = double.Parse(arr[0]["lat"].ToString(), CultureInfo.InvariantCulture);
-                        double lon = double.Parse(arr[0]["lon"].ToString(), CultureInfo.InvariantCulture);
-                        Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
-                        return (lat, lon);
-                    }
-                }
-                if (attempt < maxAttempts)
-                {
-                    await Task.Delay(delayMs);
-                }
-            }
-            Console.WriteLine($"Nominatim geocoding failed for '{address} {postalCode}' after {maxAttempts} attempts.");
-            return (null, null);
-        }
-
-        // faster and returns less empty responses
-        public static async Task<(double? lat, double? lon)> GeocodeAddressWithPhotonAsync(
-            string address, string postalCode, string localityName = "", string provinceName = "")
-        {
-            string query = Uri.EscapeDataString($"{address} {postalCode} {localityName} {provinceName} España");
-            string url = $"https://photon.komoot.io/api/?q={query}&limit=1";
-
-            int maxAttempts = 5;
-            int delayMs = 1000;
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                using var client = new HttpClient();
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("IEI-App/1.0");
-
-                var response = await client.GetAsync(url);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var obj = JObject.Parse(json);
-                    Console.WriteLine($"Photon response (attempt {attempt}): {json}");
-                    var features = obj["features"];
-                    if (features != null && features.Any())
-                    {
-                        var coords = features[0]?["geometry"]?["coordinates"];
-                        if (coords != null && coords.Count() == 2)
-                        {
-                            double lon = coords[0].Value<double>();
-                            double lat = coords[1].Value<double>();
-                            Console.WriteLine($"Latitude: {lat}, Longitude: {lon}");
-                            return (lat, lon);
-                        }
-                    }
-                }
-                if (attempt < maxAttempts)
-                {
-                    await Task.Delay(delayMs);
-                }
-            }
-            Console.WriteLine($"Photon geocoding failed for '{address} {postalCode}' after {maxAttempts} attempts.");
-            return (null, null);
         }
 
         private static string CleanAddress(string address)
