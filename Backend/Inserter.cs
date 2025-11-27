@@ -6,33 +6,22 @@ namespace Backend
 {
     public class Inserter
     {
-        private static string GetUniqueDatabasePath(string basePath)
-        {
-            // Corrección para manejar valores nulos
-            string dir = Path.GetDirectoryName(basePath) ?? string.Empty;
-            string file = Path.GetFileNameWithoutExtension(basePath) ?? string.Empty;
-            string ext = Path.GetExtension(basePath) ?? string.Empty;
-
-            string candidate = basePath;
-            int counter = 1;
-            while (File.Exists(candidate))
-            {
-                candidate = Path.Combine(dir, $"{file}{counter}{ext}");
-                counter++;
-            }
-            return candidate;
-        }
-
-        private static readonly string ConnectionString = $"Data Source={GetUniqueDatabasePath("databases/iei.db")}";
+        private const string ConnectionString = "Data Source=databases/iei.db";
 
         public static void Run(List<UnifiedData> data)
         {
-            Log.Information("Starting database population. Total records: {RecordCount}", data.Count);
+            Log.Information("Empezando inserción en la base de datos. Registros totales: {RecordCount}", data.Count);
             using var conn = new SqliteConnection(ConnectionString);
             conn.Open();
 
+            string dbDir = Path.GetDirectoryName("databases/iei.db") ?? "databases";
+            if (!Directory.Exists(dbDir))
+            {
+                Directory.CreateDirectory(dbDir);
+            }
+
             InitializeDatabase(conn);
-            Log.Information("Database initialized.");
+            Log.Information("Base de datos inicializada (tablas recreadas).");
 
             var provinceCache = new Dictionary<string, int>();
             var localityCache = new Dictionary<string, int>();
@@ -42,14 +31,14 @@ namespace Backend
             {
                 foreach (var item in data)
                 {
-                    Log.Debug("Processing record: {@Record}", item);
+                    Log.Debug("Procesando registro: {@Record}", item);
 
                     string provName = string.IsNullOrWhiteSpace(item.ProvinceName) ? "Desconocida" : item.ProvinceName.Trim();
                     if (!provinceCache.TryGetValue(provName, out int provinceId))
                     {
                         provinceId = InsertProvince(conn, provName, transaction);
                         provinceCache[provName] = provinceId;
-                        Log.Information("Inserted new province: {ProvinceName} with ID {ProvinceId}", provName, provinceId);
+                        Log.Information("Provincia insertada: {ProvinceName} con ID {ProvinceId}", provName, provinceId);
                     }
 
                     string locName = string.IsNullOrWhiteSpace(item.LocalityName) ? "Desconocida" : item.LocalityName.Trim();
@@ -58,38 +47,47 @@ namespace Backend
                     {
                         localityId = InsertLocality(conn, locName, provinceId, transaction);
                         localityCache[locKey] = localityId;
-                        Log.Information("Inserted new locality: {LocalityName} with ID {LocalityId}", locName, localityId);
+                        Log.Information("Localidad insertada: {LocalityName} con ID {LocalityId}", locName, localityId);
                     }
 
                     InsertStation(conn, item.Station, localityId, transaction);
-                    Log.Information("Inserted station: {StationName}", item.Station.name);
+                    Log.Information("Estación insertada: {StationName}", item.Station.name);
                 }
 
                 transaction.Commit();
-                Log.Information("Database population completed successfully.");
+                Log.Information("Población de la base de datos completada con éxito.");
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
-                Log.Error(ex, "Error inserting data.");
+                Log.Error(ex, "Error al insertar datos.");
             }
         }
 
         private static void InitializeDatabase(SqliteConnection conn)
         {
             using var cmd = conn.CreateCommand();
+            
             cmd.CommandText = @"
-                CREATE TABLE IF NOT EXISTS Provincia (
+                DROP TABLE IF EXISTS Estacion;
+                DROP TABLE IF EXISTS Localidad;
+                DROP TABLE IF EXISTS Provincia;
+            ";
+            cmd.ExecuteNonQuery();
+            Log.Information("Base de datos limpiada.");
+
+            cmd.CommandText = @"
+                CREATE TABLE Provincia (
                     codigo INTEGER PRIMARY KEY AUTOINCREMENT,
                     nombre TEXT NOT NULL UNIQUE
                 );
-                CREATE TABLE IF NOT EXISTS Localidad (
+                CREATE TABLE Localidad (
                     codigo INTEGER PRIMARY KEY AUTOINCREMENT,
                     nombre TEXT NOT NULL,
                     en_provincia INTEGER,
                     FOREIGN KEY(en_provincia) REFERENCES Provincia(codigo)
                 );
-                CREATE TABLE IF NOT EXISTS Estacion (
+                CREATE TABLE Estacion (
                     cod_estacion INTEGER PRIMARY KEY AUTOINCREMENT,
                     nombre TEXT,
                     tipo INTEGER,
@@ -106,6 +104,7 @@ namespace Backend
                 );
             ";
             cmd.ExecuteNonQuery();
+            Log.Information("Tablas creadas correctamente.");
         }
 
         private static int InsertProvince(SqliteConnection conn, string name, SqliteTransaction trans)

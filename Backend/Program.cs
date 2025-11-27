@@ -9,30 +9,29 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Starting ETL Process...");
+    Log.Information("Empezando proceso...");
 
     // 1. Transformación: Convertir fuentes a JSON
-    Log.Information("Step 1: Starting data transformation from 'info' to 'converted_data'.");
+    Log.Information("Paso 1: Iniciando transformación de datos de 'info' a 'converted_data'.");
     string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
     string convertedFolder = Path.Combine(Directory.GetCurrentDirectory(), "converted_data");
     Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
-    Log.Information("Step 1: Data transformation completed.");
+    Log.Information("Paso 1: Transformación de datos completada.");
 
     // 2. Mapeo: Unificar datos
-    Log.Information("Step 2: Starting data mapping from folder '{ConvertedFolder}'.", convertedFolder);
+    Log.Information("Paso 2: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
     var unifiedData = await Mapper.ExecuteMapping(convertedFolder);
-    Log.Information("Step 2: Data mapping completed. Total records mapped: {RecordCount}", unifiedData.Count);
-
+    Log.Information("Paso 2: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
+    
     // 3. Inserción: Poblar base de datos
-    Log.Information("Step 3: Starting database insertion.");
+    Log.Information("Paso 3: Iniciando inserción en la base de datos.");
     Inserter.Run(unifiedData);
-    Log.Information("Step 3: Database insertion completed.");
-
-    Log.Information("ETL Process Finished.");
+    Log.Information("Paso 3: Inserción en la base de datos completada.");
+    Log.Information("Proceso finalizado.");
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "An error occurred during the ETL process.");
+    Log.Error(ex, "Ocurrió un error durante el proceso ETL.");
 }
 finally
 {
