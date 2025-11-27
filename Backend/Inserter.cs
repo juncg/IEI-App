@@ -1,5 +1,6 @@
 using Backend.Models;
 using Microsoft.Data.Sqlite;
+using Serilog;
 
 namespace Backend
 {
@@ -7,9 +8,10 @@ namespace Backend
     {
         private static string GetUniqueDatabasePath(string basePath)
         {
-            string dir = Path.GetDirectoryName(basePath);
-            string file = Path.GetFileNameWithoutExtension(basePath);
-            string ext = Path.GetExtension(basePath);
+            // Corrección para manejar valores nulos
+            string dir = Path.GetDirectoryName(basePath) ?? string.Empty;
+            string file = Path.GetFileNameWithoutExtension(basePath) ?? string.Empty;
+            string ext = Path.GetExtension(basePath) ?? string.Empty;
 
             string candidate = basePath;
             int counter = 1;
@@ -25,10 +27,12 @@ namespace Backend
 
         public static void Run(List<UnifiedData> data)
         {
+            Log.Information("Starting database population. Total records: {RecordCount}", data.Count);
             using var conn = new SqliteConnection(ConnectionString);
             conn.Open();
 
             InitializeDatabase(conn);
+            Log.Information("Database initialized.");
 
             var provinceCache = new Dictionary<string, int>();
             var localityCache = new Dictionary<string, int>();
@@ -38,11 +42,14 @@ namespace Backend
             {
                 foreach (var item in data)
                 {
+                    Log.Debug("Processing record: {@Record}", item);
+
                     string provName = string.IsNullOrWhiteSpace(item.ProvinceName) ? "Desconocida" : item.ProvinceName.Trim();
                     if (!provinceCache.TryGetValue(provName, out int provinceId))
                     {
                         provinceId = InsertProvince(conn, provName, transaction);
                         provinceCache[provName] = provinceId;
+                        Log.Information("Inserted new province: {ProvinceName} with ID {ProvinceId}", provName, provinceId);
                     }
 
                     string locName = string.IsNullOrWhiteSpace(item.LocalityName) ? "Desconocida" : item.LocalityName.Trim();
@@ -51,18 +58,20 @@ namespace Backend
                     {
                         localityId = InsertLocality(conn, locName, provinceId, transaction);
                         localityCache[locKey] = localityId;
+                        Log.Information("Inserted new locality: {LocalityName} with ID {LocalityId}", locName, localityId);
                     }
 
                     InsertStation(conn, item.Station, localityId, transaction);
+                    Log.Information("Inserted station: {StationName}", item.Station.name);
                 }
 
                 transaction.Commit();
-                Console.WriteLine("Database population completed successfully.");
+                Log.Information("Database population completed successfully.");
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
-                Console.WriteLine($"Error inserting data: {ex.Message}");
+                Log.Error(ex, "Error inserting data.");
             }
         }
 
@@ -144,7 +153,7 @@ namespace Backend
             cmd.CommandText = @"
                 INSERT INTO Estacion (nombre, tipo, direccion, codigo_postal, longitud, latitud, descripcion, horario, contacto, URL, en_localidad)
                 VALUES (@nombre, @tipo, @direccion, @postal, @lon, @lat, @desc, @horario, @contacto, @url, @locId)";
-            
+
             cmd.Parameters.AddWithValue("@nombre", s.name ?? "");
             cmd.Parameters.AddWithValue("@tipo", (int)s.type);
             cmd.Parameters.AddWithValue("@direccion", s.address ?? "");
@@ -156,7 +165,7 @@ namespace Backend
             cmd.Parameters.AddWithValue("@contacto", s.contact ?? "");
             cmd.Parameters.AddWithValue("@url", s.url ?? "");
             cmd.Parameters.AddWithValue("@locId", localityId);
-            
+
             cmd.ExecuteNonQuery();
         }
     }

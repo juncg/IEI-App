@@ -4,6 +4,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Newtonsoft.Json;
 using System.Globalization;
+using Serilog;
 
 namespace Backend
 {
@@ -16,9 +17,12 @@ namespace Backend
 
         public static void ConvertFolderToJson(string inputFolder, string outputFolder)
         {
+            Log.Information("Starting transformation of folder: {InputFolder} to JSON in folder: {OutputFolder}", inputFolder, outputFolder);
+
             if (!Directory.Exists(outputFolder))
             {
                 Directory.CreateDirectory(outputFolder);
+                Log.Information("Created output folder: {OutputFolder}", outputFolder);
             }
 
             var files = Directory.GetFiles(inputFolder);
@@ -29,6 +33,8 @@ namespace Backend
 
                 try
                 {
+                    Log.Information("Processing file: {FileName}", fileName);
+
                     if (fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                     {
                         // Try UTF-8 first, then fallback to other encodings
@@ -37,7 +43,7 @@ namespace Backend
                         doc.LoadXml(xmlContent);
                         string json = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.Indented);
                         File.WriteAllText(outputPath, json, Encoding.UTF8);
-                        Console.WriteLine($"Converted {fileName} to JSON.");
+                        Log.Information("Converted XML file: {FileName} to JSON.", fileName);
                     }
                     else if (fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
                     {
@@ -52,19 +58,21 @@ namespace Backend
                         var records = csv.GetRecords<dynamic>().ToList();
                         string json = JsonConvert.SerializeObject(records, Newtonsoft.Json.Formatting.Indented);
                         File.WriteAllText(outputPath, json, Encoding.UTF8);
-                        Console.WriteLine($"Converted {fileName} to JSON.");
+                        Log.Information("Converted CSV file: {FileName} to JSON.", fileName);
                     }
                     else if (fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                     {
                         File.Copy(file, outputPath, true);
-                        Console.WriteLine($"Copied {fileName}.");
+                        Log.Information("Copied JSON file: {FileName}.", fileName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error transforming {fileName}: {ex.Message}");
+                    Log.Error(ex, "Error transforming file: {FileName}", fileName);
                 }
             }
+
+            Log.Information("Transformation completed for folder: {InputFolder}", inputFolder);
         }
 
         private static Encoding DetectEncoding(string file)

@@ -7,6 +7,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
+using Serilog;
 
 namespace Backend
 {
@@ -23,37 +24,47 @@ namespace Backend
 
         public static async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
         {
+            Log.Information("Starting data mapping for folder: {FolderPath}", folderPath);
             var unifiedList = new List<UnifiedData>();
             var files = Directory.GetFiles(folderPath, "*.json");
 
             foreach (var file in files)
             {
+                Log.Information("Processing file: {FileName}", file);
                 string json = File.ReadAllText(file);
                 string fileName = Path.GetFileName(file).ToLower();
 
                 if (fileName.Contains("estaciones")) // CV (Comunidad Valenciana)
                 {
+                    Log.Information("Mapping data for Comunidad Valenciana.");
                     MapCV(json, unifiedList);
-                    Console.WriteLine($"Finished CV");
+                    Log.Information("Finished mapping data for Comunidad Valenciana.");
                 }
                 else if (fileName.Contains("itv-cat")) // CAT (Cataluña)
                 {
+                    Log.Information("Mapping data for Cataluña.");
                     MapCAT(json, unifiedList);
-                    Console.WriteLine($"Finished CAT");
+                    Log.Information("Finished mapping data for Cataluña.");
                 }
                 else if (fileName.Contains("estacions_itv")) // GAL (Galicia)
                 {
+                    Log.Information("Mapping data for Galicia.");
                     MapGAL(json, unifiedList);
-                    Console.WriteLine($"Finished GAL");
+                    Log.Information("Finished mapping data for Galicia.");
+                }
+                else
+                {
+                    Log.Warning("Unknown file format: {FileName}", fileName);
                 }
             }
 
-            Console.WriteLine($"Mapping finished. Total records: {unifiedList.Count}");
+            Log.Information("Data mapping completed. Total records: {RecordCount}", unifiedList.Count);
             return unifiedList;
         }
 
         private static void MapCV(string json, List<UnifiedData> list)
         {
+            Log.Information("Starting mapping for Comunidad Valenciana.");
             var data = JArray.Parse(json);
 
             // options for consistency / to trick google into thinking we are a normal user
@@ -66,50 +77,56 @@ namespace Backend
             options.AddArgument("--window-size=1920,1080");
             options.AddArgument("--disable-blink-features=AutomationControlled");
             options.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            
+
             using var driver = new ChromeDriver(options);
             bool cookiesAccepted = false;
 
             foreach (var item in data)
             {
-                var u = new UnifiedData();
-                u.ProvinceName = NormalizeProvinceName((string)item["PROVINCIA"] ?? "Desconocida");
-                u.LocalityName = (string)item["MUNICIPIO"] ?? "Desconocido";
-
-                string tipo = ((string)item["TIPO ESTACIÓN"] ?? "").ToLower();
-
-                // Asignar tipo de estación
-                if (tipo.Contains("móvil"))
-                    u.Station.type = StationType.Mobile_station;
-                else if (tipo.Contains("fija"))
-                    u.Station.type = StationType.Fixed_station;
-                else
-                    u.Station.type = StationType.Others;
-
-                if (u.Station.type == StationType.Fixed_station)
+                try
                 {
-                    u.Station.name = $"Estación ITV de {u.LocalityName}";
+                    var u = new UnifiedData();
+                    u.ProvinceName = NormalizeProvinceName((string?)item["PROVINCIA"] ?? "Desconocida");
+                    u.LocalityName = (string?)item["MUNICIPIO"] ?? "Desconocido";
+
+                    string tipo = ((string?)item["TIPO ESTACIÓN"] ?? "").ToLower();
+                    Log.Debug("Station type: {StationType}", tipo);
+
+                    // Asignar tipo de estación
+                    if (tipo.Contains("móvil"))
+                        u.Station.type = StationType.Mobile_station;
+                    else if (tipo.Contains("fija"))
+                        u.Station.type = StationType.Fixed_station;
+                    else
+                        u.Station.type = StationType.Others;
+
+                    u.Station.name = u.Station.type == StationType.Fixed_station
+                        ? $"Estación ITV de {u.LocalityName}"
+                        : $"Estación {(string?)item["DIRECCIÓN"] ?? u.LocalityName}";
+
+                    u.Station.address = (string?)item["DIRECCIÓN"] ?? "";
+                    u.Station.postal_code = (string?)item["C.POSTAL"] ?? "";
+                    u.Station.contact = (string?)item["CORREO"] ?? "";
+                    u.Station.schedule = (string?)item["HORARIOS"] ?? "";
+                    u.Station.url = "https://sitval.com";
+
+                    Log.Debug("Station details: {@Station}", u.Station);
+
+                    // Manejo de valores nulos al llamar a GetLatLonSeleniumGoogleMaps
+                    var (lat, lon) = GetLatLonSeleniumGoogleMaps(driver, u.Station.address ?? "", ref cookiesAccepted, u.Station.postal_code ?? "", u.LocalityName ?? "", u.ProvinceName ?? "");
+
+                    u.Station.latitude = lat;
+                    u.Station.longitude = lon;
+
+                    list.Add(u);
                 }
-                else
+                catch (Exception ex)
                 {
-                    string direccion = (string)item["DIRECCIÓN"] ?? u.LocalityName;
-                    direccion = Regex.Replace(direccion, @"\.+", "");
-                    u.Station.name = $"Estación {direccion}";
+                    Log.Error(ex, "Error mapping item: {Item}", item);
                 }
-
-                u.Station.address = (string)item["DIRECCIÓN"];
-                u.Station.postal_code = (string)item["C.POSTAL"];
-                u.Station.contact = (string)item["CORREO"];
-                u.Station.schedule = (string)item["HORARIOS"];
-                u.Station.url = "https://sitval.com";
-
-                var (lat, lon) = GetLatLonSeleniumGoogleMaps(driver, u.Station.address, ref cookiesAccepted, u.Station.postal_code, u.LocalityName, u.ProvinceName);
-
-                u.Station.latitude = lat;
-                u.Station.longitude = lon;
-
-                list.Add(u);
             }
+
+            Log.Information("Finished mapping for Comunidad Valenciana. Total records: {RecordCount}", list.Count);
         }
 
         private static (double? lat, double? lon) GetLatLonSeleniumGoogleMaps(IWebDriver driver, string address, ref bool cookiesAccepted, string postalCode = "", string localityName = "", string provinceName = "")
@@ -122,15 +139,15 @@ namespace Backend
                 string searchUrl = $"https://www.google.com/maps/search/{Uri.EscapeDataString(fullAddress)}";
                 driver.Navigate().GoToUrl(searchUrl);
 
-                Console.WriteLine($"1. Buscando coordenadas de: {fullAddress}");
+                Log.Information("1. Searching coordinates for: {FullAddress}", fullAddress);
 
                 if (!cookiesAccepted)
                 {
-                    Console.WriteLine("1a. Pausando busqueda para responder al consentimiento de cookies.");
+                    Log.Information("1a. Pausing search to handle cookie consent.");
                     AcceptCookies(driver);
                     cookiesAccepted = true;
                     Thread.Sleep(1000);
-                    Console.WriteLine("1c. Reanudando busqueda.");
+                    Log.Information("1c. Resuming search.");
                 }
 
                 // wait until coords are loaded
@@ -138,21 +155,22 @@ namespace Backend
                 wait.Until(d => d.Url.Contains("@"));
 
                 string currentUrl = driver.Url;
-                var match = Regex.Match(currentUrl, @"@(-?\d+\.\d+),(-?\d+\.\d+)");
+                // Corrección de la expresión regular con secuencias de escape válidas
+                var match = Regex.Match(currentUrl, "@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)");
                 if (match.Success)
                 {
                     double lat = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
                     double lon = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                    Console.WriteLine($"2. Latitud encontrada: {lat}. Longitud encontrada: {lon}.\n");
+                    Log.Information("2. Latitude found: {Lat}. Longitude found: {Lon}.", lat, lon);
                     return (lat, lon);
                 }
 
-                Console.WriteLine($"!!! Coordenadas no encontradas para: {fullAddress}\n");
+                Log.Warning("!!! Coordinates not found for: {FullAddress}", fullAddress);
                 return (null, null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"!!! ERROR procesando coordenadas para '{fullAddress}': {ex.Message}\n");
+                Log.Error(ex, "!!! ERROR processing coordinates for '{FullAddress}'", fullAddress);
                 return (null, null);
             }
         }
@@ -173,8 +191,8 @@ namespace Backend
                 {
                     try
                     {
-                        IWebElement button = selector.StartsWith("//") 
-                            ? wait.Until(d => d.FindElement(By.XPath(selector))) 
+                        IWebElement button = selector.StartsWith("//")
+                            ? wait.Until(d => d.FindElement(By.XPath(selector)))
                             : wait.Until(d => d.FindElement(By.CssSelector(selector)));
                         button.Click();
                         Console.WriteLine("1b. Cookies rechazadas");
@@ -268,31 +286,31 @@ namespace Backend
             foreach (var item in rows)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = NormalizeProvinceName((string)item["serveis_territorials"] ?? "Barcelona"); // Default o mapeo específico
-                u.LocalityName = (string)item["municipi"] ?? "Desconocido";
+                u.ProvinceName = NormalizeProvinceName((string?)item["serveis_territorials"] ?? "Barcelona"); // Default o mapeo específico
+                u.LocalityName = (string?)item["municipi"] ?? "Desconocido";
 
-                string nombre = (string)item["denominaci"] ?? u.LocalityName;
+                string nombre = (string?)item["denominaci"] ?? u.LocalityName;
                 u.Station.name = $"Estación ITV de {nombre}";
 
-                u.Station.address = (string)item["adre_a"];
+                u.Station.address = (string?)item["adre_a"];
 
-                string cp = (string)item["cp"];
+                string cp = (string?)item["cp"] ?? "";
                 u.Station.postal_code = cp.Length >= 5 ? cp.Substring(0, 5) : cp;
 
-                string contact = (string)item["correu_electr_nic"];
+                string contact = (string?)item["correu_electr_nic"] ?? "";
                 if (!string.IsNullOrWhiteSpace(contact) && !IsUrl(contact))
                 {
                     u.Station.contact = contact;
                 }
 
-                u.Station.schedule = (string)item["horari_de_servei"];
-                u.Station.url = (string)item["web"]?["@url"];
+                u.Station.schedule = (string?)item["horari_de_servei"] ?? "";
+                u.Station.url = (string?)item["web"]?["@url"] ?? "";
                 u.Station.type = StationType.Fixed_station;
 
-                if (double.TryParse((string)item["lat"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
+                if (double.TryParse((string?)item["lat"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
                     u.Station.latitude = lat / 100000.0;
 
-                if (double.TryParse((string)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
+                if (double.TryParse((string?)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
                     u.Station.longitude = lon / 100000.0;
 
                 list.Add(u);
@@ -305,17 +323,17 @@ namespace Backend
             foreach (var item in data)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = NormalizeProvinceName((string)item["PROVINCIA"] ?? "Desconocida");
-                u.LocalityName = (string)item["CONCELLO"] ?? "Desconocido";
+                u.ProvinceName = NormalizeProvinceName((string?)item["PROVINCIA"] ?? "Desconocida");
+                u.LocalityName = (string?)item["CONCELLO"] ?? "Desconocido";
 
-                string nombre = (string)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
+                string nombre = (string?)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
                 u.Station.name = nombre;
 
-                u.Station.address = (string)item["ENDEREZO"];
-                u.Station.postal_code = (string)item["CÓDIGO POSTAL"];
+                u.Station.address = (string?)item["ENDEREZO"] ?? "";
+                u.Station.postal_code = (string?)item["CÓDIGO POSTAL"] ?? "";
 
-                string telefono = (string)item["TELÉFONO"];
-                string correo = (string)item["CORREO ELECTRÓNICO"];
+                string telefono = (string?)item["TELÉFONO"] ?? "";
+                string correo = (string?)item["CORREO ELECTRÓNICO"] ?? "";
 
                 var contactParts = new List<string>();
                 if (!string.IsNullOrWhiteSpace(telefono))
@@ -325,11 +343,11 @@ namespace Backend
 
                 u.Station.contact = contactParts.Count > 0 ? string.Join(" ", contactParts) : null;
 
-                u.Station.schedule = (string)item["HORARIO"];
-                u.Station.url = (string)item["SOLICITUDE DE CITA PREVIA"];
+                u.Station.schedule = (string?)item["HORARIO"] ?? "";
+                u.Station.url = (string?)item["SOLICITUDE DE CITA PREVIA"] ?? "";
                 u.Station.type = StationType.Fixed_station;
 
-                string coords = (string)item["COORDENADAS GMAPS"];
+                string coords = (string?)item["COORDENADAS GMAPS"] ?? "";
                 if (!string.IsNullOrEmpty(coords))
                 {
                     var coordsParsed = ParseDegreesMinutesCoordinates(coords);
