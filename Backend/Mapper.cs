@@ -351,29 +351,82 @@ namespace Backend
 
             provinceName = provinceName.Trim();
 
-            if (provinceName.Equals("Castellón", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("Castelló", StringComparison.OrdinalIgnoreCase))
-                return "Castellón";
+            // Lista de provincias conocidas
+            var provinces = new List<string>
+            {
+                "A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila",
+                "Badajoz", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón",
+                "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa",
+                "Huelva", "Huesca", "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Lugo",
+                "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra",
+                "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona",
+                "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
+            };
 
-            if (provinceName.Equals("Valencia", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("València", StringComparison.OrdinalIgnoreCase))
-                return "Valencia";
+            // Función para calcular la similitud entre cadenas
+            // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
+            // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas.
+            // source: La primera cadena a comparar.
+            // target: La segunda cadena a comparar.
+            double CalculateSimilarity(string source, string target)
+            {
+                source = source.ToLower();
+                target = target.ToLower();
 
-            if (provinceName.Equals("Alicante", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("Aligante", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("Alacant", StringComparison.OrdinalIgnoreCase))
-                return "Alicante";
+                // Crear una matriz para almacenar las distancias entre subcadenas.
+                int[,] dp = new int[source.Length + 1, target.Length + 1];
 
-            if (provinceName.Equals("A Coruña", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("CoruÃ±a", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("Coruña", StringComparison.OrdinalIgnoreCase))
-                return "A Coruña";
+                // Inicializar la primera fila y columna de la matriz.
+                for (int i = 0; i <= source.Length; i++)
+                    dp[i, 0] = i; // Costo de eliminar todos los caracteres de "source".
+                for (int j = 0; j <= target.Length; j++)
+                    dp[0, j] = j; // Costo de insertar todos los caracteres de "target".
 
-            if (provinceName.Equals("Girona", StringComparison.OrdinalIgnoreCase) ||
-                provinceName.Equals("Gerona", StringComparison.OrdinalIgnoreCase))
-                return "Girona";
+                // Rellenar la matriz utilizando la distancia de Levenshtein.
+                for (int i = 1; i <= source.Length; i++)
+                {
+                    for (int j = 1; j <= target.Length; j++)
+                    {
+                        // Determinar el costo de sustitución (0 si los caracteres son iguales, 1 si son diferentes).
+                        int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
 
-            return provinceName;
+                        // Calcular el costo mínimo entre eliminar, insertar o sustituir un carácter.
+                        dp[i, j] = Math.Min(
+                            Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1), // Eliminar o insertar.
+                            dp[i - 1, j - 1] + cost // Sustituir.
+                        );
+                    }
+                }
+
+                // La distancia de Levenshtein es el valor en la esquina inferior derecha de la matriz.
+                int levenshteinDistance = dp[source.Length, target.Length];
+
+                // Calcular la similitud como 1 menos la distancia normalizada por la longitud máxima de las cadenas.
+                return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
+            }
+
+            // Buscar la provincia más similar
+            string bestMatch = "Desconocida";
+            double highestSimilarity = 0.0;
+
+            foreach (var province in provinces)
+            {
+                double similarity = CalculateSimilarity(provinceName, province);
+                if (similarity > highestSimilarity)
+                {
+                    highestSimilarity = similarity;
+                    bestMatch = province;
+                }
+            }
+
+            // Si la similitud más alta es menor a un umbral, considerar que no coincide con ninguna provincia.
+            const double similarityThreshold = 0.5; // Umbral mínimo de similitud
+            if (highestSimilarity < similarityThreshold)
+            {
+                return "Desconocida";
+            }
+
+            return bestMatch;
         }
 
         private static bool IsUrl(string text)
