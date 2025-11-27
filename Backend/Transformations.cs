@@ -17,12 +17,12 @@ namespace Backend
 
         public static void ConvertFolderToJson(string inputFolder, string outputFolder)
         {
-            Log.Information("Starting transformation of folder: {InputFolder} to JSON in folder: {OutputFolder}", inputFolder, outputFolder);
+            Log.Information("Empezando transformación de la carpeta: {InputFolder} a JSON en la carpeta: {OutputFolder}", inputFolder, outputFolder);
 
             if (!Directory.Exists(outputFolder))
             {
                 Directory.CreateDirectory(outputFolder);
-                Log.Information("Created output folder: {OutputFolder}", outputFolder);
+                Log.Information("Carpeta de salida creada: {OutputFolder}", outputFolder);
             }
 
             var files = Directory.GetFiles(inputFolder);
@@ -33,7 +33,7 @@ namespace Backend
 
                 try
                 {
-                    Log.Information("Processing file: {FileName}", fileName);
+                    Log.Information("Procesando archivo: {FileName}", fileName);
 
                     if (fileName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                     {
@@ -43,7 +43,7 @@ namespace Backend
                         doc.LoadXml(xmlContent);
                         string json = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.Indented);
                         File.WriteAllText(outputPath, json, Encoding.UTF8);
-                        Log.Information("Converted XML file: {FileName} to JSON.", fileName);
+                        Log.Information("Archivo XML convertido: {FileName} a JSON.", fileName);
                     }
                     else if (fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
                     {
@@ -58,21 +58,21 @@ namespace Backend
                         var records = csv.GetRecords<dynamic>().ToList();
                         string json = JsonConvert.SerializeObject(records, Newtonsoft.Json.Formatting.Indented);
                         File.WriteAllText(outputPath, json, Encoding.UTF8);
-                        Log.Information("Converted CSV file: {FileName} to JSON.", fileName);
+                        Log.Information("Archivo CSV convertido: {FileName} a JSON.", fileName);
                     }
                     else if (fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                     {
                         File.Copy(file, outputPath, true);
-                        Log.Information("Copied JSON file: {FileName}.", fileName);
+                        Log.Information("Archivo JSON copiado: {FileName}.", fileName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Error transforming file: {FileName}", fileName);
+                    Log.Error(ex, "Error transformando archivo: {FileName}", fileName);
                 }
             }
 
-            Log.Information("Transformation completed for folder: {InputFolder}", inputFolder);
+            Log.Information("Transformación completada para la carpeta: {InputFolder}", inputFolder);
         }
 
         private static Encoding DetectEncoding(string file)

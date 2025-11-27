@@ -1,10 +1,42 @@
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Collections.Generic;
 
 
 
 public class Utilities
 {
+    #region Constants
+        private static readonly List<string> provinces = new List<string>
+        {
+            "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona",
+            "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba",
+            "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca",
+            "Islas Baleares", "Jaén", "La Coruña", "La Rioja", "Las Palmas", "León", "Lleida",
+            "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra",
+            "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona",
+            "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
+        };
+
+        private static readonly Dictionary<string, (string Provincia, string Comunidad)> MapeoProvincias = new Dictionary<string, (string, string)>
+        {
+            {"03", ("Alicante", "Comunidad Valenciana")},
+            {"12", ("Castellón", "Comunidad Valenciana")},
+            {"46", ("Valencia", "Comunidad Valenciana")},
+
+            {"08", ("Barcelona", "Cataluña")},
+            {"17", ("Girona", "Cataluña")},
+            {"25", ("Lleida", "Cataluña")},
+            {"43", ("Tarragona", "Cataluña")},
+
+            {"15", ("A Coruña", "Galicia")},
+            {"27", ("Lugo", "Galicia")},
+            {"32", ("Ourense", "Galicia")},
+            {"36", ("Pontevedra", "Galicia")}
+        };
+
+    #endregion
+    #region Public Methods
         public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
         {
             try
@@ -86,16 +118,7 @@ public class Utilities
             provinceName = provinceName.Trim();
 
             // Lista de provincias conocidas
-            var provinces = new List<string>
-            {
-                "A Coruña", "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila",
-                "Badajoz", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón",
-                "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa",
-                "Huelva", "Huesca", "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Lugo",
-                "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra",
-                "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona",
-                "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
-            };
+
 
             // Función para calcular la similitud entre cadenas
             // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
@@ -175,6 +198,43 @@ public class Utilities
                    Regex.IsMatch(text, @"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}");
         }
 
+        public static bool IsValidPostalCodeForCommunity(string postalCode, string comunidad)
+        {
+            if (string.IsNullOrWhiteSpace(postalCode))
+                return false;
+
+            if (postalCode.Length != 5 || !postalCode.All(char.IsDigit))
+                return false;
+
+            string codigoProvincia = postalCode.Substring(0, 2);
+
+            if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
+            {
+                return info.Comunidad.Equals(comunidad, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return false;
+        }
+
+        public static string? GetProvinceFromPostalCode(string postalCode)
+        {
+            if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length < 2)
+                return null;
+
+            string codigoProvincia = postalCode.Substring(0, 2);
+
+            if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
+            {
+                return info.Provincia;
+            }
+
+            return null;
+        }
+
+
+    #endregion
+    #region Other Methods
+
                 /*
         private static (double? lat, double? lon) GetLatLonWithSeleniumInstance(
             IWebDriver driver, string address, string postalCode = "", string localityName = "", string provinceName = "", string oldLatLong = "", int attempt = 1)
@@ -247,4 +307,5 @@ public class Utilities
             }
         }
         */
+    #endregion
 }

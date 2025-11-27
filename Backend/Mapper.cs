@@ -86,13 +86,14 @@ namespace Backend
                 try
                 {
                     var u = new UnifiedData();
-                    u.ProvinceName = Utilities.NormalizeProvinceName((string?)item["PROVINCIA"] ?? "Desconocida");
+
+
+
                     u.LocalityName = (string?)item["MUNICIPIO"] ?? "Desconocido";
 
                     string tipo = ((string?)item["TIPO ESTACIÓN"] ?? "").ToLower();
                     Log.Debug("Tipo de estación: {StationType}", tipo);
 
-                    // Asignar tipo de estación
                     if (tipo.Contains("móvil"))
                         u.Station.type = StationType.Mobile_station;
                     else if (tipo.Contains("fija"))
@@ -100,12 +101,38 @@ namespace Backend
                     else
                         u.Station.type = StationType.Others;
 
+                    string postalCode = (string?)item["C.POSTAL"] ?? "";
+                    if (u.Station.type == StationType.Fixed_station && !Utilities.IsValidPostalCodeForCommunity(postalCode, "Comunidad Valenciana"))
+                    {
+                        Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Comunidad Valenciana", postalCode);
+                        continue;
+                    }
+
+                    string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
+                    u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
+
+                    if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode))
+                    {
+                        string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
+                        if (provinceFromCP != null)
+                        {
+                            u.ProvinceName = provinceFromCP;
+                            Log.Information("Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
+                        }
+                    }
+
+                    if (u.ProvinceName == "Desconocida")
+                    {
+                        Log.Warning("Estación descartada: no se pudo determinar la provincia para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                        continue;
+                    }
+
                     u.Station.name = u.Station.type == StationType.Fixed_station
                         ? $"Estación ITV de {u.LocalityName}"
                         : $"Estación {(string?)item["DIRECCIÓN"] ?? u.LocalityName}";
 
                     u.Station.address = (string?)item["DIRECCIÓN"] ?? "";
-                    u.Station.postal_code = (string?)item["C.POSTAL"] ?? "";
+                    u.Station.postal_code = u.Station.type == StationType.Fixed_station ? postalCode : "";
                     u.Station.contact = (string?)item["CORREO"] ?? "";
                     u.Station.schedule = (string?)item["HORARIOS"] ?? "";
                     u.Station.url = "https://sitval.com";
@@ -113,7 +140,7 @@ namespace Backend
                     Log.Debug("Detalles de la estación: {@Station}", u.Station);
 
                     // Manejo de valores nulos al llamar a GetLatLonSeleniumGoogleMaps
-                    var (lat, lon) = GetLatLonSeleniumGoogleMaps(driver, u.Station.address ?? "", ref cookiesAccepted, u.Station.postal_code ?? "", u.LocalityName ?? "", u.ProvinceName ?? "");
+                    var (lat, lon) = u.Station.type == StationType.Fixed_station ? GetLatLonSeleniumGoogleMaps(driver, u.Station.address ?? "", ref cookiesAccepted, u.Station.postal_code ?? "", u.LocalityName ?? "", u.ProvinceName ?? "") : (null, null);
 
                     u.Station.latitude = lat;
                     u.Station.longitude = lon;
@@ -215,7 +242,33 @@ namespace Backend
             foreach (var item in rows)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = Utilities.NormalizeProvinceName((string?)item["serveis_territorials"] ?? "Barcelona"); // Default o mapeo específico
+                
+                string postalCode = (string?)item["cp"] ?? "";
+                if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Cataluña"))
+                {
+                    Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Cataluña", postalCode);
+                    continue;
+                }
+                
+                string rawProvinceName = (string?)item["serveis_territorials"] ?? "";
+                u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
+
+                if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode))
+                {
+                    string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
+                    if (provinceFromCP != null)
+                    {
+                        u.ProvinceName = provinceFromCP;
+                        Log.Information("Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
+                    }
+                }
+
+                if (u.ProvinceName == "Desconocida")
+                {
+                    Log.Warning("Estación descartada: no se pudo determinar la provincia para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                    continue;
+                }
+
                 u.LocalityName = (string?)item["municipi"] ?? "Desconocido";
 
                 string nombre = (string?)item["denominaci"] ?? u.LocalityName;
@@ -223,8 +276,8 @@ namespace Backend
 
                 u.Station.address = (string?)item["adre_a"];
 
-                string cp = (string?)item["cp"] ?? "";
-                u.Station.postal_code = cp.Length >= 5 ? cp.Substring(0, 5) : cp;
+                
+                u.Station.postal_code = postalCode;
 
                 string contact = (string?)item["correu_electr_nic"] ?? "";
                 if (!string.IsNullOrWhiteSpace(contact) && !Utilities.IsUrl(contact))
@@ -252,14 +305,40 @@ namespace Backend
             foreach (var item in data)
             {
                 var u = new UnifiedData();
-                u.ProvinceName = Utilities.NormalizeProvinceName((string?)item["PROVINCIA"] ?? "Desconocida");
+
+                string postalCode = (string?)item["CÓDIGO POSTAL"] ?? "";
+                if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Galicia"))
+                {
+                    Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Galicia", postalCode);
+                    continue;
+                }
+                
+                string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
+                u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
+
+                if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode))
+                {
+                    string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
+                    if (provinceFromCP != null)
+                    {
+                        u.ProvinceName = provinceFromCP;
+                        Log.Information("Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
+                    }
+                }
+
+                if (u.ProvinceName == "Desconocida")
+                {
+                    Log.Warning("Estación descartada: no se pudo determinar la provincia para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                    continue;
+                }
+                        
                 u.LocalityName = (string?)item["CONCELLO"] ?? "Desconocido";
 
                 string nombre = (string?)item["NOME DA ESTACIÓN"] ?? u.LocalityName;
                 u.Station.name = nombre;
 
                 u.Station.address = (string?)item["ENDEREZO"] ?? "";
-                u.Station.postal_code = (string?)item["CÓDIGO POSTAL"] ?? "";
+                u.Station.postal_code = postalCode;
 
                 string telefono = (string?)item["TELÉFONO"] ?? "";
                 string correo = (string?)item["CORREO ELECTRÓNICO"] ?? "";
