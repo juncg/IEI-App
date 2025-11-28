@@ -20,12 +20,14 @@ try
 
     // 2. Mapeo: Unificar datos
     Log.Information("Paso 2: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
-    var unifiedData = await Mapper.ExecuteMapping(convertedFolder);
+    var mapperService = new Backend.Services.MapperService();
+    var unifiedData = await mapperService.ExecuteMapping(convertedFolder);
     Log.Information("Paso 2: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
     
     // 3. Inserción: Poblar base de datos
     Log.Information("Paso 3: Iniciando inserción en la base de datos.");
-    Inserter.Run(unifiedData);
+    var inserter = new Backend.Services.DataInserter();
+    inserter.Run(unifiedData);
     Log.Information("Paso 3: Inserción en la base de datos completada.");
     Log.Information("Proceso finalizado.");
 }

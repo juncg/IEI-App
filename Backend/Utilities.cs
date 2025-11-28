@@ -74,7 +74,7 @@ public class Utilities
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error parsing coordinates '{coords}': {ex.Message}");
+                Console.WriteLine($"Error al analizar las coordenadas '{coords}': {ex.Message}");
             }
 
             return null;
@@ -231,81 +231,5 @@ public class Utilities
             return null;
         }
 
-
-    #endregion
-    #region Other Methods
-
-                /*
-        private static (double? lat, double? lon) GetLatLonWithSeleniumInstance(
-            IWebDriver driver, string address, string postalCode = "", string localityName = "", string provinceName = "", string oldLatLong = "", int attempt = 1)
-        {
-            string fullQuery = $"{address} {postalCode} {localityName} {provinceName} España";
-
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-
-            try
-            {
-                var searchBox = wait.Until(d => d.FindElement(By.Id("address")));
-                searchBox.Clear();
-                searchBox.SendKeys(fullQuery);
-                Console.WriteLine($"Query introducida en gps-coordinates.net: {fullQuery}");
-
-                var getAddressButton = wait.Until(d => d.FindElement(By.CssSelector("button[onclick='codeAddress()']")));
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", getAddressButton);
-
-
-                Console.WriteLine($"Intento de obtener LatLong: {attempt}");
-                Thread.Sleep(1000);
-                string latlong = driver.FindElement(By.Id("latlong")).GetAttribute("value");
-                if ((latlong == oldLatLong) && (attempt < 5))
-                {
-                    Thread.Sleep(1000);
-                    GetLatLonWithSeleniumInstance(driver, address, postalCode, localityName, provinceName, oldLatLong, attempt + 1);
-                }
-
-                oldLatLong = latlong;
-                
-                var parts = latlong.Split(',');
-                double? latitude = double.Parse(parts[0]);
-                double? longitude = double.Parse(parts[1]);
-
-                Console.WriteLine($"Latitud encontrada: {latitude}. Longitud encontrada: {longitude}.");
-
-                return (latitude, longitude);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return (null, null);
-            }
-        }
-
-        private static void PrepareSiteForSelenium(IWebDriver driver, int attempt = 1)
-        {
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-
-            try
-            {
-                Console.WriteLine($"Intento de preparar web para Selenium: {attempt + 1}");
-
-                var consentButton = driver.FindElement(By.CssSelector("button.fc-cta-consent"));
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", consentButton);
-
-                var preSearch = wait.Until(d => d.FindElement(By.Id("address")));
-                Thread.Sleep(1000);
-                preSearch.SendKeys("a");
-                preSearch.Clear();
-                Console.WriteLine("Dado consentimiento a gps-coordinates.net.");
-            }
-            catch (Exception)
-            {
-                if (attempt < 5)
-                {
-                    Thread.Sleep(1000);
-                    PrepareSiteForSelenium(driver, attempt + 1);
-                }
-            }
-        }
-        */
     #endregion
 }

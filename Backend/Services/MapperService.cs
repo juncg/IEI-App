@@ -1,0 +1,62 @@
+using Backend.Models;
+using Backend.Services.Mappers;
+using Serilog;
+
+namespace Backend.Services
+{
+    public class MapperService
+    {
+        public async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
+        {
+            Log.Information("Empezando mapeo de datos: {FolderPath}", folderPath);
+            var unifiedList = new List<UnifiedData>();
+            var files = Directory.GetFiles(folderPath, "*.json");
+
+            foreach (var file in files)
+            {
+                Log.Information("Procesando archivo: {FileName}", file);
+                string json = await File.ReadAllTextAsync(file);
+                string fileName = Path.GetFileName(file).ToLower();
+
+                IMapper? mapper = null;
+
+                if (fileName.Contains("estaciones")) // CV (Comunidad Valenciana)
+                {
+                    mapper = new CVMapper();
+                }
+                else if (fileName.Contains("itv-cat")) // CAT (Cataluña)
+                {
+                    mapper = new CATMapper();
+                }
+                else if (fileName.Contains("estacions_itv")) // GAL (Galicia)
+                {
+                    mapper = new GALMapper();
+                }
+                else
+                {
+                    Log.Warning("Formato de archivo desconocido: {FileName}", fileName);
+                }
+
+                if (mapper != null)
+                {
+                    try
+                    {
+                        // Run mapping in a separate task to avoid blocking if it was synchronous, 
+                        // though here we are just calling it directly as the interface is void.
+                        // If we wanted async mappers, we would change IMapper to return Task.
+                        // For now, keeping it simple as per original code structure but wrapped in Task.Run if needed for heavy lifting.
+                        // However, original code was synchronous inside the loop.
+                        mapper.Map(json, unifiedList);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Error durante el mapeo del archivo {FileName}", fileName);
+                    }
+                }
+            }
+
+            Log.Information("Mapeo de datos completado. Registros mapeados totales: {RecordCount}", unifiedList.Count);
+            return unifiedList;
+        }
+    }
+}
