@@ -117,9 +117,6 @@ public class Utilities
 
         provinceName = provinceName.Trim();
 
-        // Lista de provincias conocidas
-
-
         // Función para calcular la similitud entre cadenas
         // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
         // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas.

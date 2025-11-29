@@ -1,7 +1,6 @@
 using Backend;
 using Serilog;
 
-// Configurar Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
@@ -42,7 +41,6 @@ finally
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configurar Serilog como el logger principal
 builder.Host.UseSerilog();
 
 // Add services to the container.
