@@ -28,26 +28,12 @@ namespace Backend.Services
                 Directory.CreateDirectory(dbDir);
             }
 
-            // Eliminar base de datos existente si existe para empezar de cero
-            if (File.Exists(dbPath))
-            {
-                try
-                {
-                    File.Delete(dbPath);
-                    Log.Information("Base de datos existente eliminada: {DbPath}", dbPath);
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning(ex, "No se pudo eliminar la base de datos existente: {DbPath}", dbPath);
-                }
-            }
-
             Log.Information("Empezando inserción en la base de datos. Registros totales: {RecordCount}", data.Count);
             using var conn = new SqliteConnection(connectionString);
             conn.Open();
 
             DatabaseInitializer.Initialize(conn);
-            Log.Information("Base de datos inicializada.");
+            Log.Information("Base de datos inicializada (tablas borradas y recreadas).");
 
             var provinceCache = new Dictionary<string, int>();
             var localityCache = new Dictionary<string, int>();
@@ -60,20 +46,32 @@ namespace Backend.Services
                     Log.Debug("Procesando registro: {@Record}", item);
 
                     string provName = string.IsNullOrWhiteSpace(item.ProvinceName) ? "Desconocida" : item.ProvinceName.Trim();
-                    if (!provinceCache.TryGetValue(provName, out int provinceId))
+
+                    int? provinceId = null;
+                    if (provName != "Desconocida" && !string.IsNullOrWhiteSpace(provName))
                     {
-                        provinceId = _locationRepository.GetOrInsertProvince(conn, provName, transaction);
-                        provinceCache[provName] = provinceId;
-                        Log.Information("Provincia insertada: {ProvinceName} con ID {ProvinceId}", provName, provinceId);
+                        if (!provinceCache.TryGetValue(provName, out int cachedProvinceId))
+                        {
+                            cachedProvinceId = _locationRepository.GetOrInsertProvince(conn, provName, transaction);
+                            provinceCache[provName] = cachedProvinceId;
+                            Log.Information("Provincia insertada: {ProvinceName} con ID {ProvinceId}", provName, cachedProvinceId);
+                        }
+                        provinceId = cachedProvinceId;
                     }
 
-                    string locName = string.IsNullOrWhiteSpace(item.LocalityName) ? "Desconocida" : item.LocalityName.Trim();
-                    string locKey = $"{provinceId}-{locName}";
-                    if (!localityCache.TryGetValue(locKey, out int localityId))
+                    int? localityId = null;
+                    string locName = item.LocalityName?.Trim() ?? "";
+
+                    if (provinceId.HasValue && !string.IsNullOrWhiteSpace(locName))
                     {
-                        localityId = _locationRepository.GetOrInsertLocality(conn, locName, provinceId, transaction);
-                        localityCache[locKey] = localityId;
-                        Log.Information("Localidad insertada: {LocalityName} con ID {LocalityId}", locName, localityId);
+                        string locKey = $"{provinceId.Value}-{locName}";
+                        if (!localityCache.TryGetValue(locKey, out int cachedLocalityId))
+                        {
+                            cachedLocalityId = _locationRepository.GetOrInsertLocality(conn, locName, provinceId.Value, transaction);
+                            localityCache[locKey] = cachedLocalityId;
+                            Log.Information("Localidad insertada: {LocalidadName} con ID {LocalidadId}", locName, cachedLocalityId);
+                        }
+                        localityId = cachedLocalityId;
                     }
 
                     _stationRepository.InsertStation(conn, item.Station, localityId, transaction);

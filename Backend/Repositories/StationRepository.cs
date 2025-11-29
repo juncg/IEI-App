@@ -5,7 +5,7 @@ namespace Backend.Repositories
 {
     public class StationRepository
     {
-        public void InsertStation(SqliteConnection conn, Station s, int localityId, SqliteTransaction trans)
+        public void InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
             using var cmd = conn.CreateCommand();
             cmd.Transaction = trans;
@@ -23,7 +23,7 @@ namespace Backend.Repositories
             cmd.Parameters.AddWithValue("@horario", s.schedule ?? "");
             cmd.Parameters.AddWithValue("@contacto", s.contact ?? "");
             cmd.Parameters.AddWithValue("@url", s.url ?? "");
-            cmd.Parameters.AddWithValue("@locId", localityId);
+            cmd.Parameters.AddWithValue("@locId", localityId.HasValue ? localityId.Value : (object)DBNull.Value);
 
             cmd.ExecuteNonQuery();
         }

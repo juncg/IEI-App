@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class Utilities
 {
     #region Constants
-        private static readonly List<string> provinces = new List<string>
+    private static readonly List<string> provinces = new List<string>
         {
             "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Barcelona",
             "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba",
@@ -18,7 +18,7 @@ public class Utilities
             "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
         };
 
-        private static readonly Dictionary<string, (string Provincia, string Comunidad)> MapeoProvincias = new Dictionary<string, (string, string)>
+    private static readonly Dictionary<string, (string Provincia, string Comunidad)> MapeoProvincias = new Dictionary<string, (string, string)>
         {
             {"03", ("Alicante", "Comunidad Valenciana")},
             {"12", ("Castellón", "Comunidad Valenciana")},
@@ -37,199 +37,219 @@ public class Utilities
 
     #endregion
     #region Public Methods
-        public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
+    public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
+    {
+        try
         {
-            try
+            if (!coords.Contains("°"))
             {
-                if (!coords.Contains("°"))
+                var parts = coords.Split(',');
+                if (parts.Length == 2)
                 {
-                    var parts = coords.Split(',');
-                    if (parts.Length == 2)
+                    if (double.TryParse(parts[0].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
+                        double.TryParse(parts[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
                     {
-                        if (double.TryParse(parts[0].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
-                            double.TryParse(parts[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
-                        {
-                            return (lat, lon);
-                        }
-                    }
-                }
-                else
-                {
-                    var pattern = @"(-?\d+)°\s*(\d+\.?\d*)',?\s*(-?\d+)°\s*(\d+\.?\d*)";
-                    var match = Regex.Match(coords, pattern);
-
-                    if (match.Success)
-                    {
-                        double latDegrees = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                        double latMinutes = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                        double lonDegrees = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
-                        double lonMinutes = double.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
-
-                        double lat = latDegrees + (latMinutes / 60.0);
-                        double lon = lonDegrees + (lonMinutes / 60.0);
-
                         return (lat, lon);
                     }
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error al analizar las coordenadas '{coords}': {ex.Message}");
-            }
+                var pattern = @"(-?\d+)°\s*(\d+\.?\d*)',?\s*(-?\d+)°\s*(\d+\.?\d*)";
+                var match = Regex.Match(coords, pattern);
 
-            return null;
-        }
-
-        public static string CleanAddress(string address)
-        {
-            if (string.IsNullOrWhiteSpace(address))
-                return "";
-
-            // common abbreviations
-            address = Regex.Replace(address, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bKm\.?\b", "Kilómetro", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bC/\b", "Calle ", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bs/n\b", "", RegexOptions.IgnoreCase);
-            address = Regex.Replace(address, @"\bPlá\b", "Pla", RegexOptions.IgnoreCase);
-
-            // replace periods with commas, unless part of decimal numbers
-            address = Regex.Replace(address, @"(?<!\d)\.(?!\d)", ",");
-
-            // add space after comma if missing
-            address = Regex.Replace(address, @",(\S)", ", $1");
-
-            // remove duplicate spaces
-            address = Regex.Replace(address, @"\s+", " ");
-
-            // trim trailing spaces and commas
-            address = address.Trim(' ', ',');
-
-            return address;
-        }
-
-        public static string NormalizeProvinceName(string provinceName)
-        {
-            if (string.IsNullOrWhiteSpace(provinceName))
-                return "Desconocida";
-
-            provinceName = provinceName.Trim();
-
-            // Lista de provincias conocidas
-
-
-            // Función para calcular la similitud entre cadenas
-            // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
-            // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas.
-            // source: La primera cadena a comparar.
-            // target: La segunda cadena a comparar.
-            double CalculateSimilarity(string source, string target)
-            {
-                source = source.ToLower();
-                target = target.ToLower();
-
-                // Crear una matriz para almacenar las distancias entre subcadenas.
-                int[,] dp = new int[source.Length + 1, target.Length + 1];
-
-                // Inicializar la primera fila y columna de la matriz.
-                for (int i = 0; i <= source.Length; i++)
-                    dp[i, 0] = i; // Costo de eliminar todos los caracteres de "source".
-                for (int j = 0; j <= target.Length; j++)
-                    dp[0, j] = j; // Costo de insertar todos los caracteres de "target".
-
-                // Rellenar la matriz utilizando la distancia de Levenshtein.
-                for (int i = 1; i <= source.Length; i++)
+                if (match.Success)
                 {
-                    for (int j = 1; j <= target.Length; j++)
-                    {
-                        // Determinar el costo de sustitución (0 si los caracteres son iguales, 1 si son diferentes).
-                        int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
+                    double latDegrees = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                    double latMinutes = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                    double lonDegrees = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
+                    double lonMinutes = double.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
 
-                        // Calcular el costo mínimo entre eliminar, insertar o sustituir un carácter.
-                        dp[i, j] = Math.Min(
-                            Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1), // Eliminar o insertar.
-                            dp[i - 1, j - 1] + cost // Sustituir.
-                        );
-                    }
+                    double lat = latDegrees + (latMinutes / 60.0);
+                    double lon = lonDegrees + (lonMinutes / 60.0);
+
+                    return (lat, lon);
                 }
-
-                // La distancia de Levenshtein es el valor en la esquina inferior derecha de la matriz.
-                int levenshteinDistance = dp[source.Length, target.Length];
-
-                // Calcular la similitud como 1 menos la distancia normalizada por la longitud máxima de las cadenas.
-                return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al analizar las coordenadas '{coords}': {ex.Message}");
+        }
 
-            // Buscar la provincia más similar
-            string bestMatch = "Desconocida";
-            double highestSimilarity = 0.0;
+        return null;
+    }
 
-            foreach (var province in provinces)
+    public static string CleanAddress(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return "";
+
+        // common abbreviations
+        address = Regex.Replace(address, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bKm\.?\b", "Kilómetro", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bC/\b", "Calle ", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bs/n\b", "", RegexOptions.IgnoreCase);
+        address = Regex.Replace(address, @"\bPlá\b", "Pla", RegexOptions.IgnoreCase);
+
+        // replace periods with commas, unless part of decimal numbers
+        address = Regex.Replace(address, @"(?<!\d)\.(?!\d)", ",");
+
+        // add space after comma if missing
+        address = Regex.Replace(address, @",(\S)", ", $1");
+
+        // remove duplicate spaces
+        address = Regex.Replace(address, @"\s+", " ");
+
+        // trim trailing spaces and commas
+        address = address.Trim(' ', ',');
+
+        return address;
+    }
+
+    public static string NormalizeProvinceName(string provinceName)
+    {
+        if (string.IsNullOrWhiteSpace(provinceName))
+            return "Desconocida";
+
+        provinceName = provinceName.Trim();
+
+        // Lista de provincias conocidas
+
+
+        // Función para calcular la similitud entre cadenas
+        // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
+        // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas.
+        // source: La primera cadena a comparar.
+        // target: La segunda cadena a comparar.
+        double CalculateSimilarity(string source, string target)
+        {
+            source = source.ToLower();
+            target = target.ToLower();
+
+            // Crear una matriz para almacenar las distancias entre subcadenas.
+            int[,] dp = new int[source.Length + 1, target.Length + 1];
+
+            // Inicializar la primera fila y columna de la matriz.
+            for (int i = 0; i <= source.Length; i++)
+                dp[i, 0] = i; // Costo de eliminar todos los caracteres de "source".
+            for (int j = 0; j <= target.Length; j++)
+                dp[0, j] = j; // Costo de insertar todos los caracteres de "target".
+
+            // Rellenar la matriz utilizando la distancia de Levenshtein.
+            for (int i = 1; i <= source.Length; i++)
             {
-                double similarity = CalculateSimilarity(provinceName, province);
-                if (similarity > highestSimilarity)
+                for (int j = 1; j <= target.Length; j++)
                 {
-                    highestSimilarity = similarity;
-                    bestMatch = province;
+                    // Determinar el costo de sustitución (0 si los caracteres son iguales, 1 si son diferentes).
+                    int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
+
+                    // Calcular el costo mínimo entre eliminar, insertar o sustituir un carácter.
+                    dp[i, j] = Math.Min(
+                        Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1), // Eliminar o insertar.
+                        dp[i - 1, j - 1] + cost // Sustituir.
+                    );
                 }
             }
 
-            // Si la similitud más alta es menor a un umbral, considerar que no coincide con ninguna provincia.
-            const double similarityThreshold = 0.5; // Umbral mínimo de similitud
-            if (highestSimilarity < similarityThreshold)
-            {
-                return "Desconocida";
-            }
+            // La distancia de Levenshtein es el valor en la esquina inferior derecha de la matriz.
+            int levenshteinDistance = dp[source.Length, target.Length];
 
-            return bestMatch;
+            // Calcular la similitud como 1 menos la distancia normalizada por la longitud máxima de las cadenas.
+            return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
         }
 
-        
-        public static bool IsUrl(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return false;
+        // Buscar la provincia más similar
+        string bestMatch = "Desconocida";
+        double highestSimilarity = 0.0;
 
-            return text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                   text.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
-                   text.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ||
-                   Regex.IsMatch(text, @"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}");
+        foreach (var province in provinces)
+        {
+            double similarity = CalculateSimilarity(provinceName, province);
+            if (similarity > highestSimilarity)
+            {
+                highestSimilarity = similarity;
+                bestMatch = province;
+            }
         }
 
-        public static bool IsValidPostalCodeForCommunity(string postalCode, string comunidad)
+        // Si la similitud más alta es menor a un umbral, considerar que no coincide con ninguna provincia.
+        const double similarityThreshold = 0.5; // Umbral mínimo de similitud
+        if (highestSimilarity < similarityThreshold)
         {
-            if (string.IsNullOrWhiteSpace(postalCode))
-                return false;
+            return "Desconocida";
+        }
 
-            if (postalCode.Length != 5 || !postalCode.All(char.IsDigit))
-                return false;
+        return bestMatch;
+    }
 
-            string codigoProvincia = postalCode.Substring(0, 2);
 
-            if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
-            {
-                return info.Comunidad.Equals(comunidad, StringComparison.OrdinalIgnoreCase);
-            }
-
+    public static bool IsUrl(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
             return false;
-        }
 
-        public static string? GetProvinceFromPostalCode(string postalCode)
+        return text.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+               text.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+               text.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ||
+               Regex.IsMatch(text, @"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}");
+    }
+
+    public static bool IsValidPostalCodeForCommunity(string postalCode, string comunidad)
+    {
+        if (string.IsNullOrWhiteSpace(postalCode))
+            return false;
+
+        if (postalCode.Length != 5 || !postalCode.All(char.IsDigit))
+            return false;
+
+        string codigoProvincia = postalCode.Substring(0, 2);
+
+        if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
         {
-            if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length < 2)
-                return null;
-
-            string codigoProvincia = postalCode.Substring(0, 2);
-
-            if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
-            {
-                return info.Provincia;
-            }
-
-            return null;
+            return info.Comunidad.Equals(comunidad, StringComparison.OrdinalIgnoreCase);
         }
+
+        return false;
+    }
+
+    public static string? GetProvinceFromPostalCode(string postalCode)
+    {
+        if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length < 2)
+            return null;
+
+        string codigoProvincia = postalCode.Substring(0, 2);
+
+        if (MapeoProvincias.TryGetValue(codigoProvincia, out var info))
+        {
+            return info.Provincia;
+        }
+
+        return null;
+    }
+
+    public static bool AreValidCoordinates(double? latitude, double? longitude)
+    {
+        if (!latitude.HasValue || !longitude.HasValue)
+            return false;
+
+        if (latitude.Value < -90 || latitude.Value > 90)
+            return false;
+
+        if (longitude.Value < -180 || longitude.Value > 180)
+            return false;
+
+        if (Math.Abs(latitude.Value) < 0.0001 && Math.Abs(longitude.Value) < 0.0001)
+            return false;
+
+        if (Math.Abs(latitude.Value) >= 200 || Math.Abs(longitude.Value) >= 200)
+            return false;
+
+        return true;
+    }
 
     #endregion
 }

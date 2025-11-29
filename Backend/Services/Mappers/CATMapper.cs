@@ -1,5 +1,6 @@
 using Backend.Models;
 using Newtonsoft.Json.Linq;
+using OpenQA.Selenium;
 using Serilog;
 using System.Globalization;
 
@@ -14,17 +15,20 @@ namespace Backend.Services.Mappers
             var rows = root["response"]?["row"]?["row"];
             if (rows == null) return;
 
+            using var driver = SeleniumGeocoder.CreateDriver();
+            bool cookiesAccepted = false;
+
             foreach (var item in rows)
             {
                 var u = new UnifiedData();
-                
+
                 string postalCode = (string?)item["cp"] ?? "";
                 if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Cataluña"))
                 {
                     Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Cataluña", postalCode);
                     continue;
                 }
-                
+
                 string rawProvinceName = (string?)item["serveis_territorials"] ?? "";
                 u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
 
@@ -50,8 +54,6 @@ namespace Backend.Services.Mappers
                 u.Station.name = $"Estación ITV de {nombre}";
 
                 u.Station.address = (string?)item["adre_a"];
-
-                
                 u.Station.postal_code = postalCode;
 
                 string contact = (string?)item["correu_electr_nic"] ?? "";
@@ -69,6 +71,24 @@ namespace Backend.Services.Mappers
 
                 if (double.TryParse((string?)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
                     u.Station.longitude = lon / 100000.0;
+
+                if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
+                {
+                    Log.Warning("Coordenadas inválidas ({Lat}, {Lon}) para {StationName}. Intentando obtenerlas con Selenium...",
+                        u.Station.latitude, u.Station.longitude, u.Station.name);
+
+                    var (newLat, newLon) = SeleniumGeocoder.GetCoordinates(
+                        driver,
+                        u.Station.address ?? "",
+                        ref cookiesAccepted,
+                        u.Station.postal_code ?? "",
+                        u.LocalityName ?? "",
+                        u.ProvinceName ?? ""
+                    );
+
+                    u.Station.latitude = newLat;
+                    u.Station.longitude = newLon;
+                }
 
                 list.Add(u);
             }
