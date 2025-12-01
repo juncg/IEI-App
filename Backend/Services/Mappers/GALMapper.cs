@@ -1,6 +1,5 @@
 using Backend.Models;
 using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
 using Serilog;
 
 namespace Backend.Services.Mappers
@@ -9,7 +8,7 @@ namespace Backend.Services.Mappers
     {
         public void Map(string json, List<UnifiedData> list)
         {
-            Log.Information("Paso GAL: Iniciando mapeo de datos para Galicia.");
+            Log.Information("\nPaso GAL: Iniciando mapeo de datos para Galicia.");
             var data = JArray.Parse(json);
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -23,10 +22,10 @@ namespace Backend.Services.Mappers
                 string stationName = (string?)item["NOME DA ESTACIÓN"] ?? "";
                 if (string.IsNullOrWhiteSpace(stationName))
                 {
-                    Log.Information("Paso GAL: Procesando estación sin nombre...");
+                    Log.Information("\nPaso GAL: Procesando estación sin nombre...");
                 } else
                 {
-                    Log.Information("Paso GAL: Procesando estación '{Name}'...", stationName);
+                    Log.Information("\nPaso GAL: Procesando estación '{Name}'...", stationName);
                 }
 
                 // dirección
@@ -156,7 +155,7 @@ namespace Backend.Services.Mappers
                     u.ProvinceName ?? ""
                 ))
                 {
-                    Log.Warning("Estación '{Name}' descartada: la dirección '{Address}' no coincide con las coordenadas (lat: {Lat}, lon: {Lon})",
+                    Log.Warning("Paso GAL: Estación '{Name}' descartada: la dirección '{Address}' no coincide con las coordenadas (lat: {Lat}, lon: {Lon})",
                         stationName, u.Station.address, u.Station.latitude, u.Station.longitude);
                     continue;
                 }
@@ -164,7 +163,7 @@ namespace Backend.Services.Mappers
                 list.Add(u);
             }
 
-            Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}", list.Count);
+            Log.Information("\nPaso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.\n", list.Count);
         }
     }
 }

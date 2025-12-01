@@ -34,15 +34,15 @@ namespace Backend.Services.Mappers
                 string searchUrl = $"https://www.google.com/maps/search/{Uri.EscapeDataString(fullAddress)}";
                 driver.Navigate().GoToUrl(searchUrl);
 
-                Log.Information("Buscando coordenadas para: {FullAddress}", fullAddress);
+                Log.Information("Servicio Selenium: Buscando coordenadas para '{FullAddress}'...", fullAddress);
 
                 if (!cookiesAccepted)
                 {
-                    Log.Information("Pausando búsqueda para manejar el consentimiento de cookies.");
+                    Log.Information("Servicio Selenium: Pausando búsqueda para manejar el consentimiento de cookies...");
                     AcceptCookies(driver);
                     cookiesAccepted = true;
                     Thread.Sleep(1000);
-                    Log.Information("Reanudando búsqueda.");
+                    Log.Information("Servicio Selenium: Reanudando búsqueda...");
                 }
 
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
@@ -54,16 +54,16 @@ namespace Backend.Services.Mappers
                 {
                     double lat = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
                     double lon = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                    Log.Information("Coordenadas encontradas: Lat={Lat}, Lon={Lon}", lat, lon);
+                    Log.Information("Servicio Selenium: Coordenadas encontradas (lat: {Lat}, lon: {Lon}).", lat, lon);
                     return (lat, lon);
                 }
 
-                Log.Warning("Coordenadas no encontradas para: {FullAddress}", fullAddress);
+                Log.Warning("Servicio Selenium: Coordenadas no encontradas para '{FullAddress}'.", fullAddress);
                 return (null, null);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error procesando coordenadas para '{FullAddress}'", fullAddress);
+                Log.Error(ex, "Servicio Selenium: Error procesando coordenadas para '{FullAddress}'.", fullAddress);
                 return (null, null);
             }
         }
@@ -88,7 +88,7 @@ namespace Backend.Services.Mappers
                             ? wait.Until(d => d.FindElement(By.XPath(selector)))
                             : wait.Until(d => d.FindElement(By.CssSelector(selector)));
                         button.Click();
-                        Log.Information("Cookies rechazadas");
+                        Log.Information("Servicio Selenium: Cookies rechazadas, continuando...");
                         return;
                     }
                     catch { }
