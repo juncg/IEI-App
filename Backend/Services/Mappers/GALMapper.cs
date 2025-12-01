@@ -8,7 +8,9 @@ namespace Backend.Services.Mappers
     {
         public void Map(string json, List<UnifiedData> list)
         {
-            Log.Information("\nPaso GAL: Iniciando mapeo de datos para Galicia.");
+            Log.Information("");
+            Log.Information("------------------------------------------------");
+            Log.Information("Paso GAL: Iniciando mapeo de datos para Galicia.");
             var data = JArray.Parse(json);
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -22,10 +24,12 @@ namespace Backend.Services.Mappers
                 string stationName = (string?)item["NOME DA ESTACIÓN"] ?? "";
                 if (string.IsNullOrWhiteSpace(stationName))
                 {
-                    Log.Information("\nPaso GAL: Procesando estación sin nombre...");
+                    Log.Information("");
+                    Log.Information("Paso GAL: Procesando estación sin nombre...");
                 } else
                 {
-                    Log.Information("\nPaso GAL: Procesando estación '{Name}'...", stationName);
+                    Log.Information("");
+                    Log.Information("Paso GAL: Procesando estación '{Name}'...", stationName);
                 }
 
                 // dirección
@@ -123,6 +127,7 @@ namespace Backend.Services.Mappers
                     }
                 }
 
+                bool alreadySearched = false;
                 if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                 {
                     Log.Warning("Paso GAL: Coordenadas inválidas (lat: {Lat}, lon: {Lon}) para '{Name}'. Intentando obtenerlas con Selenium...",
@@ -139,12 +144,14 @@ namespace Backend.Services.Mappers
 
                     u.Station.latitude = lat;
                     u.Station.longitude = lon;
+
+                    alreadySearched = true;
                 }
 
                 Log.Information("Paso GAL: Comprobando que la dirección '{Address}' y las coordenadas (lat: {Lat}, lon: {Lon}) apuntan al mismo lugar con Selenium...",
                     u.Station.address, u.Station.latitude, u.Station.longitude);
 
-                if (!Utilities.CompareAddressWithCoordinates(
+                if (!alreadySearched && !Utilities.CompareAddressWithCoordinates(
                     driver,
                     u.Station.address ?? "",
                     u.Station.latitude,
@@ -163,7 +170,9 @@ namespace Backend.Services.Mappers
                 list.Add(u);
             }
 
-            Log.Information("\nPaso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.\n", list.Count);
+            Log.Information("");
+            Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.", list.Count);
+            Log.Information("");
         }
     }
 }
