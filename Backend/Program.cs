@@ -8,31 +8,31 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Empezando proceso...");
+    Log.Information("Paso Main: Iniciando proceso principal...");
 
     // 1. Transformación: Convertir fuentes a JSON
-    Log.Information("Paso 1: Iniciando transformación de datos de 'info' a 'converted_data'.");
+    Log.Information("Paso Main: Iniciando transformación de datos de 'info' a 'converted_data'.");
     string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
     string convertedFolder = Path.Combine(Directory.GetCurrentDirectory(), "converted_data");
     Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
-    Log.Information("Paso 1: Transformación de datos completada.");
+    Log.Information("Paso Main: Transformación de datos completada.");
 
     // 2. Mapeo: Unificar datos
-    Log.Information("Paso 2: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
+    Log.Information("Paso Main: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
     var mapperService = new Backend.Services.MapperService();
     var unifiedData = await mapperService.ExecuteMapping(convertedFolder);
-    Log.Information("Paso 2: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
-    
+    Log.Information("Paso Main: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
+
     // 3. Inserción: Poblar base de datos
-    Log.Information("Paso 3: Iniciando inserción en la base de datos.");
+    Log.Information("Paso Main: Iniciando inserción en la base de datos.");
     var inserter = new Backend.Services.DataInserter();
     inserter.Run(unifiedData);
-    Log.Information("Paso 3: Inserción en la base de datos completada.");
-    Log.Information("Proceso finalizado.");
+    Log.Information("Paso Main: Inserción en la base de datos completada.");
+    Log.Information("Paso Main: Proceso principal finalizado.");
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "Ocurrió un error durante el proceso ETL.");
+    Log.Error(ex, "Paso Main: Ocurrió un error durante el proceso principal ETL.");
 }
 finally
 {

@@ -20,7 +20,7 @@ namespace Backend.Converters
             doc.LoadXml(xmlContent);
             string json = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText(outputFile, json, Encoding.UTF8);
-            Log.Information("Archivo XML convertido: {FileName} a JSON.", Path.GetFileName(inputFile));
+            Log.Information("Paso Converter: Archivo XML convertido a JSON: {FileName}.", Path.GetFileName(inputFile));
         }
     }
 }

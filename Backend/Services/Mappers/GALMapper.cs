@@ -9,7 +9,7 @@ namespace Backend.Services.Mappers
     {
         public void Map(string json, List<UnifiedData> list)
         {
-            Log.Information("Mapeando datos para Galicia.");
+            Log.Information("Paso GAL: Iniciando mapeo de datos para Galicia.");
             var data = JArray.Parse(json);
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -22,7 +22,7 @@ namespace Backend.Services.Mappers
                 string postalCode = (string?)item["CÓDIGO POSTAL"] ?? "";
                 if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Galicia"))
                 {
-                    Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Galicia", postalCode);
+                    Log.Warning("Paso GAL: Estación descartada por código postal inválido '{PostalCode}' para Galicia.", postalCode);
                     continue;
                 }
 
@@ -35,13 +35,13 @@ namespace Backend.Services.Mappers
                     if (provinceFromCP != null)
                     {
                         u.ProvinceName = provinceFromCP;
-                        Log.Information("Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
+                        Log.Information("Paso GAL: Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
                     }
                 }
 
                 if (u.ProvinceName == "Desconocida")
                 {
-                    Log.Warning("Estación descartada: no se pudo determinar la provincia para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                    Log.Warning("Paso GAL: Estación descartada por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
                     continue;
                 }
 
@@ -81,7 +81,7 @@ namespace Backend.Services.Mappers
 
                 if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                 {
-                    Log.Warning("Coordenadas inválidas ({Lat}, {Lon}) para {StationName}. Intentando obtenerlas con Selenium...",
+                    Log.Warning("Paso GAL: Coordenadas inválidas ({Lat}, {Lon}) para {StationName}. Intentando obtenerlas con Selenium...",
                         u.Station.latitude, u.Station.longitude, u.Station.name);
 
                     var (lat, lon) = SeleniumGeocoder.GetCoordinates(
@@ -99,7 +99,7 @@ namespace Backend.Services.Mappers
 
                 list.Add(u);
             }
-            Log.Information("Finalizado el mapeo de datos para Galicia.");
+            Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}", list.Count);
         }
     }
 }
