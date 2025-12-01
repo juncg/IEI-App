@@ -28,7 +28,7 @@ namespace Backend.Converters
             var records = csv.GetRecords<dynamic>().ToList();
             string json = JsonConvert.SerializeObject(records, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText(outputFile, json, Encoding.UTF8);
-            Log.Information("Archivo CSV convertido: {FileName} a JSON.", Path.GetFileName(inputFile));
+            Log.Information("Paso Converter: Archivo CSV convertido a JSON: {FileName}.", Path.GetFileName(inputFile));
         }
     }
 }

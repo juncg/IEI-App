@@ -8,13 +8,13 @@ namespace Backend.Services
     {
         public async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
         {
-            Log.Information("Empezando mapeo de datos: {FolderPath}", folderPath);
+            Log.Information("Paso Mapper: Iniciando mapeo de datos en la carpeta: {FolderPath}", folderPath);
             var unifiedList = new List<UnifiedData>();
             var files = Directory.GetFiles(folderPath, "*.json");
 
             foreach (var file in files)
             {
-                Log.Information("Procesando archivo: {FileName}", file);
+                Log.Information("Paso Mapper: Procesando archivo: {FileName}", file);
                 string json = await File.ReadAllTextAsync(file);
                 string fileName = Path.GetFileName(file).ToLower();
 

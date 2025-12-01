@@ -21,12 +21,12 @@ namespace Backend
 
         public static void ConvertFolderToJson(string inputFolder, string outputFolder)
         {
-            Log.Information("Empezando transformación de la carpeta: {InputFolder} a JSON en la carpeta: {OutputFolder}", inputFolder, outputFolder);
+            Log.Information("Paso Transform: Iniciando transformación de la carpeta: {InputFolder} a JSON en la carpeta: {OutputFolder}", inputFolder, outputFolder);
 
             if (!Directory.Exists(outputFolder))
             {
                 Directory.CreateDirectory(outputFolder);
-                Log.Information("Carpeta de salida creada: {OutputFolder}", outputFolder);
+                Log.Information("Paso Transform: Carpeta de salida creada: {OutputFolder}", outputFolder);
             }
 
             var files = Directory.GetFiles(inputFolder);
@@ -37,7 +37,7 @@ namespace Backend
 
                 try
                 {
-                    Log.Information("Procesando archivo: {FileName}", fileName);
+                    Log.Information("Paso Transform: Procesando archivo: {FileName}", fileName);
 
                     var converter = _converters.FirstOrDefault(c => c.CanConvert(fileName));
 
@@ -47,16 +47,16 @@ namespace Backend
                     }
                     else
                     {
-                        Log.Warning("No se encontró convertidor para el archivo: {FileName}", fileName);
+                        Log.Warning("Paso Transform: No se encontró convertidor para el archivo: {FileName}", fileName);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Error transformando archivo: {FileName}", fileName);
+                    Log.Error(ex, "Paso Transform: Error transformando archivo: {FileName}", fileName);
                 }
             }
 
-            Log.Information("Transformación completada para la carpeta: {InputFolder}", inputFolder);
+            Log.Information("Paso Transform: Transformación completada para la carpeta: {InputFolder}", inputFolder);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Backend.Converters
         public void Convert(string inputFile, string outputFile)
         {
             File.Copy(inputFile, outputFile, true);
-            Log.Information("Archivo JSON copiado: {FileName}.", Path.GetFileName(inputFile));
+            Log.Information("Paso Converter: Archivo JSON copiado: {FileName}.", Path.GetFileName(inputFile));
         }
     }
 }

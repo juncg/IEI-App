@@ -9,7 +9,7 @@ namespace Backend.Services.Mappers
     {
         public void Map(string json, List<UnifiedData> list)
         {
-            Log.Information("Empezando el mapeo para la Comunidad Valenciana.");
+            Log.Information("Paso CV: Iniciando mapeo de datos para la Comunidad Valenciana.");
             var data = JArray.Parse(json);
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -22,7 +22,7 @@ namespace Backend.Services.Mappers
                     var u = new UnifiedData();
 
                     string tipo = ((string?)item["TIPO ESTACIÓN"] ?? "").ToLower();
-                    Log.Debug("Tipo de estación: {StationType}", tipo);
+                    Log.Debug("Paso CV: Tipo de estación detectado: {StationType}", tipo);
 
                     if (tipo.Contains("móvil"))
                         u.Station.type = StationType.Mobile_station;
@@ -52,13 +52,13 @@ namespace Backend.Services.Mappers
                         if (provinceFromCP != null)
                         {
                             u.ProvinceName = provinceFromCP;
-                            Log.Information("Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
+                            Log.Information("Paso CV: Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
                         }
                     }
 
                     if (u.ProvinceName == "Desconocida" && u.Station.type == StationType.Fixed_station)
                     {
-                        Log.Warning("Estación descartada: no se pudo determinar la provincia para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                        Log.Warning("Paso CV: Estación descartada por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
                         continue;
                     }
 
@@ -72,7 +72,7 @@ namespace Backend.Services.Mappers
                     u.Station.schedule = (string?)item["HORARIOS"] ?? "";
                     u.Station.url = "https://sitval.com";
 
-                    Log.Debug("Detalles de la estación: {@Station}", u.Station);
+                    Log.Debug("Paso CV: Detalles de la estación: {@Station}", u.Station);
 
                     var (lat, lon) = u.Station.type == StationType.Fixed_station
                         ? SeleniumGeocoder.GetCoordinates(
@@ -92,11 +92,11 @@ namespace Backend.Services.Mappers
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Error mapeando: {Item}", item);
+                    Log.Error(ex, "Paso CV: Error mapeando el item: {Item}", item);
                 }
             }
 
-            Log.Information("Acabado el mapeo para la Comunidad Valenciana. Registros totales: {RecordCount}", list.Count);
+            Log.Information("Paso CV: Mapeo de datos para la Comunidad Valenciana finalizado. Registros totales: {RecordCount}", list.Count);
         }
     }
 }

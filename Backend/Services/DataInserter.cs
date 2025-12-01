@@ -28,12 +28,12 @@ namespace Backend.Services
                 Directory.CreateDirectory(dbDir);
             }
 
-            Log.Information("Empezando inserción en la base de datos. Registros totales: {RecordCount}", data.Count);
+            Log.Information("Paso Inserter: Iniciando inserción en la base de datos. Registros totales: {RecordCount}", data.Count);
             using var conn = new SqliteConnection(connectionString);
             conn.Open();
 
             DatabaseInitializer.Initialize(conn);
-            Log.Information("Base de datos inicializada (tablas borradas y recreadas).");
+            Log.Information("Paso Inserter: Base de datos inicializada (tablas borradas y recreadas).");
 
             var provinceCache = new Dictionary<string, int>();
             var localityCache = new Dictionary<string, int>();
@@ -84,7 +84,7 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 transaction.Rollback();
-                Log.Error(ex, "Error al insertar datos.");
+                Log.Error(ex, "Paso Inserter: Error al insertar datos.");
                 throw;
             }
         }

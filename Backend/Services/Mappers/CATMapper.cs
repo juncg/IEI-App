@@ -10,7 +10,7 @@ namespace Backend.Services.Mappers
     {
         public void Map(string json, List<UnifiedData> list)
         {
-            Log.Information("Mapeando datos para Cataluña.");
+            Log.Information("Paso CAT: Iniciando mapeo de datos para Cataluña.");
             var root = JObject.Parse(json);
             var rows = root["response"]?["row"]?["row"];
             if (rows == null) return;
@@ -25,7 +25,7 @@ namespace Backend.Services.Mappers
                 string postalCode = (string?)item["cp"] ?? "";
                 if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Cataluña"))
                 {
-                    Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Cataluña", postalCode);
+                    Log.Warning("Paso CAT: Estación descartada por código postal inválido '{PostalCode}' para Cataluña.", postalCode);
                     continue;
                 }
 
@@ -92,7 +92,7 @@ namespace Backend.Services.Mappers
 
                 list.Add(u);
             }
-            Log.Information("Finalizado el mapeo de datos para Cataluña.");
+            Log.Information("Paso CAT: Mapeo de datos para Cataluña finalizado. Registros totales: {RecordCount}", list.Count);
         }
     }
 }
