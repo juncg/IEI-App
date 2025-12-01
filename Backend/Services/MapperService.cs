@@ -41,11 +41,6 @@ namespace Backend.Services
                 {
                     try
                     {
-                        // Run mapping in a separate task to avoid blocking if it was synchronous, 
-                        // though here we are just calling it directly as the interface is void.
-                        // If we wanted async mappers, we would change IMapper to return Task.
-                        // For now, keeping it simple as per original code structure but wrapped in Task.Run if needed for heavy lifting.
-                        // However, original code was synchronous inside the loop.
                         mapper.Map(json, unifiedList);
                     }
                     catch (Exception ex)

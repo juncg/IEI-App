@@ -97,9 +97,24 @@ namespace Backend.Services.Mappers
                     u.Station.longitude = lon;
                 }
 
+                if (!Utilities.CompareAddressWithCoordinates(
+                    driver,
+                    u.Station.address ?? "",
+                    u.Station.latitude,
+                    u.Station.longitude,
+                    ref cookiesAccepted,
+                    u.Station.postal_code ?? "",
+                    u.LocalityName ?? "",
+                    u.ProvinceName ?? ""
+                ))
+                {
+                    Log.Warning("Estación '{Name}' descartada: la dirección '{Address}' no coincide con las coordenadas (lat: '{Lat}', lon: '{Lon}')", u.Station.name, u.Station.address, u.Station.latitude, u.Station.longitude);
+                    continue;
+                }
+
                 list.Add(u);
             }
-            Log.Information("Finalizado el mapeo de datos para Galicia.");
+            Log.Information("Acabado el mapeo para Galicia. Registros totales: {RecordCount}", list.Count);
         }
     }
 }
