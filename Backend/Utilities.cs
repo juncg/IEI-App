@@ -107,44 +107,44 @@ public class Utilities
         return address;
     }
 
+    // función para calcular la similitud entre cadenas utilizando la distancia de Levenshtein
+    // la similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas
+    public static double CalculateSimilarity(string source, string target)
+    {
+        source = source.ToLower();
+        target = target.ToLower();
+
+        int[,] dp = new int[source.Length + 1, target.Length + 1];
+
+        for (int i = 0; i <= source.Length; i++)
+            dp[i, 0] = i;
+        for (int j = 0; j <= target.Length; j++)
+            dp[0, j] = j;
+
+        for (int i = 1; i <= source.Length; i++)
+        {
+            for (int j = 1; j <= target.Length; j++)
+            {
+                int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
+
+                dp[i, j] = Math.Min(
+                    Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
+                    dp[i - 1, j - 1] + cost
+                );
+            }
+        }
+
+        int levenshteinDistance = dp[source.Length, target.Length];
+
+        return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
+    }
+
     public static string NormalizeProvinceName(string provinceName)
     {
         if (string.IsNullOrWhiteSpace(provinceName))
             return "Desconocida";
 
         provinceName = provinceName.Trim();
-
-        // Función para calcular la similitud entre cadenas utilizando la distancia de Levenshtein
-        // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas
-        double CalculateSimilarity(string source, string target)
-        {
-            source = source.ToLower();
-            target = target.ToLower();
-
-            int[,] dp = new int[source.Length + 1, target.Length + 1];
-
-            for (int i = 0; i <= source.Length; i++)
-                dp[i, 0] = i;
-            for (int j = 0; j <= target.Length; j++)
-                dp[0, j] = j;
-
-            for (int i = 1; i <= source.Length; i++)
-            {
-                for (int j = 1; j <= target.Length; j++)
-                {
-                    int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
-
-                    dp[i, j] = Math.Min(
-                        Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
-                        dp[i - 1, j - 1] + cost
-                    );
-                }
-            }
-
-            int levenshteinDistance = dp[source.Length, target.Length];
-
-            return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
-        }
 
         // Buscar la provincia más similar
         string bestMatch = "Desconocida";
@@ -261,6 +261,48 @@ public class Utilities
         }
 
         return DistanceInKm(lat ?? -9999, lon ?? -9999, newLat ?? 9999, newLon ?? 9999) < 10; // menos de 10 km
+    }
+
+    public static string ExtractStationNameWithSimilarity(string rawName)
+    {
+        if (string.IsNullOrWhiteSpace(rawName))
+            return "";
+
+        var prefixes = new List<string>
+        {
+            "Estación ITV de", "Estación ITV do", "Estación ITV da", "Estación ITV del",
+            "Estación ITV dos", "Estación ITV das", "Estación ITV", "Estación de ITV",
+            "Estación", "Estacion ITV", "Estacion"
+        };
+
+        string bestPrefix = "";
+        double bestScore = 0.0;
+        foreach (var prefix in prefixes)
+        {
+            if (rawName.Length >= prefix.Length)
+            {
+                string start = rawName.Substring(0, prefix.Length);
+                double score = CalculateSimilarity(start, prefix);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestPrefix = prefix;
+                }
+            }
+        }
+
+        const double threshold = 0.7;
+        string name = rawName;
+        if (bestScore > threshold)
+        {
+            name = rawName.Substring(bestPrefix.Length).Trim();
+        }
+
+        name = Regex.Replace(name, @"^[\s\-:.,;]+|[\s\-:.,;]+$", "");
+        name = Regex.Replace(name, @"^\d+\s*[-:]?\s*", "");
+        name = Regex.Replace(name, @"\s{2,}", " ");
+
+        return name.Trim();
     }
 
     #endregion
