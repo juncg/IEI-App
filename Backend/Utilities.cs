@@ -85,7 +85,6 @@ public class Utilities
         if (string.IsNullOrWhiteSpace(address))
             return "";
 
-        // common abbreviations
         address = Regex.Replace(address, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
         address = Regex.Replace(address, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
         address = Regex.Replace(address, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
@@ -95,16 +94,12 @@ public class Utilities
         address = Regex.Replace(address, @"\bs/n\b", "", RegexOptions.IgnoreCase);
         address = Regex.Replace(address, @"\bPlá\b", "Pla", RegexOptions.IgnoreCase);
 
-        // replace periods with commas, unless part of decimal numbers
         address = Regex.Replace(address, @"(?<!\d)\.(?!\d)", ",");
 
-        // add space after comma if missing
         address = Regex.Replace(address, @",(\S)", ", $1");
 
-        // remove duplicate spaces
         address = Regex.Replace(address, @"\s+", " ");
 
-        // trim trailing spaces and commas
         address = address.Trim(' ', ',');
 
         return address;
@@ -117,45 +112,35 @@ public class Utilities
 
         provinceName = provinceName.Trim();
 
-        // Función para calcular la similitud entre cadenas
-        // Calcula la similitud entre dos cadenas utilizando la distancia de Levenshtein.
-        // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas.
-        // source: La primera cadena a comparar.
-        // target: La segunda cadena a comparar.
+        // Función para calcular la similitud entre cadenas utilizando la distancia de Levenshtein
+        // La similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas
         double CalculateSimilarity(string source, string target)
         {
             source = source.ToLower();
             target = target.ToLower();
 
-            // Crear una matriz para almacenar las distancias entre subcadenas.
             int[,] dp = new int[source.Length + 1, target.Length + 1];
 
-            // Inicializar la primera fila y columna de la matriz.
             for (int i = 0; i <= source.Length; i++)
-                dp[i, 0] = i; // Costo de eliminar todos los caracteres de "source".
+                dp[i, 0] = i;
             for (int j = 0; j <= target.Length; j++)
-                dp[0, j] = j; // Costo de insertar todos los caracteres de "target".
+                dp[0, j] = j;
 
-            // Rellenar la matriz utilizando la distancia de Levenshtein.
             for (int i = 1; i <= source.Length; i++)
             {
                 for (int j = 1; j <= target.Length; j++)
                 {
-                    // Determinar el costo de sustitución (0 si los caracteres son iguales, 1 si son diferentes).
                     int cost = (source[i - 1] == target[j - 1]) ? 0 : 1;
 
-                    // Calcular el costo mínimo entre eliminar, insertar o sustituir un carácter.
                     dp[i, j] = Math.Min(
-                        Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1), // Eliminar o insertar.
-                        dp[i - 1, j - 1] + cost // Sustituir.
+                        Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
+                        dp[i - 1, j - 1] + cost
                     );
                 }
             }
 
-            // La distancia de Levenshtein es el valor en la esquina inferior derecha de la matriz.
             int levenshteinDistance = dp[source.Length, target.Length];
 
-            // Calcular la similitud como 1 menos la distancia normalizada por la longitud máxima de las cadenas.
             return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
         }
 
@@ -173,8 +158,9 @@ public class Utilities
             }
         }
 
-        // Si la similitud más alta es menor a un umbral, considerar que no coincide con ninguna provincia.
-        const double similarityThreshold = 0.5; // Umbral mínimo de similitud
+        // Umbral mínimo de similitud, si no se cumple, se considera que no coincide con ninguna provincia
+        const double similarityThreshold = 0.5;
+
         if (highestSimilarity < similarityThreshold)
         {
             return "Desconocida";
