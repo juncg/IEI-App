@@ -67,10 +67,10 @@ namespace Backend.Services.Mappers
                 u.Station.type = StationType.Fixed_station;
 
                 if (double.TryParse((string?)item["lat"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lat))
-                    u.Station.latitude = lat / 100000.0;
+                    u.Station.latitude = lat / 1000000.0;
 
                 if (double.TryParse((string?)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
-                    u.Station.longitude = lon / 100000.0;
+                    u.Station.longitude = lon / 1000000.0;
 
                 if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                 {

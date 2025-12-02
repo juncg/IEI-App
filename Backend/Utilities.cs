@@ -279,6 +279,17 @@ public class Utilities
         normalized = Regex.Replace(normalized, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
         normalized = Regex.Replace(normalized, @"\bKm\.?\b|\bKM\.?\b|\bP\.K\.?\b", "km", RegexOptions.IgnoreCase);
 
+        // separar parcela con coma
+        normalized = Regex.Replace(normalized, @"\bParcela\s+", "Parcela, ", RegexOptions.IgnoreCase);
+
+        // separar número de calle con coma
+        normalized = Regex.Replace(
+            normalized,
+            @"(?<!\bkm\s)([a-záéíóúàèòùìA-ZÁÉÍÓÚÀÈÒÙÌ]+)(?<!\bkm)\s+(\d+(?:[.,]\d+)*)",
+            "$1, $2",
+            RegexOptions.IgnoreCase
+        );
+
         // s/n siempre a minúscula
         normalized = Regex.Replace(normalized, @"\bS\/N\b", "s/n", RegexOptions.IgnoreCase);
 
@@ -316,6 +327,17 @@ public class Utilities
         normalized = Regex.Replace(normalized, @"\bCº\b", "Carrer ", RegexOptions.IgnoreCase);
         normalized = Regex.Replace(normalized, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
         normalized = Regex.Replace(normalized, @"\bKm\.?\b|\bKM\.?\b|\bP\.K\.?\b", "km", RegexOptions.IgnoreCase);
+
+        // separar parcela con coma
+        normalized = Regex.Replace(normalized, @"\bParcela\s+", "Parcela, ", RegexOptions.IgnoreCase);
+
+        // separar número de calle con coma
+        normalized = Regex.Replace(
+            normalized,
+            @"(?<!\bkm\s)([a-záéíóúàèòùìA-ZÁÉÍÓÚÀÈÒÙÌ]+)(?<!\bkm)\s+(\d+(?:[.,]\d+)*)",
+            "$1, $2",
+            RegexOptions.IgnoreCase
+        );
 
         // s/n siempre a minúscula
         normalized = Regex.Replace(normalized, @"\bS\/N\b", "s/n", RegexOptions.IgnoreCase);
