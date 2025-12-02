@@ -21,6 +21,7 @@ namespace Backend.Services.Mappers
                 {
                     var u = new UnifiedData();
 
+                    // tipo de estación
                     string tipo = ((string?)item["TIPO ESTACIÓN"] ?? "").ToLower();
                     Log.Debug("Paso CV: Tipo de estación detectado: {StationType}", tipo);
 
@@ -31,21 +32,42 @@ namespace Backend.Services.Mappers
                     else
                         u.Station.type = StationType.Others;
 
-                    string rawLocalityName = (string?)item["MUNICIPIO"] ?? "";
-                    u.LocalityName = u.Station.type == StationType.Fixed_station && string.IsNullOrWhiteSpace(rawLocalityName)
-                        ? "Desconocido"
-                        : rawLocalityName;
-
-                    string postalCode = (string?)item["C.POSTAL"] ?? "";
-                    if (u.Station.type == StationType.Fixed_station && !Utilities.IsValidPostalCodeForCommunity(postalCode, "Comunidad Valenciana"))
+                    // dirección
+                    string stationAddress = (string?)item["DIRECCIÓN"] ?? "";
+                    if (string.IsNullOrWhiteSpace(stationAddress))
                     {
-                        Log.Warning("Estación descartada: código postal inválido '{PostalCode}' para Comunidad Valenciana", postalCode);
+                        Log.Warning("Paso CV: Estación descartada por falta de dirección.");
+                        continue;
+                    }
+                    u.Station.address = u.Station.type == StationType.Fixed_station
+                        ? Utilities.NormalizeAddressGalAndCv(stationAddress)
+                        : "";
+                    if (u.Station.type == StationType.Fixed_station && !stationAddress.Equals(u.Station.address))
+                    {
+                        Log.Information("Paso CV: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", stationAddress, u.Station.address);
+                    }
+
+                    // localidad
+                    u.LocalityName = (string?)item["MUNICIPIO"] ?? "";
+                    if (string.IsNullOrWhiteSpace(u.LocalityName) && u.Station.type == StationType.Fixed_station)
+                    {
+                        Log.Warning("Paso CV: Estación fija descartada por falta de localidad.");
                         continue;
                     }
 
+                    // codigo postal
+                    string postalCode = (string?)item["C.POSTAL"] ?? "";
+                    if (u.Station.type == StationType.Fixed_station && !Utilities.IsValidPostalCodeForCommunity(postalCode, "Comunidad Valenciana"))
+                    {
+                        Log.Warning("Paso CV: Estación fija descartada: código postal inválido '{PostalCode}' para Comunidad Valenciana", postalCode);
+                        continue;
+                    }
+                    u.Station.postal_code = u.Station.type == StationType.Fixed_station ? postalCode : "";
+
+
+                    // provincia
                     string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
                     u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
-
                     if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode))
                     {
                         string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
@@ -55,19 +77,18 @@ namespace Backend.Services.Mappers
                             Log.Information("Paso CV: Provincia obtenida del código postal: {ProvinceName}", u.ProvinceName);
                         }
                     }
-
                     if (u.ProvinceName == "Desconocida" && u.Station.type == StationType.Fixed_station)
                     {
-                        Log.Warning("Paso CV: Estación descartada por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                        Log.Warning("Paso CV: Estación fija descartada por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
                         continue;
                     }
 
+                    // nombre
                     u.Station.name = u.Station.type == StationType.Fixed_station
                         ? $"Estación ITV de {u.LocalityName}"
-                        : $"Estación {(string?)item["DIRECCIÓN"] ?? u.LocalityName}";
+                        : $"Estación {stationAddress?.Replace(".", string.Empty)}";
 
-                    u.Station.address = (string?)item["DIRECCIÓN"] ?? "";
-                    u.Station.postal_code = u.Station.type == StationType.Fixed_station ? postalCode : "";
+                    // información de contacto
                     u.Station.contact = (string?)item["CORREO"] ?? "";
                     u.Station.schedule = (string?)item["HORARIOS"] ?? "";
                     u.Station.url = "https://sitval.com";

@@ -26,7 +26,8 @@ namespace Backend.Services.Mappers
                 {
                     Log.Information("");
                     Log.Information("Paso GAL: Procesando estación sin nombre...");
-                } else
+                }
+                else
                 {
                     Log.Information("");
                     Log.Information("Paso GAL: Procesando estación '{Name}'...", stationName);
@@ -39,7 +40,8 @@ namespace Backend.Services.Mappers
                     if (string.IsNullOrWhiteSpace(stationName))
                     {
                         Log.Warning("Paso GAL: Estación sin nombre descartada por falta de dirección.");
-                    } else
+                    }
+                    else
                     {
                         Log.Warning("Paso GAL: Estación '{Name}' descartada por falta de dirección.", stationName);
                     }
@@ -57,7 +59,8 @@ namespace Backend.Services.Mappers
                     stationName = "Estación " + u.Station.address;
                     u.Station.name = stationName;
                     Log.Information("Paso GAL: Dado '{Name}' como nombre a estación sin nombre.", stationName);
-                } else
+                }
+                else
                 {
                     stationName = "Estación " + Utilities.ExtractStationNameWithSimilarity(stationName);
                     u.Station.name = stationName;
@@ -115,7 +118,7 @@ namespace Backend.Services.Mappers
                 u.Station.schedule = (string?)item["HORARIO"] ?? "";
 
                 // url
-                u.Station.url = (string?)item["SOLICITUDE DE CITA PREVIA"] ?? "https://sitval.com/";
+                u.Station.url = (string?)item["SOLICITUDE DE CITA PREVIA"] ?? "https://www.sycitv.com/es/";
 
                 // tipo
                 u.Station.type = StationType.Fixed_station;
