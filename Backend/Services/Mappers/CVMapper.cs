@@ -48,7 +48,8 @@ namespace Backend.Services.Mappers
                     }
 
                     // localidad
-                    u.LocalityName = (string?)item["MUNICIPIO"] ?? "";
+                    string rawLocalityName = (string?)item["MUNICIPIO"] ?? "";
+                    u.LocalityName = Utilities.NormalizeLocalityName(rawLocalityName);
                     if (string.IsNullOrWhiteSpace(u.LocalityName) && u.Station.type == StationType.Fixed_station)
                     {
                         Log.Warning("Paso CV: Estación fija descartada por falta de localidad.");

@@ -39,6 +39,27 @@ public class Utilities
 
     #endregion
     #region Public Methods
+    
+
+    public static string NormalizeLocalityName(string localityName)
+    {
+        if (string.IsNullOrWhiteSpace(localityName))
+            return localityName;
+
+        string normalized = Regex.Replace(localityName, @"\s*\([^)]*\)", "");
+        normalized = normalized.Trim();
+
+        var match = Regex.Match(normalized, @"^(.+),\s*(O|A|Os|As|O'|A')$", RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            string baseName = match.Groups[1].Value.Trim();
+            string article = match.Groups[2].Value;
+            normalized = $"{article} {baseName}";
+        }
+
+        return normalized;
+    }
+
     public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
     {
         var regex = new Regex(@"([+-]?\d+)°\s*([\d\.]+)',?\s*([+-]?\d+)°\s*([\d\.]+)'");

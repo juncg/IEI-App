@@ -95,7 +95,8 @@ namespace Backend.Services.Mappers
                 }
 
                 // localidad
-                u.LocalityName = (string?)item["CONCELLO"] ?? "";
+                string rawLocalityName = (string?)item["CONCELLO"] ?? "";
+                u.LocalityName = Utilities.NormalizeLocalityName(rawLocalityName);
                 if (string.IsNullOrWhiteSpace(u.LocalityName))
                 {
                     Log.Warning("Paso GAL: Estación '{Name}' descartada por localidad desconocida", stationName);
