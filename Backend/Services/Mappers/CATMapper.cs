@@ -151,28 +151,14 @@ namespace Backend.Services.Mappers
                 if (double.TryParse((string?)item["long"], NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
                     u.Station.longitude = lon / 1000000.0;
 
-                bool alreadySearched = false;
                 if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                 {
-                    Log.Warning("Paso CAT: Coordenadas inválidas (lat: {Lat}, lon: {Lon}) para '{Name}'. Intentando obtenerlas con Selenium...",
-                        u.Station.latitude, u.Station.longitude, stationName);
-
-                    var (newLat, newLon) = SeleniumGeocoder.GetCoordinates(
-                        driver,
-                        u.Station.address ?? "",
-                        ref cookiesAccepted,
-                        u.Station.postal_code ?? "",
-                        u.LocalityName ?? "",
-                        u.ProvinceName ?? ""
-                    );
-
-                    u.Station.latitude = newLat;
-                    u.Station.longitude = newLon;
-
-                    alreadySearched = true;
+                    Log.Warning("Paso CAT: Estación '{Name}' descartada: coordenadas inválidas (lat: {Lat}, lon: {Lon}).",
+                        stationName, u.Station.latitude, u.Station.longitude);
+                    continue;
                 }
 
-                if (validateExistingCoordinates && !alreadySearched)
+                if (validateExistingCoordinates)
                 {
                     Log.Information("Paso CAT: Comprobando que la dirección '{Address}' y las coordenadas (lat: {Lat}, lon: {Lon}) apuntan al mismo lugar con Selenium...",
                         u.Station.address, u.Station.latitude, u.Station.longitude);

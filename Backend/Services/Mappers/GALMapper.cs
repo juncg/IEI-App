@@ -136,28 +136,14 @@ namespace Backend.Services.Mappers
                     }
                 }
 
-                bool alreadySearched = false;
                 if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                 {
-                    Log.Warning("Paso GAL: Coordenadas inválidas (lat: {Lat}, lon: {Lon}) para '{Name}'. Intentando obtenerlas con Selenium...",
-                        u.Station.latitude, u.Station.longitude, stationName);
-
-                    var (lat, lon) = SeleniumGeocoder.GetCoordinates(
-                        driver,
-                        u.Station.address ?? "",
-                        ref cookiesAccepted,
-                        u.Station.postal_code ?? "",
-                        u.LocalityName ?? "",
-                        u.ProvinceName ?? ""
-                    );
-
-                    u.Station.latitude = lat;
-                    u.Station.longitude = lon;
-
-                    alreadySearched = true;
+                    Log.Warning("Paso GAL: Estación '{Name}' descartada: coordenadas inválidas (lat: {Lat}, lon: {Lon}).",
+                        stationName, u.Station.latitude, u.Station.longitude);
+                    continue;
                 }
 
-                if (validateExistingCoordinates && !alreadySearched)
+                if (validateExistingCoordinates)
                 {
                     Log.Information("Paso GAL: Comprobando que la dirección '{Address}' y las coordenadas (lat: {Lat}, lon: {Lon}) apuntan al mismo lugar con Selenium...",
                         u.Station.address, u.Station.latitude, u.Station.longitude);
