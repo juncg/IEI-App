@@ -17,10 +17,14 @@ try
     Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
     Log.Information("Paso Main: Transformación de datos completada.");
 
+    Console.WriteLine("¿Quieres comprobar las coordenadas existentes con las de selenium? (s/n)");
+    string? response = Console.ReadLine();
+    bool validateExistingCoordinates = response?.Trim().ToLower() == "s";
+
     // 2. Mapeo: Unificar datos
     Log.Information("Paso Main: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
     var mapperService = new Backend.Services.MapperService();
-    var unifiedData = await mapperService.ExecuteMapping(convertedFolder);
+    var unifiedData = await mapperService.ExecuteMapping(convertedFolder, validateExistingCoordinates);
     Log.Information("Paso Main: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
 
     // 3. Inserción: Poblar base de datos

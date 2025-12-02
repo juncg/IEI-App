@@ -6,7 +6,7 @@ namespace Backend.Services
 {
     public class MapperService
     {
-        public async Task<List<UnifiedData>> ExecuteMapping(string folderPath)
+        public async Task<List<UnifiedData>> ExecuteMapping(string folderPath, bool validateExistingCoordinates)
         {
             Log.Information("Paso Mapper: Iniciando mapeo de datos en la carpeta: {FolderPath}", folderPath);
             var unifiedList = new List<UnifiedData>();
@@ -41,7 +41,7 @@ namespace Backend.Services
                 {
                     try
                     {
-                        mapper.Map(json, unifiedList);
+                        mapper.Map(json, unifiedList, validateExistingCoordinates);
                     }
                     catch (Exception ex)
                     {

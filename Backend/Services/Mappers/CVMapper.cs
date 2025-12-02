@@ -7,8 +7,11 @@ namespace Backend.Services.Mappers
 {
     public class CVMapper : IMapper
     {
-        public void Map(string json, List<UnifiedData> list)
+        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
         {
+            Log.Information("");
+            Log.Information("------------------------------------------------");
+
             Log.Information("Paso CV: Iniciando mapeo de datos para la Comunidad Valenciana.");
             var data = JArray.Parse(json);
 

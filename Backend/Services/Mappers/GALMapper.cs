@@ -6,7 +6,7 @@ namespace Backend.Services.Mappers
 {
     public class GALMapper : IMapper
     {
-        public void Map(string json, List<UnifiedData> list)
+        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
         {
             Log.Information("");
             Log.Information("------------------------------------------------");
@@ -62,7 +62,7 @@ namespace Backend.Services.Mappers
                 }
                 else
                 {
-                    stationName = "Estación " + Utilities.ExtractStationNameWithSimilarity(stationName);
+                    stationName = "Estación ITV de " + Utilities.ExtractStationNameWithSimilarity(stationName);
                     u.Station.name = stationName;
                     Log.Information("Paso GAL: Actualizado nombre de estación a '{Name}'.", stationName);
                 }
@@ -157,23 +157,26 @@ namespace Backend.Services.Mappers
                     alreadySearched = true;
                 }
 
-                Log.Information("Paso GAL: Comprobando que la dirección '{Address}' y las coordenadas (lat: {Lat}, lon: {Lon}) apuntan al mismo lugar con Selenium...",
-                    u.Station.address, u.Station.latitude, u.Station.longitude);
-
-                if (!alreadySearched && !Utilities.CompareAddressWithCoordinates(
-                    driver,
-                    u.Station.address ?? "",
-                    u.Station.latitude,
-                    u.Station.longitude,
-                    ref cookiesAccepted,
-                    u.Station.postal_code ?? "",
-                    u.LocalityName ?? "",
-                    u.ProvinceName ?? ""
-                ))
+                if (validateExistingCoordinates && !alreadySearched)
                 {
-                    Log.Warning("Paso GAL: Estación '{Name}' descartada: la dirección '{Address}' no coincide con las coordenadas (lat: {Lat}, lon: {Lon})",
-                        stationName, u.Station.address, u.Station.latitude, u.Station.longitude);
-                    continue;
+                    Log.Information("Paso GAL: Comprobando que la dirección '{Address}' y las coordenadas (lat: {Lat}, lon: {Lon}) apuntan al mismo lugar con Selenium...",
+                        u.Station.address, u.Station.latitude, u.Station.longitude);
+
+                    if (!Utilities.CompareAddressWithCoordinates(
+                        driver,
+                        u.Station.address ?? "",
+                        u.Station.latitude,
+                        u.Station.longitude,
+                        ref cookiesAccepted,
+                        u.Station.postal_code ?? "",
+                        u.LocalityName ?? "",
+                        u.ProvinceName ?? ""
+                    ))
+                    {
+                        Log.Warning("Paso GAL: Estación '{Name}' descartada: la dirección '{Address}' no coincide con las coordenadas (lat: {Lat}, lon: {Lon})",
+                            stationName, u.Station.address, u.Station.latitude, u.Station.longitude);
+                        continue;
+                    }
                 }
 
                 list.Add(u);
