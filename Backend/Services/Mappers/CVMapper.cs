@@ -7,6 +7,8 @@ namespace Backend.Services.Mappers
 {
     public class CVMapper : IMapper
     {
+        private readonly Dictionary<string, int> stationCounters = new Dictionary<string, int>();
+
         public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
         {
             Log.Information("");
@@ -88,9 +90,26 @@ namespace Backend.Services.Mappers
                     }
 
                     // nombre
-                    u.Station.name = u.Station.type == StationType.Fixed_station
-                        ? $"Estación ITV de {u.LocalityName}"
-                        : $"Estación {stationAddress?.Replace(".", string.Empty)}";
+                    if (u.Station.type == StationType.Fixed_station)
+                    {
+                        u.Station.name = $"Estación ITV de {u.LocalityName}";
+                    }
+                    else
+                    {
+                        string stationType = Utilities.ExtractStationSubtype(stationAddress);
+                        
+                        if (!stationCounters.ContainsKey(stationType))
+                        {
+                            stationCounters[stationType] = 1;
+                        }
+                        else
+                        {
+                            stationCounters[stationType]++;
+                        }
+
+                        u.Station.name = $"Estación ITV {stationType} {stationCounters[stationType]:D2}";
+                        Log.Debug("Paso CV: Nombre asignado a estación no fija: {StationName}", u.Station.name);
+                    }
 
                     // información de contacto
                     u.Station.contact = (string?)item["CORREO"] ?? "";

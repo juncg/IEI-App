@@ -378,5 +378,30 @@ public class Utilities
         return normalized;
     }
 
+    public static string ExtractStationSubtype(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return "General";
+
+        var match = Regex.Match(address, @"I\.T\.V\.\s+([A-Za-zÁÉÍÓÚáéíóúñÑ]+)", RegexOptions.IgnoreCase);
+        
+        if (match.Success)
+        {
+            string type = match.Groups[1].Value;
+            
+            return char.ToUpper(type[0]) + type.Substring(1).ToLower();
+        }
+
+        string addressLower = address.ToLower();
+        
+        if (addressLower.Contains("móvil") || addressLower.Contains("movil"))
+            return "Móvil";
+        if (addressLower.Contains("agrícola") || addressLower.Contains("agricola"))
+            return "Agrícola";
+
+
+        return "General";
+    }
+
     #endregion
 }
