@@ -41,70 +41,24 @@ public class Utilities
     #region Public Methods
     public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
     {
-        try
-        {
-            if (!coords.Contains("°"))
-            {
-                var parts = coords.Split(',');
-                if (parts.Length == 2)
-                {
-                    if (double.TryParse(parts[0].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
-                        double.TryParse(parts[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
-                    {
-                        return (lat, lon);
-                    }
-                }
-            }
-            else
-            {
-                var pattern = @"(-?\d+)°\s*(\d+\.?\d*)',?\s*(-?\d+)°\s*(\d+\.?\d*)";
-                var match = Regex.Match(coords, pattern);
+        var regex = new Regex(@"([+-]?\d+)°\s*([\d\.]+)',?\s*([+-]?\d+)°\s*([\d\.]+)'");
+        var match = regex.Match(coords);
+        if (!match.Success) return null;
 
-                if (match.Success)
-                {
-                    double latDegrees = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-                    double latMinutes = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                    double lonDegrees = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
-                    double lonMinutes = double.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
+        double latDeg = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        double latMin = double.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+        double lonDeg = double.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
+        double lonMin = double.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
 
-                    double lat = latDegrees + (latMinutes / 60.0);
-                    double lon = lonDegrees + (lonMinutes / 60.0);
+        double lat = latDeg >= 0
+            ? latDeg + (latMin / 60.0)
+            : latDeg - (latMin / 60.0);
 
-                    return (lat, lon);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error al analizar las coordenadas '{coords}': {ex.Message}");
-        }
+        double lon = lonDeg >= 0
+            ? lonDeg + (lonMin / 60.0)
+            : lonDeg - (lonMin / 60.0);
 
-        return null;
-    }
-
-    public static string CleanAddress(string address)
-    {
-        if (string.IsNullOrWhiteSpace(address))
-            return "";
-
-        address = Regex.Replace(address, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bKm\.?\b", "Kilómetro", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bC/\b", "Calle ", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bs/n\b", "", RegexOptions.IgnoreCase);
-        address = Regex.Replace(address, @"\bPlá\b", "Pla", RegexOptions.IgnoreCase);
-
-        address = Regex.Replace(address, @"(?<!\d)\.(?!\d)", ",");
-
-        address = Regex.Replace(address, @",(\S)", ", $1");
-
-        address = Regex.Replace(address, @"\s+", " ");
-
-        address = address.Trim(' ', ',');
-
-        return address;
+        return (lat, lon);
     }
 
     // función para calcular la similitud entre cadenas utilizando la distancia de Levenshtein
@@ -303,6 +257,82 @@ public class Utilities
         name = Regex.Replace(name, @"\s{2,}", " ");
 
         return name.Trim();
+    }
+
+    public static string NormalizeAddressGalAndCv(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return "";
+
+        string normalized = address.Trim();
+
+        // expandir abreviaturas
+        normalized = Regex.Replace(normalized, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bAvda\.?\b", "Avenida", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bAv\.?\b", "Avenida", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPol\. Ind\.?\b", "Polígono Industrial", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPol\.?\b", "Polígono", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPl\.?\b", "Plaza", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bC\.?\b", "Calle ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bC/\b", "Calle ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bCº\b", "Calle ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bKm\.?\b|\bKM\.?\b|\bP\.K\.?\b", "km", RegexOptions.IgnoreCase);
+
+        // s/n siempre a minúscula
+        normalized = Regex.Replace(normalized, @"\bS\/N\b", "s/n", RegexOptions.IgnoreCase);
+
+        // remplazar comas y espacios repetidos
+        normalized = Regex.Replace(normalized, @",\s*,", ",");
+        normalized = Regex.Replace(normalized, @"\s+", " ");
+        normalized = Regex.Replace(normalized, @",\s+", ", ");
+
+        // quitar espacios y comas del final
+        normalized = normalized.Trim(' ', ',');
+
+        // primera letra en mayúscula
+        if (normalized.Length > 0)
+            normalized = char.ToUpper(normalized[0]) + normalized.Substring(1);
+
+        return normalized;
+    }
+
+    public static string NormalizeAddressCAT(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return "";
+
+        string normalized = address.Trim();
+
+        // expandir abreviaturas
+        normalized = Regex.Replace(normalized, @"\bCtra\.?\b", "Carretera", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bAvda\.?\b", "Avinguda", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bAv\.?\b", "Avinguda", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPl\.?\b", "Plaça", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPol\. Ind\.?\b", "Polígon Industrial", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bPol\.?\b", "Polígon", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bC\.?\b", "Carrer ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bC/\b", "Carrer ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bCº\b", "Carrer ", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bNº\b", "Número", RegexOptions.IgnoreCase);
+        normalized = Regex.Replace(normalized, @"\bKm\.?\b|\bKM\.?\b|\bP\.K\.?\b", "km", RegexOptions.IgnoreCase);
+
+        // s/n siempre a minúscula
+        normalized = Regex.Replace(normalized, @"\bS\/N\b", "s/n", RegexOptions.IgnoreCase);
+
+        // remplazar comas y espacios repetidos
+        normalized = Regex.Replace(normalized, @",\s*,", ",");
+        normalized = Regex.Replace(normalized, @"\s+", " ");
+        normalized = Regex.Replace(normalized, @",\s+", ", ");
+
+        // quitar espacios y comas del final
+        normalized = normalized.Trim(' ', ',');
+
+        // primera letra en mayúscula
+        if (normalized.Length > 0)
+            normalized = char.ToUpper(normalized[0]) + normalized.Substring(1);
+
+        return normalized;
     }
 
     #endregion

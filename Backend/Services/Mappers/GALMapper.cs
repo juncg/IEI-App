@@ -33,8 +33,8 @@ namespace Backend.Services.Mappers
                 }
 
                 // dirección
-                u.Station.address = (string?)item["ENDEREZO"] ?? "";
-                if (string.IsNullOrWhiteSpace(u.Station.address))
+                string stationAddress = (string?)item["ENDEREZO"] ?? "";
+                if (string.IsNullOrWhiteSpace(stationAddress))
                 {
                     if (string.IsNullOrWhiteSpace(stationName))
                     {
@@ -44,6 +44,11 @@ namespace Backend.Services.Mappers
                         Log.Warning("Paso GAL: Estación '{Name}' descartada por falta de dirección.", stationName);
                     }
                     continue;
+                }
+                u.Station.address = Utilities.NormalizeAddressGalAndCv(stationAddress);
+                if (!stationAddress.Equals(u.Station.address))
+                {
+                    Log.Information("Paso GAL: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", stationAddress, u.Station.address);
                 }
 
                 // nombre (2/2)
