@@ -1,6 +1,5 @@
 using Backend.Models;
 using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
 using Serilog;
 
 namespace Backend.Services.Mappers
