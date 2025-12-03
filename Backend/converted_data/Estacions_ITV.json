@@ -1,7 +1,7 @@
 ﻿[
   {
     "NOME DA ESTACIÓN": "Estación ITV do Espírito Santo",
-    "ENDEREZO": "Estrada Nacional VI, km 582 - Polígono do Espírito Santo ",
+    "ENDEREZO": "Estrada Nacional VI, km 582 - Polígono do Espírito Santo",
     "CONCELLO": "Sada",
     "CÓDIGO POSTAL": "15168",
     "PROVINCIA": "A Coruña",
@@ -24,71 +24,11 @@
     "COORDENADAS GMAPS": "42° 54.775', -8° 31.618'"
   },
   {
-    "NOME DA ESTACIÓN": "Estación ITV da Coruña-Sabón",
-    "ENDEREZO": "Avenida da Deputación - Polígono Industrial de Sabón - Parcela 69",
-    "CONCELLO": "Arteixo",
-    "CÓDIGO POSTAL": "15142",
-    "PROVINCIA": "A Coruña",
-    "TELÉFONO": "981 602 356 - 881 920 323",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/estacions-syc/a-coruna-sabon/ ",
-    "CORREO ELECTRÓNICO": "sabon@sycitv.com",
-    "COORDENADAS GMAPS": "43° 18.891', -8° 30.461'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Santiago-Cacheiras",
-    "ENDEREZO": "Travesía de Cacheiras, 128 - Cacheiras",
-    "CONCELLO": "Teo",
-    "CÓDIGO POSTAL": "15886",
-    "PROVINCIA": "A Coruña",
-    "TELÉFONO": "981 806 009 - 881 920 327",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=santiago-cacheiras",
-    "CORREO ELECTRÓNICO": "cacheiras@sycitv.com",
-    "COORDENADAS GMAPS": "42° 48.631', -8° 32.762'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Ferrol",
-    "ENDEREZO": "Avenida do Mar, 106 - Polígono Industrial da Gándara",
-    "CONCELLO": "Narón",
-    "CÓDIGO POSTAL": "15570",
-    "PROVINCIA": "A Coruña",
-    "TELÉFONO": "981 315 051 - 881 920 328",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=ferrol ",
-    "CORREO ELECTRÓNICO": "ferrol@sycitv.com",
-    "COORDENADAS GMAPS": "43° 29.441', -8° 11.784'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Ribeira",
-    "ENDEREZO": "Avenida da Coruña, 76 - Polígono Industrial de Xarás",
-    "CONCELLO": "Ribeira",
-    "CÓDIGO POSTAL": "15969",
-    "PROVINCIA": "A Coruña",
-    "TELÉFONO": "981 872 400",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=ribeira",
-    "CORREO ELECTRÓNICO": "ribeira@sycitv.com",
-    "COORDENADAS GMAPS": "42° 34.439', -8° 59.915'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Santiago-A Sionlla",
-    "ENDEREZO": "Polígono industrial da Sionlla - Rúa Comunidade Valenciana 3",
-    "CONCELLO": "Santiago de Compostela",
-    "CÓDIGO POSTAL": "15707",
-    "PROVINCIA": "A Coruña",
-    "TELÉFONO": "",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=santiago-a-sionlla ",
-    "CORREO ELECTRÓNICO": "",
-    "COORDENADAS GMAPS": "42.906076,-8.498523"
-  },
-  {
     "NOME DA ESTACIÓN": "Estación ITV do Allo",
     "ENDEREZO": "Parque Empresarial do Allo - Parcela 17 - O Allo",
     "CONCELLO": "Zas",
     "CÓDIGO POSTAL": "15851",
-    "PROVINCIA": "A Coruña",
+    "PROVINCIA": "Coruña",
     "TELÉFONO": "881 920 494",
     "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
     "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=o-allo ",
@@ -123,7 +63,7 @@
     "NOME DA ESTACIÓN": "Estación ITV de Lugo",
     "ENDEREZO": "Polígono Industrial do Ceao - Rúa das Comunicacións - Parcela 98B",
     "CONCELLO": "Lugo",
-    "CÓDIGO POSTAL": "27003",
+    "CÓDIGO POSTAL": "271003",
     "PROVINCIA": "Lugo",
     "TELÉFONO": "982 209 037 - 881 920 324",
     "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
@@ -144,56 +84,8 @@
     "COORDENADAS GMAPS": "43° 37.159', -7° 19.383'"
   },
   {
-    "NOME DA ESTACIÓN": "Estación ITV de Vilalba",
-    "ENDEREZO": "Polígono Sete Pontes - Rúa do Toxo - Parcela 26",
-    "CONCELLO": "Vilalba",
-    "CÓDIGO POSTAL": "27800",
-    "PROVINCIA": "Lugo",
-    "TELÉFONO": "881 920 491",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=vilalba ",
-    "CORREO ELECTRÓNICO": "vilalba@sycitv.com",
-    "COORDENADAS GMAPS": "43° 19.000', -7° 39.852'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV do Barco",
-    "ENDEREZO": "Avenida do Sil, 35 - Viloira",
-    "CONCELLO": "Barco de Valdeorras, O",
-    "CÓDIGO POSTAL": "32315",
-    "PROVINCIA": "Ourense",
-    "TELÉFONO": "881 920 967",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=o-barco ",
-    "CORREO ELECTRÓNICO": "obarco@sycitv.com",
-    "COORDENADAS GMAPS": "42° 24.578', -6° 58.435'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV do Carballiño",
-    "ENDEREZO": "Parque empresarial do Carballiño - Parcela 30",
-    "CONCELLO": "Carballiño, O",
-    "CÓDIGO POSTAL": "32500",
-    "PROVINCIA": "Ourense",
-    "TELÉFONO": "",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=o-carballino ",
-    "CORREO ELECTRÓNICO": "",
-    "COORDENADAS GMAPS": "42.439377,-8.051152"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Ourense",
-    "ENDEREZO": "Parque empresarial - Parcela 4 ",
-    "CONCELLO": "Pereiro de Aguiar, O",
-    "CÓDIGO POSTAL": "32710",
-    "PROVINCIA": "Ourense",
-    "TELÉFONO": "988 259 356",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=ourense",
-    "CORREO ELECTRÓNICO": "ourense@sycitv.com",
-    "COORDENADAS GMAPS": "42° 19.165', -7° 48.414'"
-  },
-  {
     "NOME DA ESTACIÓN": "Estación ITV de Verín",
-    "ENDEREZO": "Polígono de Pazos - Parcela A-6 ",
+    "ENDEREZO": "Polígono de Pazos - Parcela A-6",
     "CONCELLO": "Verín",
     "CÓDIGO POSTAL": "32600",
     "PROVINCIA": "Ourense",
@@ -214,66 +106,6 @@
     "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=xinzo",
     "CORREO ELECTRÓNICO": "xinzo@sycitv.com",
     "COORDENADAS GMAPS": "42° 4.681', -7° 43.362'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Vigo-Peinador",
-    "ENDEREZO": "Avenida do Aeroporto, 770 - Peinador",
-    "CONCELLO": "Vigo",
-    "CÓDIGO POSTAL": "36318",
-    "PROVINCIA": "Pontevedra",
-    "TELÉFONO": "881 920 322",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=vigo-peinador",
-    "CORREO ELECTRÓNICO": "peinador@sycitv.com",
-    "COORDENADAS GMAPS": "42° 13.477', -8° 38.200'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Pontevedra-Bora",
-    "ENDEREZO": "Estrada Pontevedra-Ourense, s/n - As Pontes - Santa Mariña - Bora",
-    "CONCELLO": "Pontevedra",
-    "CÓDIGO POSTAL": "36154",
-    "PROVINCIA": "Pontevedra",
-    "TELÉFONO": "986 865 020",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=pontevedra-bora",
-    "CORREO ELECTRÓNICO": "pontebora@sycitv.com",
-    "COORDENADAS GMAPS": "42° 26.640', -8° 34.993'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Vilagarcía  ",
-    "ENDEREZO": "Polígono Industrial Trabanca-Badiña - Rúa de Patiño, 27-31",
-    "CONCELLO": "Vilagarcía de Arousa",
-    "CÓDIGO POSTAL": "36600",
-    "PROVINCIA": "Pontevedra",
-    "TELÉFONO": "881 920 971",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=vilagarcia",
-    "CORREO ELECTRÓNICO": "villagarcia@sycitv.com",
-    "COORDENADAS GMAPS": "42° 35.800', -8° 44.754'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV do Porriño",
-    "ENDEREZO": "Polígono Industrial As Gándaras - Parcela 1-1A ",
-    "CONCELLO": "Porriño, O",
-    "CÓDIGO POSTAL": "36418",
-    "PROVINCIA": "Pontevedra",
-    "TELÉFONO": "986 333 992 - 881 920 325",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=o-porrino",
-    "CORREO ELECTRÓNICO": "porrino@sycitv.com",
-    "COORDENADAS GMAPS": "42° 8.108', -8° 37.439'"
-  },
-  {
-    "NOME DA ESTACIÓN": "Estación ITV de Pontevedra-Curro",
-    "ENDEREZO": "Estrada Pontevedra - Vilagarcía, km 7,5 - Bretoña - Curro - Santa María",
-    "CONCELLO": "Barro",
-    "CÓDIGO POSTAL": "36191",
-    "PROVINCIA": "Pontevedra",
-    "TELÉFONO": "986 713 360 - 881 920 969",
-    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
-    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=pontevedra-curro",
-    "CORREO ELECTRÓNICO": "curro@sycitv.com",
-    "COORDENADAS GMAPS": "42° 29.850', -8° 39.161'"
   },
   {
     "NOME DA ESTACIÓN": "Estación ITV de Lalín",
@@ -300,6 +132,18 @@
     "COORDENADAS GMAPS": "42° 18.347', -8° 47.543'"
   },
   {
+    "NOME DA ESTACIÓN": "Estación ITV de Foz",
+    "ENDEREZO": "Rúa Chelas, 17 - Cangas",
+    "CONCELLO": "Foz",
+    "CÓDIGO POSTAL": "27780",
+    "PROVINCIA": "Lugo",
+    "TELÉFONO": "881 920 962",
+    "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
+    "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=foz ",
+    "CORREO ELECTRÓNICO": "foz@sycitv.com",
+    "COORDENADAS GMAPS": "43° 37.159', -7° 19.383'"
+  },
+  {
     "NOME DA ESTACIÓN": "Estación ITV de Nigrán",
     "ENDEREZO": "Parque empresarial Porto do Molle - Parcela 8.12",
     "CONCELLO": "Nigrán",
@@ -309,6 +153,6 @@
     "HORARIO": "de 8.00 a 21.00 horas (de luns a venres) e de 8.00 a 14.30 horas (sábados)",
     "SOLICITUDE DE CITA PREVIA": "https://www.sycitv.com/gl/cita-previa-particulares/?estacion=nigran  ",
     "CORREO ELECTRÓNICO": "",
-    "COORDENADAS GMAPS": "42.135887,-8.788971"
+    "COORDENADAS GMAPS": "412.135887,-8.788971"
   }
 ]
