@@ -123,10 +123,10 @@ namespace Backend.Services.Mappers
                     }
 
                     // información de contacto
-                    u.Station.contact = (string?)item["CORREO"] ?? "";
-                    if (!string.IsNullOrWhiteSpace(u.Station.contact) && !Utilities.IsUrl(u.Station.contact))
+                    string correo = (string?)item["CORREO"] ?? "";
+                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo))
                     {
-                        u.Station.contact = "Correo: " + u.Station.contact;
+                        u.Station.contact = "Correo: " + correo;
                     }
 
                     // horario
