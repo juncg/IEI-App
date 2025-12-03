@@ -8,98 +8,222 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Paso Main: Iniciando proceso principal...");
+    // Crear las tareas para las diferentes APIs
+    var apiTasks = new List<Task>
+    {
+        Task.Run(() => StartCatApi()),
+        Task.Run(() => StartCvApi()),
+        Task.Run(() => StartGalApi())
+    };
 
-    // 1. Transformación: Convertir fuentes a JSON
-    Log.Information("Paso Main: Iniciando transformación de datos de 'info' a 'converted_data'.");
-    string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-    string convertedFolder = Path.Combine(Directory.GetCurrentDirectory(), "converted_data");
-    Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
-    Log.Information("Paso Main: Transformación de datos completada.");
+    Log.Information("Iniciando APIs de transformación...");
 
-
-    Console.WriteLine("¿Quieres procesar la CV? (s/n)");
-    string? response = Console.ReadLine();
-    bool processCV = response?.Trim().ToLower() == "s";
-
-    Console.WriteLine("¿Quieres procesar GAL? (s/n)");
-    response = Console.ReadLine();
-    bool processGAL = response?.Trim().ToLower() == "s";
-
-    Console.WriteLine("¿Quieres procesar CAT? (s/n)");
-    response = Console.ReadLine();
-    bool processCAT = response?.Trim().ToLower() == "s";
-
-
-    Console.WriteLine("¿Quieres comprobar las coordenadas existentes con las de selenium? (s/n)");
-    response = Console.ReadLine();
-    bool validateExistingCoordinates = response?.Trim().ToLower() == "s";
-
-    // 2. Mapeo: Unificar datos
-    Log.Information("Paso Main: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
-    var mapperService = new Backend.Services.MapperService();
-    var unifiedData = await mapperService.ExecuteMapping(convertedFolder, validateExistingCoordinates, processCV, processGAL, processCAT);
-    Log.Information("Paso Main: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
-
-    // 3. Inserción: Poblar base de datos
-    Log.Information("Paso Main: Iniciando inserción en la base de datos.");
-    var inserter = new Backend.Services.DataInserter();
-    inserter.Run(unifiedData);
-    Log.Information("Paso Main: Inserción en la base de datos completada.");
-    Log.Information("Paso Main: Proceso principal finalizado.");
+    // Esperar a que todas las APIs estén corriendo
+    await Task.WhenAll(apiTasks);
 }
 catch (Exception ex)
 {
-    Log.Error(ex, "Paso Main: Ocurrió un error durante el proceso principal ETL.");
+    Log.Error(ex, "Error iniciando las APIs");
 }
 finally
 {
     Log.CloseAndFlush();
 }
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Host.UseSerilog();
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// API de Cataluña (Puerto 5001)
+static async Task StartCatApi()
 {
+    var builder = WebApplication.CreateBuilder();
+    builder.WebHost.UseUrls("http://localhost:5001");
+
+    builder.Host.UseSerilog();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new() { Title = "API Cataluña - Transformación XML", Version = "v1" });
+    });
+
+    var app = builder.Build();
+
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CAT v1");
+    });
+
+    app.MapGet("/api/cat/transform", () =>
+    {
+        try
+        {
+            Log.Information("API CAT: Iniciando transformación de datos de Cataluña (XML)");
+
+            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
+            string catXmlPath = Path.Combine(infoFolder, "CAT.xml");
+
+            if (!File.Exists(catXmlPath))
+            {
+                Log.Warning("API CAT: No se encontró el archivo CAT.xml en {Path}", catXmlPath);
+                return Results.NotFound(new { error = "Archivo CAT.xml no encontrado" });
+            }
+
+            // Leer y transformar el XML
+            var catData = Transformations.ConvertCatXmlToJson(catXmlPath);
+
+            Log.Information("API CAT: Transformación completada. {Count} registros procesados",
+                catData?.GetProperty("establishments").GetArrayLength() ?? 0);
+
+            return Results.Ok(new
+            {
+                region = "Cataluña",
+                sourceFormat = "XML",
+                timestamp = DateTime.UtcNow,
+                data = catData
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "API CAT: Error durante la transformación");
+            return Results.Problem(ex.Message);
+        }
+    })
+    .WithName("TransformCataluña")
+    .WithDescription("Transforma datos de establecimientos de Cataluña desde XML a JSON")
+    .WithTags("Cataluña");
+
+    Log.Information("API de Cataluña iniciada en http://localhost:5001");
+    Log.Information("Swagger UI disponible en http://localhost:5001/swagger");
+
+    await app.RunAsync();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+// API de Comunidad Valenciana (Puerto 5002)
+static async Task StartCvApi()
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var builder = WebApplication.CreateBuilder();
+    builder.WebHost.UseUrls("http://localhost:5002");
 
-app.MapGet("/weatherforecast", () =>
+    builder.Host.UseSerilog();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new() { Title = "API Comunidad Valenciana - Transformación JSON", Version = "v1" });
+    });
+
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CV v1");
+    });
+
+    app.MapGet("/api/cv/transform", () =>
+    {
+        try
+        {
+            Log.Information("API CV: Iniciando transformación de datos de Comunidad Valenciana (JSON)");
+
+            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
+            string cvJsonPath = Path.Combine(infoFolder, "CV.json");
+
+            if (!File.Exists(cvJsonPath))
+            {
+                Log.Warning("API CV: No se encontró el archivo CV.json en {Path}", cvJsonPath);
+                return Results.NotFound(new { error = "Archivo CV.json no encontrado" });
+            }
+
+            // Leer y transformar el JSON
+            var cvData = Transformations.ConvertCvJsonToJson(cvJsonPath);
+
+            Log.Information("API CV: Transformación completada. {Count} registros procesados",
+                cvData?.GetProperty("rows").GetArrayLength() ?? 0);
+
+            return Results.Ok(new
+            {
+                region = "Comunidad Valenciana",
+                sourceFormat = "JSON",
+                timestamp = DateTime.UtcNow,
+                data = cvData
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "API CV: Error durante la transformación");
+            return Results.Problem(ex.Message);
+        }
+    })
+    .WithName("TransformComunitatValenciana")
+    .WithDescription("Transforma datos de establecimientos de Comunidad Valenciana desde JSON a JSON")
+    .WithTags("Comunidad Valenciana");
+
+    Log.Information("API de Comunidad Valenciana iniciada en http://localhost:5002");
+    Log.Information("Swagger UI disponible en http://localhost:5002/swagger");
+
+    await app.RunAsync();
+}
+
+// API de Galicia (Puerto 5003)
+static async Task StartGalApi()
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    var builder = WebApplication.CreateBuilder();
+    builder.WebHost.UseUrls("http://localhost:5003");
 
-app.Run();
+    builder.Host.UseSerilog();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new() { Title = "API Galicia - Transformación CSV", Version = "v1" });
+    });
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API GAL v1");
+    });
+
+    app.MapGet("/api/gal/transform", () =>
+    {
+        try
+        {
+            Log.Information("API GAL: Iniciando transformación de datos de Galicia (CSV)");
+
+            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
+            string galCsvPath = Path.Combine(infoFolder, "GAL.csv");
+
+            if (!File.Exists(galCsvPath))
+            {
+                Log.Warning("API GAL: No se encontró el archivo GAL.csv en {Path}", galCsvPath);
+                return Results.NotFound(new { error = "Archivo GAL.csv no encontrado" });
+            }
+
+            // Leer y transformar el CSV
+            var galData = Transformations.ConvertGalCsvToJson(galCsvPath);
+
+            Log.Information("API GAL: Transformación completada. {Count} registros procesados",
+                galData?.GetProperty("establishments").GetArrayLength() ?? 0);
+
+            return Results.Ok(new
+            {
+                region = "Galicia",
+                sourceFormat = "CSV",
+                timestamp = DateTime.UtcNow,
+                data = galData
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "API GAL: Error durante la transformación");
+            return Results.Problem(ex.Message);
+        }
+    })
+    .WithName("TransformGalicia")
+    .WithDescription("Transforma datos de establecimientos de Galicia desde CSV a JSON")
+    .WithTags("Galicia");
+
+    Log.Information("API de Galicia iniciada en http://localhost:5003");
+    Log.Information("Swagger UI disponible en http://localhost:5003/swagger");
+
+    await app.RunAsync();
 }
