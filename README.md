@@ -1,3 +1,7 @@
 Objetivos
-1. Poblar bases de datos con SQLite equivalentes a las 3 de cada comunidad autonoma en PoliformaT
-2. Estandarizar la información con atributos homogéneos en común entre las 3 bases de datos pobladas.
+
+1. Poner los transformers en sus propias APIs (devuelven JSON sucio)
+2. Dejar mappers e inserters en API principal (carga)
+   2.1 Debe informar de forma amigable de los resultados buenos, los resultados transformados y los descartados
+3. Hacer endpoints para carga y busqueda
+4. Hacer interfaz
