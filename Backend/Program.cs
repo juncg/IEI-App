@@ -13,10 +13,12 @@ try
     {
         Task.Run(() => StartCatApi()),
         Task.Run(() => StartCvApi()),
-        Task.Run(() => StartGalApi())
+        Task.Run(() => StartGalApi()),
+        Task.Run(() => StartLoadApi()),
+        Task.Run(() => StartSearchApi())
     };
 
-    Log.Information("Iniciando APIs de transformación...");
+    Log.Information("Iniciando APIs de transformación, carga y búsqueda...");
 
     // Esperar a que todas las APIs estén corriendo
     await Task.WhenAll(apiTasks);
@@ -30,7 +32,6 @@ finally
     Log.CloseAndFlush();
 }
 
-// API de Cataluña (Puerto 5001)
 static async Task StartCatApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -58,19 +59,18 @@ static async Task StartCatApi()
             Log.Information("API CAT: Iniciando transformación de datos de Cataluña (XML)");
 
             string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string catXmlPath = Path.Combine(infoFolder, "CAT.xml");
+            string catXmlPath = Path.Combine(infoFolder, "ITV-CAT.xml");
 
             if (!File.Exists(catXmlPath))
             {
-                Log.Warning("API CAT: No se encontró el archivo CAT.xml en {Path}", catXmlPath);
-                return Results.NotFound(new { error = "Archivo CAT.xml no encontrado" });
+                Log.Warning("API CAT: No se encontró el archivo ITV-CAT.xml en {Path}", catXmlPath);
+                return Results.NotFound(new { error = "Archivo ITV-CAT.xml no encontrado" });
             }
 
             // Leer y transformar el XML
             var catData = Transformations.ConvertCatXmlToJson(catXmlPath);
 
-            Log.Information("API CAT: Transformación completada. {Count} registros procesados",
-                catData?.GetProperty("establishments").GetArrayLength() ?? 0);
+            Log.Information("API CAT: Transformación completada.");
 
             return Results.Ok(new
             {
@@ -96,7 +96,6 @@ static async Task StartCatApi()
     await app.RunAsync();
 }
 
-// API de Comunidad Valenciana (Puerto 5002)
 static async Task StartCvApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -124,19 +123,18 @@ static async Task StartCvApi()
             Log.Information("API CV: Iniciando transformación de datos de Comunidad Valenciana (JSON)");
 
             string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string cvJsonPath = Path.Combine(infoFolder, "CV.json");
+            string cvJsonPath = Path.Combine(infoFolder, "estaciones.json");
 
             if (!File.Exists(cvJsonPath))
             {
-                Log.Warning("API CV: No se encontró el archivo CV.json en {Path}", cvJsonPath);
-                return Results.NotFound(new { error = "Archivo CV.json no encontrado" });
+                Log.Warning("API CV: No se encontró el archivo estaciones.json en {Path}", cvJsonPath);
+                return Results.NotFound(new { error = "Archivo estaciones.json no encontrado" });
             }
 
             // Leer y transformar el JSON
             var cvData = Transformations.ConvertCvJsonToJson(cvJsonPath);
 
-            Log.Information("API CV: Transformación completada. {Count} registros procesados",
-                cvData?.GetProperty("rows").GetArrayLength() ?? 0);
+            Log.Information("API CV: Transformación completada.");
 
             return Results.Ok(new
             {
@@ -162,7 +160,6 @@ static async Task StartCvApi()
     await app.RunAsync();
 }
 
-// API de Galicia (Puerto 5003)
 static async Task StartGalApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -190,19 +187,18 @@ static async Task StartGalApi()
             Log.Information("API GAL: Iniciando transformación de datos de Galicia (CSV)");
 
             string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string galCsvPath = Path.Combine(infoFolder, "GAL.csv");
+            string galCsvPath = Path.Combine(infoFolder, "Estacions_ITV.csv");
 
             if (!File.Exists(galCsvPath))
             {
-                Log.Warning("API GAL: No se encontró el archivo GAL.csv en {Path}", galCsvPath);
-                return Results.NotFound(new { error = "Archivo GAL.csv no encontrado" });
+                Log.Warning("API GAL: No se encontró el archivo Estacions_ITV.csv en {Path}", galCsvPath);
+                return Results.NotFound(new { error = "Archivo Estacions_ITV.csv no encontrado" });
             }
 
             // Leer y transformar el CSV
             var galData = Transformations.ConvertGalCsvToJson(galCsvPath);
 
-            Log.Information("API GAL: Transformación completada. {Count} registros procesados",
-                galData?.GetProperty("establishments").GetArrayLength() ?? 0);
+            Log.Information("API GAL: Transformación completada.");
 
             return Results.Ok(new
             {
@@ -224,6 +220,65 @@ static async Task StartGalApi()
 
     Log.Information("API de Galicia iniciada en http://localhost:5003");
     Log.Information("Swagger UI disponible en http://localhost:5003/swagger");
+
+    await app.RunAsync();
+}
+
+static async Task StartLoadApi()
+{
+    var builder = WebApplication.CreateBuilder();
+    builder.WebHost.UseUrls("http://localhost:5004");
+
+    builder.Host.UseSerilog();
+    builder.Services.AddControllers();
+    builder.Services.AddHttpClient();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new() { Title = "API Carga - ETL", Version = "v1" });
+    });
+
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Carga v1");
+    });
+
+    app.MapControllers();
+
+    Log.Information("API de Carga iniciada en http://localhost:5004");
+    Log.Information("Swagger UI disponible en http://localhost:5004/swagger");
+
+    await app.RunAsync();
+}
+
+static async Task StartSearchApi()
+{
+    var builder = WebApplication.CreateBuilder();
+    builder.WebHost.UseUrls("http://localhost:5005");
+
+    builder.Host.UseSerilog();
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new() { Title = "API Búsqueda", Version = "v1" });
+    });
+
+    var app = builder.Build();
+
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Búsqueda v1");
+    });
+
+    app.MapControllers();
+
+    Log.Information("API de Búsqueda iniciada en http://localhost:5005");
+    Log.Information("Swagger UI disponible en http://localhost:5005/swagger");
 
     await app.RunAsync();
 }

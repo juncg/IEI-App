@@ -1,62 +1,83 @@
 using Backend.Converters;
+using Backend.Helpers;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Newtonsoft.Json;
 using Serilog;
+using System.Globalization;
 using System.Text;
+using System.Text.Json;
+using System.Xml;
 
 namespace Backend
 {
     public class Transformations
     {
-        private static readonly List<IFileConverter> _converters;
-
         static Transformations()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            _converters = new List<IFileConverter>
-            {
-                new XmlToJSONConverter(),
-                new CsvToJSONConverter(),
-                new JsonToJSONConverter()
-            };
         }
 
-        public static void ConvertFolderToJson(string inputFolder, string outputFolder)
+        public static JsonElement ConvertCatXmlToJson(string path)
         {
-            Log.Information("Paso Transform: Iniciando transformación de la carpeta: {InputFolder} a JSON en la carpeta: {OutputFolder}", inputFolder, outputFolder);
-
-            if (!Directory.Exists(outputFolder))
+            try
             {
-                Directory.CreateDirectory(outputFolder);
-                Log.Information("Paso Transform: Carpeta de salida creada: {OutputFolder}", outputFolder);
+                string xmlContent = EncodingHelper.TryReadWithEncodings(path);
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(xmlContent);
+                string jsonText = JsonConvert.SerializeXmlNode(doc, Newtonsoft.Json.Formatting.None);
+                
+                using var document = JsonDocument.Parse(jsonText);
+                return document.RootElement.Clone();
             }
-
-            var files = Directory.GetFiles(inputFolder);
-            foreach (var file in files)
+            catch (Exception ex)
             {
-                string fileName = Path.GetFileName(file);
-                string outputPath = Path.Combine(outputFolder, Path.GetFileNameWithoutExtension(file) + ".json");
-
-                try
-                {
-                    Log.Information("Paso Transform: Procesando archivo: {FileName}", fileName);
-
-                    var converter = _converters.FirstOrDefault(c => c.CanConvert(fileName));
-
-                    if (converter != null)
-                    {
-                        converter.Convert(file, outputPath);
-                    }
-                    else
-                    {
-                        Log.Warning("Paso Transform: No se encontró convertidor para el archivo: {FileName}", fileName);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Paso Transform: Error transformando archivo: {FileName}", fileName);
-                }
+                Log.Error(ex, "Error converting CAT XML to JSON");
+                throw;
             }
+        }
 
-            Log.Information("Paso Transform: Transformación completada para la carpeta: {InputFolder}", inputFolder);
+        public static JsonElement ConvertCvJsonToJson(string path)
+        {
+            try
+            {
+                string jsonContent = EncodingHelper.TryReadWithEncodings(path);
+                using var document = JsonDocument.Parse(jsonContent);
+                return document.RootElement.Clone();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error converting CV JSON to JSON");
+                throw;
+            }
+        }
+
+        public static JsonElement ConvertGalCsvToJson(string path)
+        {
+            try
+            {
+                using var reader = new StreamReader(path, EncodingHelper.DetectEncoding(path));
+                using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";",
+                    BadDataFound = null,
+                    MissingFieldFound = null
+                });
+
+                var records = csv.GetRecords<dynamic>().ToList();
+                
+                var wrapper = new { establishments = records };
+                
+                string jsonText = JsonConvert.SerializeObject(wrapper);
+                
+                using var document = JsonDocument.Parse(jsonText);
+                return document.RootElement.Clone();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error converting GAL CSV to JSON");
+                throw;
+            }
         }
     }
 }
