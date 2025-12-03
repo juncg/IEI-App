@@ -88,7 +88,7 @@ namespace Backend.Services.Mappers
                     string rawProvinceName = (string?)item["serveis_territorials"] ?? "";
                     u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
                     string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
-                    if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode) && u.ProvinceName.Equals(provinceFromCP))
+                    if ((u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode)) || !u.ProvinceName.Equals(provinceFromCP))
                     {
                         if (provinceFromCP != null)
                         {
