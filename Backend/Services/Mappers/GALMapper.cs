@@ -91,9 +91,9 @@ namespace Backend.Services.Mappers
                     // provincia
                     string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
                     u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
-                    if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode))
+                    string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
+                    if (u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode) && u.ProvinceName.Equals(provinceFromCP))
                     {
-                        string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
                         if (provinceFromCP != null)
                         {
                             u.ProvinceName = provinceFromCP;
