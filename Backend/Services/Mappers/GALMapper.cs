@@ -6,12 +6,22 @@ namespace Backend.Services.Mappers
 {
     public class GALMapper : IMapper
     {
-        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
+        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
+            if (!processGAL) {
+                Log.Warning("IGNORANDO GAL.");
+                return;
+            }
+
             Log.Information("");
             Log.Information("------------------------------------------------");
             Log.Information("Paso GAL: Iniciando mapeo de datos para Galicia.");
             var data = JArray.Parse(json);
+            if (data == null)
+            {
+                Log.Warning("Paso GAL: No se encontraron datos en el JSON.");
+                return;
+            }
 
             using var driver = SeleniumGeocoder.CreateDriver();
             bool cookiesAccepted = false;
@@ -112,10 +122,10 @@ namespace Backend.Services.Mappers
                     var contactParts = new List<string>();
                     if (!string.IsNullOrWhiteSpace(telefono))
                         contactParts.Add($"Teléfono: {telefono}");
-                    if (!string.IsNullOrWhiteSpace(correo))
+                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo))
                         contactParts.Add($"Correo: {correo}");
 
-                    u.Station.contact = contactParts.Count > 0 ? string.Join(" ", contactParts) : null;
+                    u.Station.contact = contactParts.Count > 0 ? string.Join(", ", contactParts) : null;
 
                     // horario
                     u.Station.schedule = (string?)item["HORARIO"] ?? "";
@@ -178,7 +188,6 @@ namespace Backend.Services.Mappers
 
             Log.Information("");
             Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.", list.Count);
-            Log.Information("");
         }
     }
 }

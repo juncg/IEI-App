@@ -8,8 +8,13 @@ namespace Backend.Services.Mappers
 {
     public class CATMapper : IMapper
     {
-        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
+        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
+            if (!processCAT) {
+                Log.Warning("IGNORANDO CAT.");
+                return;
+            }
+
             Log.Information("");
             Log.Information("------------------------------------------------");
             Log.Information("Paso CAT: Iniciando mapeo de datos para Cataluña.");
@@ -135,10 +140,10 @@ namespace Backend.Services.Mappers
                     }
 
                     // información de contacto
-                    string contact = (string?)item["correu_electr_nic"] ?? "";
-                    if (!string.IsNullOrWhiteSpace(contact) && !Utilities.IsUrl(contact))
+                    u.Station.contact = (string?)item["correu_electr_nic"] ?? "";
+                    if (!string.IsNullOrWhiteSpace(u.Station.contact) && !Utilities.IsUrl(u.Station.contact))
                     {
-                        u.Station.contact = contact;
+                        u.Station.contact = "Correo: " + u.Station.contact;
                     }
 
                     // horario
@@ -197,7 +202,6 @@ namespace Backend.Services.Mappers
 
             Log.Information("");
             Log.Information("Paso CAT: Mapeo de datos para Cataluña finalizado. Registros totales: {RecordCount}.", list.Count);
-            Log.Information("");
         }
     }
 }

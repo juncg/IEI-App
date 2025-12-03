@@ -17,14 +17,28 @@ try
     Transformations.ConvertFolderToJson(infoFolder, convertedFolder);
     Log.Information("Paso Main: Transformación de datos completada.");
 
-    Console.WriteLine("¿Quieres comprobar las coordenadas existentes con las de selenium? (s/n)");
+
+    Console.WriteLine("¿Quieres procesar la CV? (s/n)");
     string? response = Console.ReadLine();
+    bool processCV = response?.Trim().ToLower() == "s";
+
+    Console.WriteLine("¿Quieres procesar GAL? (s/n)");
+    response = Console.ReadLine();
+    bool processGAL = response?.Trim().ToLower() == "s";
+
+    Console.WriteLine("¿Quieres procesar CAT? (s/n)");
+    response = Console.ReadLine();
+    bool processCAT = response?.Trim().ToLower() == "s";
+
+
+    Console.WriteLine("¿Quieres comprobar las coordenadas existentes con las de selenium? (s/n)");
+    response = Console.ReadLine();
     bool validateExistingCoordinates = response?.Trim().ToLower() == "s";
 
     // 2. Mapeo: Unificar datos
     Log.Information("Paso Main: Iniciando mapeo de datos desde la carpeta '{ConvertedFolder}'.", convertedFolder);
     var mapperService = new Backend.Services.MapperService();
-    var unifiedData = await mapperService.ExecuteMapping(convertedFolder, validateExistingCoordinates);
+    var unifiedData = await mapperService.ExecuteMapping(convertedFolder, validateExistingCoordinates, processCV, processGAL, processCAT);
     Log.Information("Paso Main: Mapeo de datos completado. Total de registros mapeados: {RecordCount}", unifiedData.Count);
 
     // 3. Inserción: Poblar base de datos

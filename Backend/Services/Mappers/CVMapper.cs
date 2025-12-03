@@ -9,13 +9,20 @@ namespace Backend.Services.Mappers
     {
         private readonly Dictionary<string, int> stationCounters = new Dictionary<string, int>();
 
-        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates)
+        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
-            Log.Information("");
-            Log.Information("------------------------------------------------");
+            if (!processCV) {
+                Log.Warning("IGNORANDO CV.");
+                return;
+            }
 
             Log.Information("Paso CV: Iniciando mapeo de datos para la Comunidad Valenciana.");
             var data = JArray.Parse(json);
+            if (data == null)
+            {
+                Log.Warning("Paso CV: No se encontraron datos en el JSON.");
+                return;
+            }
 
             using var driver = SeleniumGeocoder.CreateDriver();
             bool cookiesAccepted = false;
@@ -68,7 +75,7 @@ namespace Backend.Services.Mappers
                     if (u.Station.type == StationType.Fixed_station)
                     {
                         u.Station.name = "Estación ITV (CV) de " + u.LocalityName;
-                        Log.Warning("Paso CV: Nombre '{Name}' asignado a estación fija.", u.Station.name);
+                        Log.Information("Paso CV: Nombre '{Name}' asignado a estación fija.", u.Station.name);
                     }
                     else
                     {
@@ -117,6 +124,10 @@ namespace Backend.Services.Mappers
 
                     // información de contacto
                     u.Station.contact = (string?)item["CORREO"] ?? "";
+                    if (!string.IsNullOrWhiteSpace(u.Station.contact) && !Utilities.IsUrl(u.Station.contact))
+                    {
+                        u.Station.contact = "Correo: " + u.Station.contact;
+                    }
 
                     // horario
                     u.Station.schedule = (string?)item["HORARIOS"] ?? "";
@@ -157,7 +168,6 @@ namespace Backend.Services.Mappers
 
             Log.Information("");
             Log.Information("Paso CV: Mapeo de datos para la Comunidad Valenciana finalizado. Registros totales: {RecordCount}", list.Count);
-            Log.Information("");
         }
     }
 }
