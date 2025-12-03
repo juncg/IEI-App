@@ -11,7 +11,8 @@ namespace Backend.Services.Mappers
 
         public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
-            if (!processCV) {
+            if (!processCV)
+            {
                 Log.Warning("IGNORANDO CV.");
                 return;
             }
@@ -46,7 +47,7 @@ namespace Backend.Services.Mappers
                         u.Station.type = StationType.Fixed_station;
                     else
                         u.Station.type = StationType.Others;
-                    
+
                     // dirección
                     string stationAddress = (string?)item["DIRECCIÓN"] ?? "";
                     if (string.IsNullOrWhiteSpace(stationAddress))
@@ -80,7 +81,7 @@ namespace Backend.Services.Mappers
                     else
                     {
                         string stationType = Utilities.ExtractStationSubtype(stationAddress);
-                        
+
                         if (!stationCounters.ContainsKey(stationType))
                         {
                             stationCounters[stationType] = 1;
@@ -90,7 +91,7 @@ namespace Backend.Services.Mappers
                             stationCounters[stationType]++;
                         }
 
-                        u.Station.name = $"Estación ITV (CV) de {stationType} {stationCounters[stationType]:D2}";
+                        u.Station.name = $"Estación ITV (CV) {stationType} {stationCounters[stationType]:D2}";
                         Log.Information("Paso CV: Nombre '{Name}' asignado a estación no fija.", u.Station.name);
                     }
 
@@ -150,7 +151,7 @@ namespace Backend.Services.Mappers
                     u.Station.latitude = lat;
                     u.Station.longitude = lon;
 
-                    if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
+                    if (u.Station.type == StationType.Fixed_station && !Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                     {
                         Log.Warning("Paso CV: Estación '{Name}' DESCARTADA por coordenadas inválidas (lat: {Lat}, lon: {Lon}).",
                             u.Station.name, u.Station.latitude, u.Station.longitude);
