@@ -5,3 +5,4 @@ Objetivos
    2.1 Debe informar de forma amigable de los resultados buenos, los resultados transformados y los descartados
 3. Hacer endpoints para carga y busqueda
 4. Hacer interfaz
+5. Pruebas exhaustivas de las API (Postman)
