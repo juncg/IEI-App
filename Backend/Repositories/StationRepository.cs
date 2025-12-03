@@ -7,6 +7,17 @@ namespace Backend.Repositories
     {
         public void InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
+            using (var checkCmd = conn.CreateCommand())
+            {
+                checkCmd.Transaction = trans;
+                checkCmd.CommandText = "SELECT COUNT(*) FROM Estacion WHERE nombre = @nombre AND tipo = @tipo";
+                checkCmd.Parameters.AddWithValue("@nombre", s.name ?? "");
+                checkCmd.Parameters.AddWithValue("@tipo", (int)s.type);
+                checkCmd.Parameters.AddWithValue("@direccion", s.address ?? "");
+                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0) return;
+            }
+
             using var cmd = conn.CreateCommand();
             cmd.Transaction = trans;
             cmd.CommandText = @"
