@@ -1,9 +1,9 @@
 "use client";
 
 import L from "leaflet";
+import { useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
-// Configurar los iconos por defecto de Leaflet
 const icon = L.icon({
 	iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
 	iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -17,13 +17,21 @@ const icon = L.icon({
 L.Marker.prototype.options.icon = icon;
 
 interface MapProps {
-	position: [number, number];
+	positions: { lat: number; lng: number; name?: string }[];
 }
 
-export default function Map({ position }: MapProps) {
+export default function Map({ positions }: MapProps) {
+	const bounds = useMemo(() => {
+		if (positions.length > 0) {
+			const latLngs = positions.map((pos) => L.latLng(pos.lat, pos.lng));
+			return L.latLngBounds(latLngs);
+		}
+		return null;
+	}, [positions]);
+
 	return (
 		<MapContainer
-			center={position}
+			bounds={bounds || undefined}
 			zoom={6}
 			scrollWheelZoom={true}
 			style={{ height: "500px", width: "100%", borderRadius: "0.5rem" }}>
@@ -31,9 +39,11 @@ export default function Map({ position }: MapProps) {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			<Marker position={position}>
-				<Popup>Estación ITV</Popup>
-			</Marker>
+			{positions.map((pos, index) => (
+				<Marker key={index} position={[pos.lat, pos.lng]}>
+					<Popup>{pos.name || "Estación ITV"}</Popup>
+				</Marker>
+			))}
 		</MapContainer>
 	);
 }
