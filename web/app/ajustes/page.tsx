@@ -11,6 +11,7 @@ import { useState } from "react";
 
 export default function CargaAlmacen() {
 	const [selectedSources, setSelectedSources] = useState<string[]>([]);
+	const [useSelenium, setUseSelenium] = useState(false);
 	const [loadingData, setLoadingData] = useState(false);
 	const [results, setResults] = useState<{
 		success: number;
@@ -67,8 +68,8 @@ export default function CargaAlmacen() {
 				<AppBreadcrumb />
 				<H1>Carga del almacén de datos</H1>
 
-				<div className="w-full space-y-6">
-					<div className="space-y-4">
+				<div className="w-full flex gap-8">
+					<div className="flex-1 space-y-4">
 						<H3>Seleccione fuente:</H3>
 
 						<div className="space-y-3 ml-4">
@@ -98,6 +99,24 @@ export default function CargaAlmacen() {
 						</div>
 					</div>
 
+					<div className="flex-1 space-y-4">
+						<H3>Opciones adicionales:</H3>
+
+						<div className="flex items-center space-x-2 ml-4">
+							<Checkbox
+								id="use-selenium"
+								checked={useSelenium}
+								onCheckedChange={(checked) => setUseSelenium(checked as boolean)}
+							/>
+							<Label htmlFor="use-selenium" className="cursor-pointer">
+								Comprobar las coordenadas con Selenium
+							</Label>
+						</div>
+					</div>
+				</div>
+
+				<div className="w-full space-y-6">
+					{" "}
 					<div className="flex gap-4 pt-4">
 						<Button variant="outline" onClick={handleCancel} className="px-6">
 							Cancelar
@@ -113,7 +132,6 @@ export default function CargaAlmacen() {
 							Borrar almacén de datos
 						</Button>
 					</div>
-
 					{results !== null && (
 						<div className="space-y-4 pt-6">
 							<H3>Resultados de la carga:</H3>
