@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Repositories;
+using Backend.Services;
 using Backend.Services.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -9,7 +10,7 @@ using System.Text.Json;
 namespace Backend.Api.Carga.Controllers
 {
     [ApiController]
-    [Route("api/load")]
+    [Route("api")]
     public class LoadController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -22,7 +23,7 @@ namespace Backend.Api.Carga.Controllers
             _httpClientFactory = httpClientFactory;
             _stationRepository = new StationRepository();
             _locationRepository = new LocationRepository();
-            
+
             // Initialize mappers manually or via DI if registered
             _mappers = new List<IMapper>
             {
@@ -32,19 +33,12 @@ namespace Backend.Api.Carga.Controllers
             };
         }
 
-        [HttpPost]
+        [HttpPost("load")]
         public async Task<IActionResult> LoadData([FromBody] List<string> sources)
         {
             Log.Information("Load API: Iniciando carga para fuentes: {Sources}", string.Join(", ", sources));
-            
-            var summary = new LoadSummary
-            {
-                TotalRecords = 0,
-                SuccessfulRecords = 0,
-                FailedRecords = 0,
-                Errors = new List<string>()
-            };
 
+            var loadResult = new LoadResultDto();
             var unifiedDataList = new List<UnifiedData>();
 
             using var client = _httpClientFactory.CreateClient();
@@ -63,23 +57,40 @@ namespace Backend.Api.Carga.Controllers
 
                     Log.Information("Obteniendo datos de {Source} en {Url}...", source, url);
                     var response = await client.GetAsync(url);
-                    
+
                     if (!response.IsSuccessStatusCode)
                     {
-                        string error = $"Error al obtener datos de {source}: {response.StatusCode}";
-                        Log.Error(error);
-                        summary.Errors.Add(error);
+                        loadResult.DiscardedRecords.Add(new DiscardedRecord { DataSource = source, Name = "N/A", Locality = "N/A", ErrorReason = $"Error al obtener datos: {response.StatusCode}" });
+                        loadResult.RecordsDiscarded++;
                         continue;
                     }
 
                     var jsonResponse = await response.Content.ReadAsStringAsync();
-                    
+
                     // Extract "data" property from the wrapper response
                     using var doc = JsonDocument.Parse(jsonResponse);
                     if (doc.RootElement.TryGetProperty("data", out var dataElement))
                     {
-                        string dataJson = dataElement.ToString();
-                        
+                        string dataJson;
+                        if (source.ToUpper() == "GAL")
+                        {
+                            // For GAL, data is {"establishments": [...]}, so extract the array
+                            if (dataElement.TryGetProperty("establishments", out var establishments))
+                            {
+                                dataJson = establishments.ToString();
+                            }
+                            else
+                            {
+                                Log.Warning("No se encontraron 'establishments' en la respuesta de {Source}", source);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            // For CAT and CV, data is the direct content
+                            dataJson = dataElement.ToString();
+                        }
+
                         // Select Mapper
                         IMapper? mapper = source.ToUpper() switch
                         {
@@ -92,66 +103,66 @@ namespace Backend.Api.Carga.Controllers
                         if (mapper != null)
                         {
                             Log.Information("Mapeando datos de {Source}...", source);
-                            // We pass false for validation to speed up, or true if required. 
-                            // User didn't specify, but usually load implies validation.
-                            // However, validation uses Selenium which is slow.
-                            // For now, I'll set it to false to avoid opening browsers during load, 
-                            // unless user explicitly asked for "Check against Selenium" (which was a previous task).
-                            // The user prompt says "a esta se le indicará que datos se querran cargar...".
-                            // I'll assume false for now to make it fast, or maybe true?
-                            // The previous conversation mentioned a prompt for Selenium check.
-                            // I'll stick to false for the API to be responsive, or maybe true if it's the "Carga" process.
-                            // Let's use false for now.
-                            mapper.Map(dataJson, unifiedDataList, false, source == "CV", source == "GAL", source == "CAT");
+                            var mapResult = mapper.Map(dataJson, false, source == "CV", source == "GAL", source == "CAT");
+                            unifiedDataList.AddRange(mapResult.UnifiedData);
+                            loadResult.RepairedRecords.AddRange(mapResult.RepairedRecords);
+                            loadResult.DiscardedRecords.AddRange(mapResult.DiscardedRecords);
+                            loadResult.RecordsDiscarded += mapResult.DiscardedRecords.Count;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    string error = $"Excepción procesando {source}: {ex.Message}";
-                    Log.Error(ex, error);
-                    summary.Errors.Add(error);
+                    Log.Error(ex, "Excepción procesando {Source}: {Message}", source, ex.Message);
+                    loadResult.DiscardedRecords.Add(new DiscardedRecord { DataSource = source, Name = "N/A", Locality = "N/A", ErrorReason = $"Excepción procesando: {ex.Message}" });
+                    loadResult.RecordsDiscarded++;
                 }
             }
-
-            summary.TotalRecords = unifiedDataList.Count;
 
             // 2. Save to Database
             Log.Information("Guardando {Count} registros en base de datos...", unifiedDataList.Count);
-            
+
+            var dataInserter = new DataInserter();
+            var insertResult = dataInserter.Run(unifiedDataList);
+
+            loadResult.RecordsLoadedCorrectly = insertResult.RecordsLoadedCorrectly;
+            loadResult.RecordsRepaired = loadResult.RepairedRecords.Count;
+            loadResult.DiscardedRecords.AddRange(insertResult.DiscardedRecords);
+            loadResult.RecordsDiscarded += insertResult.RecordsDiscarded;
+
+            return Ok(loadResult);
+        }
+
+        [HttpPost("clear")]
+        public IActionResult ClearDatabase()
+        {
+            Log.Information("Load API: Iniciando limpieza de la base de datos");
+
             try
             {
-                using var connection = new SqliteConnection("Data Source=databases/iei.db");
-                connection.Open();
-                using var transaction = connection.BeginTransaction();
+                string dbPath = DatabaseHelper.GetDatabasePath("databases/iei.db");
+                string connectionString = DatabaseHelper.GetConnectionString(dbPath);
 
-                foreach (var item in unifiedDataList)
+                // Asegurar que el directorio existe
+                string? dbDir = Path.GetDirectoryName(dbPath);
+                if (!string.IsNullOrEmpty(dbDir) && !Directory.Exists(dbDir))
                 {
-                    try
-                    {
-                        // Resolve Location (Province -> Locality)
-                        int provinceId = _locationRepository.GetOrInsertProvince(connection, item.ProvinceName ?? "Desconocida", transaction);
-                        int localityId = _locationRepository.GetOrInsertLocality(connection, item.LocalityName ?? "Desconocida", provinceId, transaction);
-                        
-                        _stationRepository.InsertStation(connection, item.Station, localityId, transaction);
-                        summary.SuccessfulRecords++;
-                    }
-                    catch (Exception ex)
-                    {
-                        summary.FailedRecords++;
-                        summary.Errors.Add($"Error insertando {item.Station.name}: {ex.Message}");
-                    }
+                    Directory.CreateDirectory(dbDir);
                 }
 
-                transaction.Commit();
+                using var conn = new SqliteConnection(connectionString);
+                conn.Open();
+
+                DatabaseInitializer.Initialize(conn);
+                Log.Information("Load API: Base de datos limpiada exitosamente (tablas borradas y recreadas)");
+
+                return Ok(new { message = "Base de datos limpiada exitosamente" });
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error general en base de datos");
-                summary.Errors.Add($"Error de base de datos: {ex.Message}");
+                Log.Error(ex, "Load API: Error al limpiar la base de datos");
+                return StatusCode(500, new { error = "Error al limpiar la base de datos", details = ex.Message });
             }
-
-            return Ok(summary);
         }
 
         private string GetUrlForSource(string source)
@@ -164,13 +175,5 @@ namespace Backend.Api.Carga.Controllers
                 _ => ""
             };
         }
-    }
-
-    public class LoadSummary
-    {
-        public int TotalRecords { get; set; }
-        public int SuccessfulRecords { get; set; }
-        public int FailedRecords { get; set; }
-        public List<string> Errors { get; set; }
     }
 }

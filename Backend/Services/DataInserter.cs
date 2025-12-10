@@ -16,8 +16,9 @@ namespace Backend.Services
             _stationRepository = new StationRepository();
         }
 
-        public void Run(List<UnifiedData> data)
+        public LoadResultDto Run(List<UnifiedData> data)
         {
+            var result = new LoadResultDto();
             string dbPath = DatabaseHelper.GetDatabasePath("databases/iei.db");
             string connectionString = DatabaseHelper.GetConnectionString(dbPath);
 
@@ -74,12 +75,22 @@ namespace Backend.Services
                         localityId = cachedLocalityId;
                     }
 
-                    _stationRepository.InsertStation(conn, item.Station, localityId, transaction);
-                    Log.Information("Estación insertada: {StationName}", item.Station.name);
+                    try
+                    {
+                        _stationRepository.InsertStation(conn, item.Station, localityId, transaction);
+                        result.RecordsLoadedCorrectly++;
+                        Log.Information("Estación insertada: {StationName}", item.Station.name);
+                    }
+                    catch (Exception ex)
+                    {
+                        result.RecordsDiscarded++;
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "DB", Name = item.Station.name, Locality = item.LocalityName, ErrorReason = ex.Message });
+                        Log.Error(ex, "Error insertando estación: {StationName}", item.Station.name);
+                    }
                 }
 
                 transaction.Commit();
-                Log.Information("Población de la base de datos completada con éxito.");
+                Log.Information("Población de la base de datos completada. Insertados: {Inserted}, Descartados: {Discarded}", result.RecordsLoadedCorrectly, result.RecordsDiscarded);
             }
             catch (Exception ex)
             {
@@ -87,6 +98,7 @@ namespace Backend.Services
                 Log.Error(ex, "Paso Inserter: Error al insertar datos.");
                 throw;
             }
+            return result;
         }
     }
 }
