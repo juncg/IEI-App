@@ -232,6 +232,7 @@ static async Task StartLoadApi()
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
     builder.Services.AddHttpClient();
+    builder.Services.AddCors();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -240,6 +241,7 @@ static async Task StartLoadApi()
 
     var app = builder.Build();
 
+    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
