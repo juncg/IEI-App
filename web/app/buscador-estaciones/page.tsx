@@ -1,5 +1,6 @@
 "use client";
 
+import AppBreadcrumb from "@/components/app-breadcrumb";
 import SearchEstacionForm from "@/components/search-estacion-form";
 import SearchResultsTable from "@/components/search-results-table";
 import { H1 } from "@/components/ui/typography";
@@ -21,6 +22,7 @@ export default function BuscadorEstaciones() {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans">
 			<main className="flex min-h-screen w-full max-w-7xl flex-col justify-between p-16 bg-white border-2 gap-8 shadow-2xl border-black rounded-xl m-8 items-start">
+				<AppBreadcrumb />
 				<H1>Buscador de Estaciones ITV</H1>
 
 				<div className="w-full">
