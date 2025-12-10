@@ -6,11 +6,12 @@ namespace Backend.Services.Mappers
 {
     public class GALMapper : IMapper
     {
-        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
+        public MapResult Map(string json, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
+            var result = new MapResult();
             if (!processGAL) {
                 Log.Warning("IGNORANDO GAL.");
-                return;
+                return result;
             }
 
             Log.Information("");
@@ -20,7 +21,7 @@ namespace Backend.Services.Mappers
             if (data == null)
             {
                 Log.Warning("Paso GAL: No se encontraron datos en el JSON.");
-                return;
+                return result;
             }
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -49,20 +50,15 @@ namespace Backend.Services.Mappers
                     string stationAddress = (string?)item["ENDEREZO"] ?? "";
                     if (string.IsNullOrWhiteSpace(stationAddress))
                     {
-                        if (string.IsNullOrWhiteSpace(stationName))
-                        {
-                            Log.Warning("Paso GAL: Estación sin nombre DESCARTADA por falta de dirección.");
-                        }
-                        else
-                        {
-                            Log.Warning("Paso GAL: Estación '{Name}' DESCARTADA por falta de dirección.", stationName);
-                        }
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Falta dirección" });
                         continue;
                     }
+                    string originalAddress = stationAddress;
                     u.Station.address = Utilities.NormalizeAddressGalAndCv(stationAddress);
-                    if (!stationAddress.Equals(u.Station.address))
+                    if (!originalAddress.Equals(u.Station.address))
                     {
-                        Log.Information("Paso GAL: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", stationAddress, u.Station.address);
+                        Log.Information("Paso GAL: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
                     }
 
                     // nombre (2/2)
@@ -70,12 +66,15 @@ namespace Backend.Services.Mappers
                     {
                         stationName = "Estación ITV (GAL) de " + u.Station.address;
                         u.Station.name = stationName;
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre establecido a '{stationName}'" });
                         Log.Information("Paso GAL: Dado '{Name}' como nombre a estación sin nombre.", stationName);
                     }
                     else
                     {
+                        string originalName = stationName;
                         stationName = "Estación ITV (GAL) de " + Utilities.ExtractStationNameWithSimilarity(stationName);
                         u.Station.name = stationName;
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Nombre no prefijado", OperationPerformed = $"Nombre actualizado de '{originalName}' a '{stationName}'" });
                         Log.Information("Paso GAL: Actualizado nombre de estación a '{Name}'.", stationName);
                     }
 
@@ -83,7 +82,7 @@ namespace Backend.Services.Mappers
                     string postalCode = (string?)item["CÓDIGO POSTAL"] ?? "";
                     if (!Utilities.IsValidPostalCodeForCommunity(postalCode, "Galicia"))
                     {
-                        Log.Warning("Paso GAL: Estación '{Name}' DESCARTADA por código postal inválido '{PostalCode}' para Galicia.", stationName, postalCode);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = $"Código postal inválido '{postalCode}' para Galicia" });
                         continue;
                     }
                     u.Station.postal_code = postalCode;
@@ -92,17 +91,19 @@ namespace Backend.Services.Mappers
                     string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
                     u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
                     string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
-                    if ((u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode)) || !u.ProvinceName.Equals(provinceFromCP))
+                    bool provinceRepaired = false;
+                    if ((u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode)) || (provinceFromCP != null && !u.ProvinceName.Equals(provinceFromCP)))
                     {
                         if (provinceFromCP != null)
                         {
                             u.ProvinceName = provinceFromCP;
+                            provinceRepaired = true;
                             Log.Information("Paso GAL: Provincia '{ProvinceName}' obtenida del código postal '{PostalCode}'.", u.ProvinceName, u.Station.postal_code);
                         }
                     }
                     if (u.ProvinceName == "Desconocida")
                     {
-                        Log.Warning("Paso GAL: Estación DESCARTADA por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", rawProvinceName, postalCode);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = $"Provincia desconocida para '{rawProvinceName}' con CP '{postalCode}'" });
                         continue;
                     }
 
@@ -111,8 +112,13 @@ namespace Backend.Services.Mappers
                     u.LocalityName = Utilities.NormalizeLocalityName(rawLocalityName);
                     if (string.IsNullOrWhiteSpace(u.LocalityName))
                     {
-                        Log.Warning("Paso GAL: Estación '{Name}' DESCARTADA por localidad desconocida", stationName);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = rawLocalityName, ErrorReason = "Localidad desconocida" });
                         continue;
+                    }
+
+                    if (provinceRepaired)
+                    {
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = u.LocalityName, ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
                     }
 
                     // información de contacto
@@ -150,8 +156,7 @@ namespace Backend.Services.Mappers
 
                     if (!Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                     {
-                        Log.Warning("Paso GAL: Estación '{Name}' DESCARTADA por coordenadas inválidas (lat: {Lat}, lon: {Lon}).",
-                            stationName, u.Station.latitude, u.Station.longitude);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = u.LocalityName, ErrorReason = $"Coordenadas inválidas (lat: {u.Station.latitude}, lon: {u.Station.longitude})" });
                         continue;
                     }
 
@@ -171,23 +176,24 @@ namespace Backend.Services.Mappers
                             u.ProvinceName ?? ""
                         ))
                         {
-                            Log.Warning("Paso GAL: Estación '{Name}' DESCARTADA porque la dirección '{Address}' no coincide con las coordenadas (lat: {Lat}, lon: {Lon})",
-                                stationName, u.Station.address, u.Station.latitude, u.Station.longitude);
+                            result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = stationName, Locality = u.LocalityName, ErrorReason = $"La dirección '{u.Station.address}' no coincide con las coordenadas (lat: {u.Station.latitude}, lon: {u.Station.longitude})" });
                             continue;
                         }
                     }
-                
+                 
                     // fin
-                    list.Add(u);
+                    result.UnifiedData.Add(u);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Paso GAL: Error mapeando el item: {Item}", item);
+                    result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "GAL", Name = "Desconocido", Locality = "Desconocido", ErrorReason = $"Error mapeando: {ex.Message}" });
                 }
             }
 
             Log.Information("");
-            Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.", list.Count);
+            Log.Information("Paso GAL: Mapeo de datos para Galicia finalizado. Registros totales: {RecordCount}.", result.UnifiedData.Count);
+            return result;
         }
     }
 }

@@ -8,12 +8,13 @@ namespace Backend.Services.Mappers
     {
         private readonly Dictionary<string, int> stationCounters = new Dictionary<string, int>();
 
-        public void Map(string json, List<UnifiedData> list, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
+        public MapResult Map(string json, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
+            var result = new MapResult();
             if (!processCV)
             {
                 Log.Warning("IGNORANDO CV.");
-                return;
+                return result;
             }
 
             Log.Information("Paso CV: Iniciando mapeo de datos para la Comunidad Valenciana.");
@@ -21,7 +22,7 @@ namespace Backend.Services.Mappers
             if (data == null)
             {
                 Log.Warning("Paso CV: No se encontraron datos en el JSON.");
-                return;
+                return result;
             }
 
             using var driver = SeleniumGeocoder.CreateDriver();
@@ -51,15 +52,17 @@ namespace Backend.Services.Mappers
                     string stationAddress = (string?)item["DIRECCIÓN"] ?? "";
                     if (string.IsNullOrWhiteSpace(stationAddress))
                     {
-                        Log.Warning("Paso CV: Estación sin nombre DESCARTADA por falta de dirección.");
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = "", Locality = "", ErrorReason = "Falta dirección" });
                         continue;
                     }
+                    string originalAddress = stationAddress;
                     u.Station.address = u.Station.type == StationType.Fixed_station
                         ? Utilities.NormalizeAddressGalAndCv(stationAddress)
                         : "";
-                    if (u.Station.type == StationType.Fixed_station && !stationAddress.Equals(u.Station.address))
+                    if (u.Station.type == StationType.Fixed_station && !originalAddress.Equals(u.Station.address))
                     {
-                        Log.Information("Paso CV: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", stationAddress, u.Station.address);
+                        Log.Information("Paso CV: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = "", Locality = "", ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
                     }
 
                     // localidad
@@ -67,14 +70,17 @@ namespace Backend.Services.Mappers
                     u.LocalityName = Utilities.NormalizeLocalityName(rawLocalityName);
                     if (string.IsNullOrWhiteSpace(u.LocalityName) && u.Station.type == StationType.Fixed_station)
                     {
-                        Log.Warning("Paso CV: Estación en '{Address}' fija DESCARTADA por falta de localidad.", u.Station.address);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = "", Locality = rawLocalityName, ErrorReason = "Falta localidad para estación fija" });
                         continue;
                     }
 
                     // nombre
+                    string assignedName = "";
                     if (u.Station.type == StationType.Fixed_station)
                     {
-                        u.Station.name = "Estación ITV (CV) de " + u.LocalityName;
+                        assignedName = "Estación ITV (CV) de " + u.LocalityName;
+                        u.Station.name = assignedName;
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
                         Log.Information("Paso CV: Nombre '{Name}' asignado a estación fija.", u.Station.name);
                     }
                     else
@@ -90,7 +96,9 @@ namespace Backend.Services.Mappers
                             stationCounters[stationType]++;
                         }
 
-                        u.Station.name = $"Estación ITV (CV) {stationType} {stationCounters[stationType]:D2}";
+                        assignedName = $"Estación ITV (CV) {stationType} {stationCounters[stationType]:D2}";
+                        u.Station.name = assignedName;
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName ?? "", ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
                         Log.Information("Paso CV: Nombre '{Name}' asignado a estación no fija.", u.Station.name);
                     }
 
@@ -98,7 +106,7 @@ namespace Backend.Services.Mappers
                     string postalCode = (string?)item["C.POSTAL"] ?? "";
                     if (u.Station.type == StationType.Fixed_station && !Utilities.IsValidPostalCodeForCommunity(postalCode, "Comunidad Valenciana"))
                     {
-                        Log.Warning("Paso CV: Estación fija '{Name}' DESCARTADA por código postal inválido '{PostalCode}' para la Comunidad Valenciana.", u.Station.name, postalCode);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = $"Código postal inválido '{postalCode}' para la Comunidad Valenciana" });
                         continue;
                     }
                     u.Station.postal_code = u.Station.type == StationType.Fixed_station ? postalCode : "";
@@ -108,18 +116,25 @@ namespace Backend.Services.Mappers
                     string rawProvinceName = (string?)item["PROVINCIA"] ?? "";
                     u.ProvinceName = Utilities.NormalizeProvinceName(rawProvinceName);
                     string? provinceFromCP = Utilities.GetProvinceFromPostalCode(postalCode);
-                    if ((u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode)) || !u.ProvinceName.Equals(provinceFromCP))
+                    bool provinceRepaired = false;
+                    if ((u.ProvinceName == "Desconocida" && !string.IsNullOrEmpty(postalCode)) || (provinceFromCP != null && !u.ProvinceName.Equals(provinceFromCP)))
                     {
                         if (provinceFromCP != null)
                         {
                             u.ProvinceName = provinceFromCP;
+                            provinceRepaired = true;
                             Log.Information("Paso CV: Provincia '{ProvinceName}' obtenida del código postal '{PostalCode}'.", u.ProvinceName, u.Station.postal_code);
                         }
                     }
                     if (u.ProvinceName == "Desconocida" && u.Station.type == StationType.Fixed_station)
                     {
-                        Log.Warning("Paso CV: Estación fija '{Name}' DESCARTADA por provincia desconocida para '{RawProvinceName}' con CP '{PostalCode}'", u.Station.name, rawProvinceName, postalCode);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = $"Provincia desconocida para '{rawProvinceName}' con CP '{postalCode}'" });
                         continue;
+                    }
+
+                    if (provinceRepaired)
+                    {
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
                     }
 
                     // información de contacto
@@ -152,22 +167,23 @@ namespace Backend.Services.Mappers
 
                     if (u.Station.type == StationType.Fixed_station && !Utilities.AreValidCoordinates(u.Station.latitude, u.Station.longitude))
                     {
-                        Log.Warning("Paso CV: Estación '{Name}' DESCARTADA por coordenadas inválidas (lat: {Lat}, lon: {Lon}).",
-                            u.Station.name, u.Station.latitude, u.Station.longitude);
+                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = $"Coordenadas inválidas (lat: {u.Station.latitude}, lon: {u.Station.longitude})" });
                         continue;
                     }
 
                     // fin
-                    list.Add(u);
+                    result.UnifiedData.Add(u);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Paso CV: Error mapeando el item: {Item}", item);
+                    result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CV", Name = "Desconocido", Locality = "Desconocido", ErrorReason = $"Error mapeando: {ex.Message}" });
                 }
             }
 
             Log.Information("");
-            Log.Information("Paso CV: Mapeo de datos para la Comunidad Valenciana finalizado. Registros totales: {RecordCount}", list.Count);
+            Log.Information("Paso CV: Mapeo de datos para la Comunidad Valenciana finalizado. Registros totales: {RecordCount}", result.UnifiedData.Count);
+            return result;
         }
     }
 }
