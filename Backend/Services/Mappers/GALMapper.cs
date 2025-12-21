@@ -35,6 +35,7 @@ namespace Backend.Services.Mappers
 
                     // nombre (1/2)
                     string stationName = (string?)item["NOME DA ESTACIÓN"] ?? "";
+                    var operations = new List<RepairedOperation>();
                     if (string.IsNullOrWhiteSpace(stationName))
                     {
                         Log.Information("");
@@ -58,7 +59,7 @@ namespace Backend.Services.Mappers
                     if (!originalAddress.Equals(u.Station.address))
                     {
                         Log.Information("Paso GAL: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
                     }
 
                     // nombre (2/2)
@@ -66,7 +67,7 @@ namespace Backend.Services.Mappers
                     {
                         stationName = "Estación ITV (GAL) de " + u.Station.address;
                         u.Station.name = stationName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre establecido a '{stationName}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre establecido a '{stationName}'" });
                         Log.Information("Paso GAL: Dado '{Name}' como nombre a estación sin nombre.", stationName);
                     }
                     else
@@ -74,7 +75,7 @@ namespace Backend.Services.Mappers
                         string originalName = stationName;
                         stationName = "Estación ITV (GAL) de " + Utilities.ExtractStationNameWithSimilarity(stationName);
                         u.Station.name = stationName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = "", ErrorReason = "Nombre no prefijado", OperationPerformed = $"Nombre actualizado de '{originalName}' a '{stationName}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Nombre no prefijado", OperationPerformed = $"Nombre actualizado de '{originalName}' a '{stationName}'" });
                         Log.Information("Paso GAL: Actualizado nombre de estación a '{Name}'.", stationName);
                     }
 
@@ -118,7 +119,7 @@ namespace Backend.Services.Mappers
 
                     if (provinceRepaired)
                     {
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = u.LocalityName, ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
                     }
 
                     // información de contacto
@@ -180,8 +181,12 @@ namespace Backend.Services.Mappers
                             continue;
                         }
                     }
-                 
+
                     // fin
+                    if (operations.Any())
+                    {
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "GAL", Name = stationName, Locality = u.LocalityName, Operations = operations });
+                    }
                     result.UnifiedData.Add(u);
                 }
                 catch (Exception ex)

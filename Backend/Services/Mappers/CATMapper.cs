@@ -35,18 +35,19 @@ namespace Backend.Services.Mappers
                 {
                     var u = new UnifiedData();
 
-                    // nombre (1/2)
-                    string stationName = (string?)item["denominaci"] ?? "";
-                    if (string.IsNullOrWhiteSpace(stationName))
-                    {
-                        Log.Information("");
-                        Log.Information("Paso CAT: Procesando estación sin nombre...");
-                    }
-                    else
-                    {
-                        Log.Information("");
-                        Log.Information("Paso CAT: Procesando estación '{Name}'...", stationName);
-                    }
+                     // nombre (1/2)
+                     string stationName = (string?)item["denominaci"] ?? "";
+                     var operations = new List<RepairedOperation>();
+                     if (string.IsNullOrWhiteSpace(stationName))
+                     {
+                         Log.Information("");
+                         Log.Information("Paso CAT: Procesando estación sin nombre...");
+                     }
+                     else
+                     {
+                         Log.Information("");
+                         Log.Information("Paso CAT: Procesando estación '{Name}'...", stationName);
+                     }
 
                     // dirección
                     string stationAddress = (string?)item["adre_a"] ?? "";
@@ -55,13 +56,13 @@ namespace Backend.Services.Mappers
                         result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CAT", Name = stationName, Locality = "", ErrorReason = "Falta dirección" });
                         continue;
                     }
-                    string originalAddress = stationAddress;
-                    u.Station.address = Utilities.NormalizeAddressCAT(stationAddress);
-                    if (!originalAddress.Equals(u.Station.address))
-                    {
-                        Log.Information("Paso CAT: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CAT", Name = stationName, Locality = "", ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
-                    }
+                     string originalAddress = stationAddress;
+                     u.Station.address = Utilities.NormalizeAddressCAT(stationAddress);
+                     if (!originalAddress.Equals(u.Station.address))
+                     {
+                         Log.Information("Paso CAT: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
+                         operations.Add(new RepairedOperation { ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
+                     }
 
                     // código postal
                     string postalCode = (string?)item["cp"] ?? "";
@@ -86,11 +87,16 @@ namespace Backend.Services.Mappers
                             Log.Information("Paso CAT: Provincia '{ProvinceName}' obtenida del código postal '{PostalCode}'.", u.ProvinceName, u.Station.postal_code);
                         }
                     }
-                    if (u.ProvinceName == "Desconocida")
-                    {
-                        result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CAT", Name = stationName, Locality = "", ErrorReason = $"Provincia desconocida para '{rawProvinceName}' con CP '{postalCode}'" });
-                        continue;
-                    }
+                     if (u.ProvinceName == "Desconocida")
+                     {
+                         result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "CAT", Name = stationName, Locality = "", ErrorReason = $"Provincia desconocida para '{rawProvinceName}' con CP '{postalCode}'" });
+                         continue;
+                     }
+
+                     if (provinceRepaired)
+                     {
+                         operations.Add(new RepairedOperation { ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
+                     }
 
                     // localidad
                     string rawLocalityName = (string?)item["municipi"] ?? "";
@@ -101,27 +107,22 @@ namespace Backend.Services.Mappers
                         continue;
                     }
 
-                    // nombre (2/2)
-                    if (string.IsNullOrWhiteSpace(stationName))
-                    {
-                        stationName = "Estación ITV (CAT) de " + u.LocalityName;
-                        u.Station.name = stationName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CAT", Name = stationName, Locality = u.LocalityName, ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre establecido a '{stationName}'" });
-                        Log.Information("Paso CAT: Dado '{Name}' como nombre a estación sin nombre.", stationName);
-                    }
-                    else
-                    {
-                        string originalName = stationName;
-                        stationName = "Estación ITV (CAT) de " + stationName;
-                        u.Station.name = stationName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CAT", Name = stationName, Locality = u.LocalityName, ErrorReason = "Nombre no prefijado", OperationPerformed = $"Nombre actualizado de '{originalName}' a '{stationName}'" });
-                        Log.Information("Paso CAT: Actualizado nombre de estación a '{Name}'.", stationName);
-                    }
-
-                    if (provinceRepaired)
-                    {
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CAT", Name = stationName, Locality = u.LocalityName, ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
-                    }
+                     // nombre (2/2)
+                     if (string.IsNullOrWhiteSpace(stationName))
+                     {
+                         stationName = "Estación ITV (CAT) de " + u.LocalityName;
+                         u.Station.name = stationName;
+                         operations.Add(new RepairedOperation { ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre establecido a '{stationName}'" });
+                         Log.Information("Paso CAT: Dado '{Name}' como nombre a estación sin nombre.", stationName);
+                     }
+                     else
+                     {
+                         string originalName = stationName;
+                         stationName = "Estación ITV (CAT) de " + stationName;
+                         u.Station.name = stationName;
+                         operations.Add(new RepairedOperation { ErrorReason = "Nombre no prefijado", OperationPerformed = $"Nombre actualizado de '{originalName}' a '{stationName}'" });
+                         Log.Information("Paso CAT: Actualizado nombre de estación a '{Name}'.", stationName);
+                     }
 
                     // información de contacto
                     string correo = (string?)item["correu_electr_nic"] ?? "";
@@ -173,8 +174,12 @@ namespace Backend.Services.Mappers
                         }
                     }
 
-                    // fin
-                    result.UnifiedData.Add(u);
+                     // fin
+                     if (operations.Any())
+                     {
+                         result.RepairedRecords.Add(new RepairedRecord { DataSource = "CAT", Name = stationName, Locality = u.LocalityName, Operations = operations });
+                     }
+                     result.UnifiedData.Add(u);
                 }
                 catch (Exception ex)
                 {

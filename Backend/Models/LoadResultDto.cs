@@ -11,13 +11,18 @@ namespace Backend.Models
     public List<DiscardedRecord> DiscardedRecords { get; set; } = new();
     }
 
+    public class RepairedOperation
+    {
+        public string ErrorReason { get; set; } = string.Empty;
+        public string OperationPerformed { get; set; } = string.Empty;
+    }
+
     public class RepairedRecord
     {
-        public string DataSource { get; set; }
-        public string Name { get; set; }
-        public string Locality { get; set; }
-        public string ErrorReason { get; set; }
-        public string OperationPerformed { get; set; }
+        public string DataSource { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Locality { get; set; } = string.Empty;
+        public List<RepairedOperation> Operations { get; set; } = new();
     }
 
     public class DiscardedRecord

@@ -36,6 +36,7 @@ namespace Backend.Services.Mappers
 
                     Log.Information("");
                     Log.Information("Paso CV: Procesando nueva estación...");
+                    var operations = new List<RepairedOperation>();
 
                     // tipo
                     string tipo = ((string?)item["TIPO ESTACIÓN"] ?? "").ToLower();
@@ -62,7 +63,7 @@ namespace Backend.Services.Mappers
                     if (u.Station.type == StationType.Fixed_station && !originalAddress.Equals(u.Station.address))
                     {
                         Log.Information("Paso CV: Actualizado direccion de '{oldAddress}' a '{newAddress}'.", originalAddress, u.Station.address);
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = "", Locality = "", ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Dirección no normalizada", OperationPerformed = $"Normalizada de '{originalAddress}' a '{u.Station.address}'" });
                     }
 
                     // localidad
@@ -80,7 +81,7 @@ namespace Backend.Services.Mappers
                     {
                         assignedName = "Estación ITV (CV) de " + u.LocalityName;
                         u.Station.name = assignedName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
                         Log.Information("Paso CV: Nombre '{Name}' asignado a estación fija.", u.Station.name);
                     }
                     else
@@ -98,7 +99,7 @@ namespace Backend.Services.Mappers
 
                         assignedName = $"Estación ITV (CV) {stationType} {stationCounters[stationType]:D2}";
                         u.Station.name = assignedName;
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName ?? "", ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Nombre faltante", OperationPerformed = $"Nombre asignado a '{assignedName}'" });
                         Log.Information("Paso CV: Nombre '{Name}' asignado a estación no fija.", u.Station.name);
                     }
 
@@ -134,7 +135,7 @@ namespace Backend.Services.Mappers
 
                     if (provinceRepaired)
                     {
-                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName, ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
+                        operations.Add(new RepairedOperation { ErrorReason = "Provincia incorrecta", OperationPerformed = $"Provincia establecida a '{u.ProvinceName}' desde código postal" });
                     }
 
                     // información de contacto
@@ -172,6 +173,10 @@ namespace Backend.Services.Mappers
                     }
 
                     // fin
+                    if (operations.Any())
+                    {
+                        result.RepairedRecords.Add(new RepairedRecord { DataSource = "CV", Name = assignedName, Locality = u.LocalityName ?? "", Operations = operations });
+                    }
                     result.UnifiedData.Add(u);
                 }
                 catch (Exception ex)

@@ -5,7 +5,7 @@ namespace Backend.Repositories
 {
     public class StationRepository
     {
-        public void InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
+        public string InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
             using (var checkCmd = conn.CreateCommand())
             {
@@ -16,37 +16,10 @@ namespace Backend.Repositories
                 var count = Convert.ToInt32(checkCmd.ExecuteScalar());
                 if (count > 0)
                 {
-                    // Update existing
-                    using var updateCmd = conn.CreateCommand();
-                    updateCmd.Transaction = trans;
-                    updateCmd.CommandText = @"
-                        UPDATE Estacion SET
-                            direccion = @direccion,
-                            codigo_postal = @postal,
-                            longitud = @lon,
-                            latitud = @lat,
-                            descripcion = @desc,
-                            horario = @horario,
-                            contacto = @contacto,
-                            URL = @url,
-                            en_localidad = @locId
-                        WHERE nombre = @nombre AND tipo = @tipo";
-                    updateCmd.Parameters.AddWithValue("@nombre", s.name ?? "");
-                    updateCmd.Parameters.AddWithValue("@tipo", (int)s.type);
-                    updateCmd.Parameters.AddWithValue("@direccion", s.address ?? "");
-                    updateCmd.Parameters.AddWithValue("@postal", s.postal_code ?? "");
-                    updateCmd.Parameters.AddWithValue("@lon", s.longitude ?? (object)DBNull.Value);
-                    updateCmd.Parameters.AddWithValue("@lat", s.latitude ?? (object)DBNull.Value);
-                    updateCmd.Parameters.AddWithValue("@desc", s.description ?? "");
-                    updateCmd.Parameters.AddWithValue("@horario", s.schedule ?? "");
-                    updateCmd.Parameters.AddWithValue("@contacto", s.contact ?? "");
-                    updateCmd.Parameters.AddWithValue("@url", s.url ?? "");
-                    updateCmd.Parameters.AddWithValue("@locId", localityId.HasValue ? localityId.Value : (object)DBNull.Value);
-                    updateCmd.ExecuteNonQuery();
+                    return "duplicated";
                 }
                 else
                 {
-                    // Insert new
                     using var cmd = conn.CreateCommand();
                     cmd.Transaction = trans;
                     cmd.CommandText = @"
@@ -66,7 +39,9 @@ namespace Backend.Repositories
                     cmd.Parameters.AddWithValue("@locId", localityId.HasValue ? localityId.Value : (object)DBNull.Value);
 
                     cmd.ExecuteNonQuery();
+                    return "inserted";
                 }
+
             }
         }
 
@@ -74,7 +49,7 @@ namespace Backend.Repositories
         {
             var results = new List<object>();
             using var cmd = conn.CreateCommand();
-            
+
             var query = @"
                 SELECT e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
                 FROM Estacion e

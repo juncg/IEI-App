@@ -40,6 +40,8 @@ namespace Backend.Api.Carga.Controllers
 
             var loadResult = new LoadResultDto();
             var unifiedDataList = new List<UnifiedData>();
+            var seenStations = new HashSet<string>();
+            var repairedDict = new Dictionary<string, RepairedRecord>();
 
             using var client = _httpClientFactory.CreateClient();
 
@@ -104,8 +106,41 @@ namespace Backend.Api.Carga.Controllers
                         {
                             Log.Information("Mapeando datos de {Source}...", source);
                             var mapResult = mapper.Map(dataJson, false, source == "CV", source == "GAL", source == "CAT");
-                            unifiedDataList.AddRange(mapResult.UnifiedData);
-                            loadResult.RepairedRecords.AddRange(mapResult.RepairedRecords);
+
+                            foreach (var unified in mapResult.UnifiedData)
+                            {
+                                string key = $"{unified.Station.name}_{unified.Station.type}";
+                                if (!seenStations.Contains(key))
+                                {
+                                    unifiedDataList.Add(unified);
+                                    seenStations.Add(key);
+                                }
+                                else
+                                {
+                                    loadResult.DiscardedRecords.Add(new DiscardedRecord { DataSource = source, Name = unified.Station.name, Locality = unified.LocalityName, ErrorReason = "Estación duplicada en datos fuente" });
+                                    loadResult.RecordsDiscarded++;
+                                }
+                            }
+
+                            foreach (var repaired in mapResult.RepairedRecords)
+                            {
+                                string key = $"{repaired.DataSource}_{repaired.Name}_{repaired.Locality}";
+                                if (repairedDict.TryGetValue(key, out var existing))
+                                {
+                                    foreach (var op in repaired.Operations)
+                                    {
+                                        if (!existing.Operations.Any(e => e.ErrorReason == op.ErrorReason && e.OperationPerformed == op.OperationPerformed))
+                                        {
+                                            existing.Operations.Add(op);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    repairedDict[key] = repaired;
+                                }
+                            }
+
                             loadResult.DiscardedRecords.AddRange(mapResult.DiscardedRecords);
                             loadResult.RecordsDiscarded += mapResult.DiscardedRecords.Count;
                         }
@@ -119,12 +154,12 @@ namespace Backend.Api.Carga.Controllers
                 }
             }
 
-            // 2. Save to Database
             Log.Information("Guardando {Count} registros en base de datos...", unifiedDataList.Count);
 
             var dataInserter = new DataInserter();
             var insertResult = dataInserter.Run(unifiedDataList);
 
+            loadResult.RepairedRecords.AddRange(repairedDict.Values);
             loadResult.RecordsLoadedCorrectly = insertResult.RecordsLoadedCorrectly;
             loadResult.RecordsRepaired = loadResult.RepairedRecords.Count;
             loadResult.DiscardedRecords.AddRange(insertResult.DiscardedRecords);

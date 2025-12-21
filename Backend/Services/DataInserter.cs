@@ -77,9 +77,18 @@ namespace Backend.Services
 
                     try
                     {
-                        _stationRepository.InsertStation(conn, item.Station, localityId, transaction);
-                        result.RecordsLoadedCorrectly++;
-                        Log.Information("Estación insertada: {StationName}", item.Station.name);
+                        var action = _stationRepository.InsertStation(conn, item.Station, localityId, transaction);
+                        if (action == "inserted")
+                        {
+                            result.RecordsLoadedCorrectly++;
+                            Log.Information("Estación insertada: {StationName}", item.Station.name);
+                        }
+                        else if (action == "duplicated")
+                        {
+                            result.RecordsDiscarded++;
+                            result.DiscardedRecords.Add(new DiscardedRecord { DataSource = "DB", Name = item.Station.name, Locality = item.LocalityName, ErrorReason = "Estación duplicada (mismo nombre y tipo ya existe)" });
+                            Log.Warning("Estación duplicada descartada: {StationName}", item.Station.name);
+                        }
                     }
                     catch (Exception ex)
                     {
