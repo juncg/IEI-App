@@ -38,6 +38,7 @@ static async Task StartCatApi()
     builder.WebHost.UseUrls("http://localhost:5001");
 
     builder.Host.UseSerilog();
+    builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -52,43 +53,7 @@ static async Task StartCatApi()
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CAT v1");
     });
 
-    app.MapGet("/api/cat/transform", () =>
-    {
-        try
-        {
-            Log.Information("API CAT: Iniciando transformación de datos de Cataluña (XML)");
-
-            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string catXmlPath = Path.Combine(infoFolder, "ITV-CAT.xml");
-
-            if (!File.Exists(catXmlPath))
-            {
-                Log.Warning("API CAT: No se encontró el archivo ITV-CAT.xml en {Path}", catXmlPath);
-                return Results.NotFound(new { error = "Archivo ITV-CAT.xml no encontrado" });
-            }
-
-            // Leer y transformar el XML
-            var catData = Transformations.ConvertCatXmlToJson(catXmlPath);
-
-            Log.Information("API CAT: Transformación completada.");
-
-            return Results.Ok(new
-            {
-                region = "Cataluña",
-                sourceFormat = "XML",
-                timestamp = DateTime.UtcNow,
-                data = catData
-            });
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "API CAT: Error durante la transformación");
-            return Results.Problem(ex.Message);
-        }
-    })
-    .WithName("TransformCataluña")
-    .WithDescription("Transforma datos de establecimientos de Cataluña desde XML a JSON")
-    .WithTags("Cataluña");
+    app.MapControllers();
 
     Log.Information("API de Cataluña iniciada en http://localhost:5001");
     Log.Information("Swagger UI disponible en http://localhost:5001/swagger");
@@ -102,6 +67,7 @@ static async Task StartCvApi()
     builder.WebHost.UseUrls("http://localhost:5002");
 
     builder.Host.UseSerilog();
+    builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -116,43 +82,7 @@ static async Task StartCvApi()
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CV v1");
     });
 
-    app.MapGet("/api/cv/transform", () =>
-    {
-        try
-        {
-            Log.Information("API CV: Iniciando transformación de datos de Comunidad Valenciana (JSON)");
-
-            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string cvJsonPath = Path.Combine(infoFolder, "estaciones.json");
-
-            if (!File.Exists(cvJsonPath))
-            {
-                Log.Warning("API CV: No se encontró el archivo estaciones.json en {Path}", cvJsonPath);
-                return Results.NotFound(new { error = "Archivo estaciones.json no encontrado" });
-            }
-
-            // Leer y transformar el JSON
-            var cvData = Transformations.ConvertCvJsonToJson(cvJsonPath);
-
-            Log.Information("API CV: Transformación completada.");
-
-            return Results.Ok(new
-            {
-                region = "Comunidad Valenciana",
-                sourceFormat = "JSON",
-                timestamp = DateTime.UtcNow,
-                data = cvData
-            });
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "API CV: Error durante la transformación");
-            return Results.Problem(ex.Message);
-        }
-    })
-    .WithName("TransformComunitatValenciana")
-    .WithDescription("Transforma datos de establecimientos de Comunidad Valenciana desde JSON a JSON")
-    .WithTags("Comunidad Valenciana");
+    app.MapControllers();
 
     Log.Information("API de Comunidad Valenciana iniciada en http://localhost:5002");
     Log.Information("Swagger UI disponible en http://localhost:5002/swagger");
@@ -166,6 +96,7 @@ static async Task StartGalApi()
     builder.WebHost.UseUrls("http://localhost:5003");
 
     builder.Host.UseSerilog();
+    builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -180,43 +111,7 @@ static async Task StartGalApi()
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "API GAL v1");
     });
 
-    app.MapGet("/api/gal/transform", () =>
-    {
-        try
-        {
-            Log.Information("API GAL: Iniciando transformación de datos de Galicia (CSV)");
-
-            string infoFolder = Path.Combine(Directory.GetCurrentDirectory(), "info");
-            string galCsvPath = Path.Combine(infoFolder, "Estacions_ITV.csv");
-
-            if (!File.Exists(galCsvPath))
-            {
-                Log.Warning("API GAL: No se encontró el archivo Estacions_ITV.csv en {Path}", galCsvPath);
-                return Results.NotFound(new { error = "Archivo Estacions_ITV.csv no encontrado" });
-            }
-
-            // Leer y transformar el CSV
-            var galData = Transformations.ConvertGalCsvToJson(galCsvPath);
-
-            Log.Information("API GAL: Transformación completada.");
-
-            return Results.Ok(new
-            {
-                region = "Galicia",
-                sourceFormat = "CSV",
-                timestamp = DateTime.UtcNow,
-                data = galData
-            });
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "API GAL: Error durante la transformación");
-            return Results.Problem(ex.Message);
-        }
-    })
-    .WithName("TransformGalicia")
-    .WithDescription("Transforma datos de establecimientos de Galicia desde CSV a JSON")
-    .WithTags("Galicia");
+    app.MapControllers();
 
     Log.Information("API de Galicia iniciada en http://localhost:5003");
     Log.Information("Swagger UI disponible en http://localhost:5003/swagger");
