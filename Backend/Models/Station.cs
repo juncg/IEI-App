@@ -14,6 +14,8 @@ namespace Backend.Models
         public string? contact { get; set; }
         public string? url { get; set; }
         public int locality_code { get; set; }
+        public string? locality { get; set; }
+        public string? province { get; set; }
 
         // Relación: Una estación pertenece a una localidad
         //public Locality? locality { get; set; }

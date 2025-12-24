@@ -45,13 +45,13 @@ namespace Backend.Repositories
             }
         }
 
-        public List<object> SearchStations(SqliteConnection conn, string? name, string? type, string? locality)
+        public List<Station> SearchStations(SqliteConnection conn, string? name, int? type, string? locality, string? postalCode, string? province)
         {
-            var results = new List<object>();
+            var results = new List<Station>();
             using var cmd = conn.CreateCommand();
 
             var query = @"
-                SELECT e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
+                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
                 FROM Estacion e
                 LEFT JOIN Localidad l ON e.en_localidad = l.codigo
                 LEFT JOIN Provincia p ON l.en_provincia = p.codigo
@@ -63,15 +63,10 @@ namespace Backend.Repositories
                 cmd.Parameters.AddWithValue("@name", $"%{name}%");
             }
 
-            if (!string.IsNullOrWhiteSpace(type))
+            if (type.HasValue)
             {
-                // Assuming type is passed as string but stored as int enum
-                // If passed as int string "1", "2", etc.
-                if (int.TryParse(type, out int typeId))
-                {
-                    query += " AND e.tipo = @type";
-                    cmd.Parameters.AddWithValue("@type", typeId);
-                }
+                query += " AND e.tipo = @type";
+                cmd.Parameters.AddWithValue("@type", type.Value);
             }
 
             if (!string.IsNullOrWhiteSpace(locality))
@@ -80,22 +75,71 @@ namespace Backend.Repositories
                 cmd.Parameters.AddWithValue("@locality", $"%{locality}%");
             }
 
+            if (!string.IsNullOrWhiteSpace(postalCode))
+            {
+                query += " AND e.codigo_postal LIKE @postalCode";
+                cmd.Parameters.AddWithValue("@postalCode", $"%{postalCode}%");
+            }
+
+            if (!string.IsNullOrWhiteSpace(province))
+            {
+                query += " AND p.nombre LIKE @province";
+                cmd.Parameters.AddWithValue("@province", $"%{province}%");
+            }
+
             cmd.CommandText = query;
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                results.Add(new
+                Station station = new Station
                 {
-                    Name = reader.IsDBNull(0) ? null : reader.GetString(0),
-                    Type = reader.IsDBNull(1) ? 0 : reader.GetInt32(1),
-                    Address = reader.IsDBNull(2) ? null : reader.GetString(2),
-                    PostalCode = reader.IsDBNull(3) ? null : reader.GetString(3),
-                    Longitude = reader.IsDBNull(4) ? (double?)null : reader.GetDouble(4),
-                    Latitude = reader.IsDBNull(5) ? (double?)null : reader.GetDouble(5),
-                    Locality = reader.IsDBNull(6) ? null : reader.GetString(6),
-                    Province = reader.IsDBNull(7) ? null : reader.GetString(7)
-                });
+                    code = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                    name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                    type = (StationType)(reader.IsDBNull(2) ? 0 : reader.GetInt32(2)),
+                    address = reader.IsDBNull(3) ? null : reader.GetString(3),
+                    postal_code = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    longitude = reader.IsDBNull(5) ? (double?)null : reader.GetDouble(5),
+                    latitude = reader.IsDBNull(6) ? (double?)null : reader.GetDouble(6),
+                    locality = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    province = reader.IsDBNull(8) ? null : reader.GetString(8)
+                };
+                results.Add(station);
+            }
+
+            return results;
+        }
+
+        public List<Station> GetStationsWithCoordinates(SqliteConnection conn)
+        {
+            var results = new List<Station>();
+            using var cmd = conn.CreateCommand();
+
+            var query = @"
+                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
+                FROM Estacion e
+                LEFT JOIN Localidad l ON e.en_localidad = l.codigo
+                LEFT JOIN Provincia p ON l.en_provincia = p.codigo
+                WHERE e.longitud IS NOT NULL AND e.latitud IS NOT NULL";
+
+            cmd.CommandText = query;
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Station station = new Station
+                {
+                    code = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                    name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                    type = (StationType)(reader.IsDBNull(2) ? 0 : reader.GetInt32(2)),
+                    address = reader.IsDBNull(3) ? null : reader.GetString(3),
+                    postal_code = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    longitude = reader.IsDBNull(5) ? (double?)null : reader.GetDouble(5),
+                    latitude = reader.IsDBNull(6) ? (double?)null : reader.GetDouble(6),
+                    locality = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    province = reader.IsDBNull(8) ? null : reader.GetString(8)
+                };
+                results.Add(station);
             }
 
             return results;

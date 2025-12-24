@@ -1,7 +1,5 @@
-using Backend.Models;
-using Backend.Repositories;
+using Backend.Api.Busqueda.Logic;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
 using Serilog;
 
 namespace Backend.Api.Busqueda.Controllers
@@ -10,27 +8,39 @@ namespace Backend.Api.Busqueda.Controllers
     [Route("api/search")]
     public class SearchController : ControllerBase
     {
-        private readonly StationRepository _stationRepository;
+        private readonly SearchService _searchService;
 
-        public SearchController()
+        public SearchController(SearchService searchService)
         {
-            _stationRepository = new StationRepository();
+            _searchService = searchService;
         }
 
         [HttpGet]
-        public IActionResult Search([FromQuery] string? name, [FromQuery] string? type, [FromQuery] string? locality)
+        public IActionResult Search([FromQuery] string? name, [FromQuery] int? type, [FromQuery] string? locality, [FromQuery] string? postalCode, [FromQuery] string? province)
         {
             try
             {
-                using var connection = new SqliteConnection("Data Source=databases/iei.db");
-                connection.Open();
-
-                var results = _stationRepository.SearchStations(connection, name, type, locality);
+                var results = _searchService.SearchStations(name, type, locality, postalCode, province);
                 return Ok(results);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Error en búsqueda");
+                return Problem(ex.Message);
+            }
+        }
+
+        [HttpGet("stations")]
+        public IActionResult GetStations()
+        {
+            try
+            {
+                var results = _searchService.GetStationsWithCoordinates();
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error obteniendo estaciones");
                 return Problem(ex.Message);
             }
         }

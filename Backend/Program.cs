@@ -158,6 +158,7 @@ static async Task StartSearchApi()
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddScoped<Backend.Api.Busqueda.Logic.SearchService>();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
