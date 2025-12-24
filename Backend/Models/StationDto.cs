@@ -11,5 +11,9 @@ namespace Backend.Models
         public double? Latitude { get; set; }
         public string? Locality { get; set; }
         public string? Province { get; set; }
+        public string? Description { get; set; }
+        public string? Schedule { get; set; }
+        public string? Contact { get; set; }
+        public string? Url { get; set; }
     }
 }

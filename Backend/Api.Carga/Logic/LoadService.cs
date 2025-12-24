@@ -30,7 +30,7 @@ namespace Backend.Api.Carga.Logic
             };
         }
 
-        public async Task<LoadResultDto> LoadDataAsync(List<string> sources)
+        public async Task<LoadResultDto> LoadDataAsync(List<string> sources, bool validateExistingCoordinates = false)
         {
             Log.Information("Load API: Iniciando carga para fuentes: {Sources}", string.Join(", ", sources));
 
@@ -101,7 +101,7 @@ namespace Backend.Api.Carga.Logic
                         if (mapper != null)
                         {
                             Log.Information("Mapeando datos de {Source}...", source);
-                            var mapResult = mapper.Map(dataJson, false, source == "CV", source == "GAL", source == "CAT");
+                            var mapResult = mapper.Map(dataJson, validateExistingCoordinates, source == "CV", source == "GAL", source == "CAT");
 
                             foreach (var unified in mapResult.UnifiedData)
                             {
@@ -183,7 +183,7 @@ namespace Backend.Api.Carga.Logic
                 using var conn = new SqliteConnection(connectionString);
                 conn.Open();
 
-                DatabaseInitializer.Initialize(conn);
+                DatabaseInitializer.Initialize(conn, true);
                 Log.Information("Load API: Base de datos limpiada exitosamente (tablas borradas y recreadas)");
 
                 return "Base de datos limpiada exitosamente";

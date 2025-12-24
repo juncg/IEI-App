@@ -14,8 +14,6 @@ const icon = L.icon({
 	shadowSize: [41, 41],
 });
 
-L.Marker.prototype.options.icon = icon;
-
 interface MapProps {
 	positions: { lat: number; lng: number; name?: string }[];
 }
@@ -29,9 +27,12 @@ export default function Map({ positions }: MapProps) {
 		return null;
 	}, [positions]);
 
+	const center = positions.length > 0 ? undefined : [40.4168, -3.7038]; // Madrid coordinates as default
+
 	return (
 		<MapContainer
 			bounds={bounds || undefined}
+			center={center}
 			zoom={6}
 			scrollWheelZoom={true}
 			style={{ height: "500px", width: "100%", borderRadius: "0.5rem" }}>
@@ -40,8 +41,8 @@ export default function Map({ positions }: MapProps) {
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
 			{positions.map((pos, index) => (
-				<Marker key={index} position={[pos.lat, pos.lng]}>
-					<Popup>{pos.name || "Estación ITV"}</Popup>
+				<Marker key={index} position={[pos.lat, pos.lng]} icon={icon}>
+					<Popup>{pos.name || `Estación ITV (${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)})`}</Popup>
 				</Marker>
 			))}
 		</MapContainer>

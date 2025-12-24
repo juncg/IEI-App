@@ -22,11 +22,11 @@ namespace Backend.Api.Carga.Controllers
         /// <param name="sources">Lista de fuentes de datos a cargar (ej: ["CAT", "CV", "GAL"]).</param>
         /// <returns>Resultado del proceso de carga incluyendo estadísticas de registros procesados, reparados y descartados.</returns>
         [HttpPost("load")]
-        public async Task<IActionResult> LoadData([FromBody] List<string> sources)
+        public async Task<IActionResult> LoadData([FromBody] List<string> sources, [FromQuery] bool validateExistingCoordinates = false)
         {
             try
             {
-                var result = await _loadService.LoadDataAsync(sources);
+                var result = await _loadService.LoadDataAsync(sources, validateExistingCoordinates);
                 return Ok(result);
             }
             catch (Exception ex)

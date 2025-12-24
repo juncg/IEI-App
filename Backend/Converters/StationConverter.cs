@@ -16,7 +16,11 @@ namespace Backend.Converters
                 Longitude = station.longitude,
                 Latitude = station.latitude,
                 Locality = station.locality,
-                Province = station.province
+                Province = station.province,
+                Description = station.description,
+                Schedule = station.schedule,
+                Contact = station.contact,
+                Url = station.url
             };
         }
     }

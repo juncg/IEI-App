@@ -11,42 +11,54 @@ import { useState } from "react";
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
 interface Station {
-	Name: string;
-	Type: number;
-	Address: string | null;
-	PostalCode: string | null;
-	Longitude: number | null;
-	Latitude: number | null;
-	Locality: string | null;
-	Province: string | null;
+	name: string;
+	type: number;
+	address: string | null;
+	postalCode: string | null;
+	longitude: number | null;
+	latitude: number | null;
+	locality: string | null;
+	province: string | null;
+	description: string | null;
+	schedule: string | null;
+	contact: string | null;
+	url: string | null;
 }
 
 export default function BuscadorEstaciones() {
 	const [stations, setStations] = useState<Station[]>([]);
 	const [positions, setPositions] = useState<{ lat: number; lng: number; name: string }[]>([]);
 
-	const handleSearch = async (filters: { name?: string; type?: string; locality?: string; province?: string; postalCode?: string }) => {
+	const handleSearch = async (filters: {
+		name?: string;
+		type?: string;
+		locality?: string;
+		province?: string;
+		postalCode?: string;
+	}) => {
 		const query = new URLSearchParams();
-		if (filters.name) query.append('name', filters.name);
-		if (filters.type) query.append('type', filters.type);
-		if (filters.locality) query.append('locality', filters.locality);
-		if (filters.province) query.append('province', filters.province);
-		if (filters.postalCode) query.append('postalCode', filters.postalCode);
+
+		if (filters.name) query.append("name", filters.name);
+		if (filters.type) query.append("type", filters.type);
+		if (filters.locality) query.append("locality", filters.locality);
+		if (filters.province) query.append("province", filters.province);
+		if (filters.postalCode) query.append("postalCode", filters.postalCode);
 
 		try {
 			const response = await fetch(`http://localhost:5005/api/search?${query.toString()}`);
 			if (response.ok) {
 				const data: Station[] = await response.json();
+				console.log(data);
 				setStations(data);
 				const newPositions = data
-					.filter(s => s.Latitude && s.Longitude)
-					.map(s => ({ lat: s.Latitude!, lng: s.Longitude!, name: s.Name }));
+					.filter((s) => s.latitude && s.longitude)
+					.map((s) => ({ lat: s.latitude!, lng: s.longitude!, name: s.name }));
 				setPositions(newPositions);
 			} else {
-				console.error('Error fetching stations');
+				console.error("Error fetching stations");
 			}
 		} catch (error) {
-			console.error('Error:', error);
+			console.error("Error:", error);
 		}
 	};
 

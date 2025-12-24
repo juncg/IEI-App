@@ -176,6 +176,7 @@ static async Task StartSearchApi()
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddCors();
     builder.Services.AddScoped<Backend.Api.Busqueda.Logic.SearchService>();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
@@ -189,6 +190,7 @@ static async Task StartSearchApi()
 
     var app = builder.Build();
 
+    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {

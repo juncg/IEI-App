@@ -3,14 +3,18 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 interface Station {
-	Name: string;
-	Type: number;
-	Address: string | null;
-	PostalCode: string | null;
-	Longitude: number | null;
-	Latitude: number | null;
-	Locality: string | null;
-	Province: string | null;
+	name: string;
+	type: number;
+	address: string | null;
+	postalCode: string | null;
+	longitude: number | null;
+	latitude: number | null;
+	locality: string | null;
+	province: string | null;
+	description: string | null;
+	schedule: string | null;
+	contact: string | null;
+	url: string | null;
 }
 
 interface SearchResultsTableProps {
@@ -53,17 +57,25 @@ export default function SearchResultsTable({ stations }: SearchResultsTableProps
 						<TableHead>C.P.</TableHead>
 						<TableHead>Localidad</TableHead>
 						<TableHead>Provincia</TableHead>
+						<TableHead>Descripción</TableHead>
+						<TableHead>Horario</TableHead>
+						<TableHead>Contacto</TableHead>
+						<TableHead>URL</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{stations.map((station, index) => (
 						<TableRow key={index}>
-							<TableCell className="font-medium">{station.Name}</TableCell>
-							<TableCell>{getStationType(station.Type)}</TableCell>
-							<TableCell>{station.Address || "—"}</TableCell>
-							<TableCell>{station.PostalCode || "—"}</TableCell>
-							<TableCell>{station.Locality || "—"}</TableCell>
-							<TableCell>{station.Province || "—"}</TableCell>
+							<TableCell className="font-medium">{station.name}</TableCell>
+							<TableCell>{getStationType(station.type)}</TableCell>
+							<TableCell>{station.address || "—"}</TableCell>
+							<TableCell>{station.postalCode || "—"}</TableCell>
+							<TableCell>{station.locality || "—"}</TableCell>
+							<TableCell>{station.province || "—"}</TableCell>
+							<TableCell>{station.description || "—"}</TableCell>
+							<TableCell>{station.schedule || "—"}</TableCell>
+							<TableCell>{station.contact || "—"}</TableCell>
+							<TableCell>{station.url ? <a href={station.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{station.url}</a> : "—"}</TableCell>
 						</TableRow>
 					))}
 				</TableBody>

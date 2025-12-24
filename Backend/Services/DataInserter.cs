@@ -33,8 +33,8 @@ namespace Backend.Services
             using var conn = new SqliteConnection(connectionString);
             conn.Open();
 
-            DatabaseInitializer.Initialize(conn);
-            Log.Information("Paso Inserter: Base de datos inicializada (tablas borradas y recreadas).");
+            DatabaseInitializer.Initialize(conn, false);
+            Log.Information("Paso Inserter: Base de datos inicializada.");
 
             var provinceCache = new Dictionary<string, int>();
             var localityCache = new Dictionary<string, int>();

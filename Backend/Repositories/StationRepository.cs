@@ -51,7 +51,7 @@ namespace Backend.Repositories
             using var cmd = conn.CreateCommand();
 
             var query = @"
-                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
+                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, e.descripcion, e.horario, e.contacto, e.URL, l.nombre as localidad, p.nombre as provincia
                 FROM Estacion e
                 LEFT JOIN Localidad l ON e.en_localidad = l.codigo
                 LEFT JOIN Provincia p ON l.en_provincia = p.codigo
@@ -101,8 +101,12 @@ namespace Backend.Repositories
                     postal_code = reader.IsDBNull(4) ? null : reader.GetString(4),
                     longitude = reader.IsDBNull(5) ? (double?)null : reader.GetDouble(5),
                     latitude = reader.IsDBNull(6) ? (double?)null : reader.GetDouble(6),
-                    locality = reader.IsDBNull(7) ? null : reader.GetString(7),
-                    province = reader.IsDBNull(8) ? null : reader.GetString(8)
+                    description = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    schedule = reader.IsDBNull(8) ? null : reader.GetString(8),
+                    contact = reader.IsDBNull(9) ? null : reader.GetString(9),
+                    url = reader.IsDBNull(10) ? null : reader.GetString(10),
+                    locality = reader.IsDBNull(11) ? null : reader.GetString(11),
+                    province = reader.IsDBNull(12) ? null : reader.GetString(12)
                 };
                 results.Add(station);
             }
@@ -116,7 +120,7 @@ namespace Backend.Repositories
             using var cmd = conn.CreateCommand();
 
             var query = @"
-                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, l.nombre as localidad, p.nombre as provincia
+                SELECT e.cod_estacion, e.nombre, e.tipo, e.direccion, e.codigo_postal, e.longitud, e.latitud, e.descripcion, e.horario, e.contacto, e.URL, l.nombre as localidad, p.nombre as provincia
                 FROM Estacion e
                 LEFT JOIN Localidad l ON e.en_localidad = l.codigo
                 LEFT JOIN Provincia p ON l.en_provincia = p.codigo
@@ -136,8 +140,12 @@ namespace Backend.Repositories
                     postal_code = reader.IsDBNull(4) ? null : reader.GetString(4),
                     longitude = reader.IsDBNull(5) ? (double?)null : reader.GetDouble(5),
                     latitude = reader.IsDBNull(6) ? (double?)null : reader.GetDouble(6),
-                    locality = reader.IsDBNull(7) ? null : reader.GetString(7),
-                    province = reader.IsDBNull(8) ? null : reader.GetString(8)
+                    description = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    schedule = reader.IsDBNull(8) ? null : reader.GetString(8),
+                    contact = reader.IsDBNull(9) ? null : reader.GetString(9),
+                    url = reader.IsDBNull(10) ? null : reader.GetString(10),
+                    locality = reader.IsDBNull(11) ? null : reader.GetString(11),
+                    province = reader.IsDBNull(12) ? null : reader.GetString(12)
                 };
                 results.Add(station);
             }
