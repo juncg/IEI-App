@@ -1,38 +1,48 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import AppBreadcrumb from "@/components/app-breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
 import { H1, H3, H4, P } from "@/components/ui/typography";
-import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function CargaAlmacen() {
+	// Estado para las fuentes de datos seleccionadas
 	const [selectedSources, setSelectedSources] = useState<string[]>([]);
+	// Si usar Selenium para validación de coordenadas
 	const [useSelenium, setUseSelenium] = useState(false);
+	// Estado de carga durante operaciones de datos
 	const [loadingData, setLoadingData] = useState(false);
+	// Estados de visibilidad de diálogos
 	const [showConfirmLoad, setShowConfirmLoad] = useState(false);
 	const [showConfirmClear, setShowConfirmClear] = useState(false);
+	// Resultados de la última operación de carga
 	const [results, setResults] = useState<{
 		loaded: number;
 		repaired: number;
 		discarded: number;
-		repairedRecords: Array<{ source: string; name: string; locality: string; operations: Array<{ reason: string; operation: string }> }>;
+		repairedRecords: Array<{
+			source: string;
+			name: string;
+			locality: string;
+			operations: Array<{ reason: string; operation: string }>;
+		}>;
 		discardedRecords: Array<{ source: string; name: string; locality: string; reason: string }>;
 	} | null>(null);
 
+	// Fuentes de datos disponibles con sus etiquetas de visualización
 	const sources = [
 		{ id: "galicia", label: "Galicia" },
 		{ id: "valencia", label: "Comunitat Valenciana" },
@@ -53,18 +63,22 @@ export default function CargaAlmacen() {
 		);
 	};
 
+	// Realizar la operación real de carga de datos
 	const performLoad = async () => {
 		setLoadingData(true);
 		setShowConfirmLoad(false);
+
 		const sourceMap: { [key: string]: string } = {
 			galicia: "GAL",
 			valencia: "CV",
 			catalunya: "CAT",
 		};
-		const apiSources = selectedSources.map(s => sourceMap[s]);
+
+		const apiSources = selectedSources.map((s) => sourceMap[s]);
 
 		try {
 			const url = `http://localhost:5004/api/load${useSelenium ? "?validateExistingCoordinates=true" : ""}`;
+
 			const response = await fetch(url, {
 				method: "POST",
 				headers: {
@@ -72,8 +86,10 @@ export default function CargaAlmacen() {
 				},
 				body: JSON.stringify(apiSources),
 			});
+
 			if (response.ok) {
 				const data = await response.json();
+
 				setResults({
 					loaded: data.recordsLoadedCorrectly,
 					repaired: data.recordsRepaired,
@@ -94,6 +110,7 @@ export default function CargaAlmacen() {
 						reason: r.errorReason,
 					})),
 				});
+
 				toast.success("Datos cargados correctamente");
 			} else {
 				console.error("Error loading data");
@@ -110,8 +127,10 @@ export default function CargaAlmacen() {
 		setShowConfirmLoad(true);
 	};
 
+	// Realizar la operación de limpieza de datos
 	const performClearData = async () => {
 		setShowConfirmClear(false);
+
 		try {
 			const response = await fetch("http://localhost:5004/api/clear", {
 				method: "POST",
@@ -222,7 +241,8 @@ export default function CargaAlmacen() {
 										<div className="space-y-2">
 											{results.repairedRecords.map((r, index) => (
 												<div key={index} className="p-2 bg-white border rounded text-sm">
-													<strong>Fuente:</strong> {r.source} | <strong>Nombre:</strong> {r.name} | <strong>Localidad:</strong> {r.locality}
+													<strong>Fuente:</strong> {r.source} | <strong>Nombre:</strong>{" "}
+													{r.name} | <strong>Localidad:</strong> {r.locality}
 													<div className="mt-1">
 														<strong>Operaciones:</strong>
 														<ul className="list-disc list-inside ml-2">
@@ -246,7 +266,8 @@ export default function CargaAlmacen() {
 										<div className="space-y-2">
 											{results.discardedRecords.map((r, index) => (
 												<div key={index} className="p-2 bg-white border rounded text-sm">
-													<strong>Fuente:</strong> {r.source} | <strong>Nombre:</strong> {r.name} | <strong>Localidad:</strong> {r.locality}
+													<strong>Fuente:</strong> {r.source} | <strong>Nombre:</strong>{" "}
+													{r.name} | <strong>Localidad:</strong> {r.locality}
 													<br />
 													<strong>Error:</strong> {r.reason}
 												</div>
@@ -261,17 +282,20 @@ export default function CargaAlmacen() {
 					)}
 				</div>
 
-				{/* Confirmation Dialog for Load */}
 				<Dialog open={showConfirmLoad} onOpenChange={setShowConfirmLoad}>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Confirmar carga de datos</DialogTitle>
 							<DialogDescription>
-								¿Estás seguro de que quieres cargar los datos de las fuentes seleccionadas? Esta acción puede tardar varios minutos.
+								¿Estás seguro de que quieres cargar los datos de las fuentes seleccionadas? Esta acción
+								puede tardar varios minutos.
 							</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
-							<Button variant="outline" onClick={() => setShowConfirmLoad(false)} className="cursor-pointer">
+							<Button
+								variant="outline"
+								onClick={() => setShowConfirmLoad(false)}
+								className="cursor-pointer">
 								Cancelar
 							</Button>
 							<Button onClick={performLoad} className="bg-gray-600 hover:bg-gray-700 cursor-pointer">
@@ -281,17 +305,20 @@ export default function CargaAlmacen() {
 					</DialogContent>
 				</Dialog>
 
-				{/* Confirmation Dialog for Clear */}
 				<Dialog open={showConfirmClear} onOpenChange={setShowConfirmClear}>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Confirmar borrado de datos</DialogTitle>
 							<DialogDescription>
-								¿Estás seguro de que quieres borrar todos los datos del almacén? Esta acción no se puede deshacer.
+								¿Estás seguro de que quieres borrar todos los datos del almacén? Esta acción no se puede
+								deshacer.
 							</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
-							<Button variant="outline" onClick={() => setShowConfirmClear(false)} className="cursor-pointer">
+							<Button
+								variant="outline"
+								onClick={() => setShowConfirmClear(false)}
+								className="cursor-pointer">
 								Cancelar
 							</Button>
 							<Button variant="destructive" onClick={performClearData} className="cursor-pointer">

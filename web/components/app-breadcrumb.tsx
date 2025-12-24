@@ -20,7 +20,6 @@ const routeNames: Record<string, string> = {
 export default function AppBreadcrumb() {
 	const pathname = usePathname();
 
-	// Si estamos en la página principal, no mostramos breadcrumb
 	if (pathname === "/") {
 		return null;
 	}

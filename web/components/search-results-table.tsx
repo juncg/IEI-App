@@ -1,5 +1,4 @@
 "use client";
-
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 interface Station {
@@ -49,6 +48,7 @@ export default function SearchResultsTable({ stations }: SearchResultsTableProps
 				<TableCaption>
 					{stations.length} {stations.length === 1 ? "estación encontrada" : "estaciones encontradas"}
 				</TableCaption>
+
 				<TableHeader>
 					<TableRow>
 						<TableHead>Nombre</TableHead>
@@ -63,6 +63,7 @@ export default function SearchResultsTable({ stations }: SearchResultsTableProps
 						<TableHead>URL</TableHead>
 					</TableRow>
 				</TableHeader>
+
 				<TableBody>
 					{stations.map((station, index) => (
 						<TableRow key={index}>
@@ -75,7 +76,19 @@ export default function SearchResultsTable({ stations }: SearchResultsTableProps
 							<TableCell>{station.description || "—"}</TableCell>
 							<TableCell>{station.schedule || "—"}</TableCell>
 							<TableCell>{station.contact || "—"}</TableCell>
-							<TableCell>{station.url ? <a href={station.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{station.url}</a> : "—"}</TableCell>
+							<TableCell>
+								{station.url ? (
+									<a
+										href={station.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-blue-600 hover:underline">
+										{station.url}
+									</a>
+								) : (
+									"—"
+								)}
+							</TableCell>
 						</TableRow>
 					))}
 				</TableBody>

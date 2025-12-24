@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "./ui/field";
@@ -18,6 +17,7 @@ interface SearchEstacionFormProps {
 }
 
 export default function SearchEstacionForm({ onSearch }: SearchEstacionFormProps) {
+	// Estado de los filtros del formulario
 	const [filters, setFilters] = useState<SearchFilters>({
 		name: "",
 		type: "",
@@ -26,6 +26,7 @@ export default function SearchEstacionForm({ onSearch }: SearchEstacionFormProps
 		postalCode: "",
 	});
 
+	// Actualizar un campo específico del filtro
 	const handleInputChange = (field: keyof SearchFilters, value: string) => {
 		setFilters((prev) => ({
 			...prev,
@@ -33,19 +34,23 @@ export default function SearchEstacionForm({ onSearch }: SearchEstacionFormProps
 		}));
 	};
 
+	// Manejar envío del formulario
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
+		// Filtrar solo los campos con valores no vacíos
 		const activeFilters: SearchFilters = Object.entries(filters).reduce((acc, [key, value]) => {
 			if (value && value.trim() !== "") {
 				acc[key as keyof SearchFilters] = value.trim();
 			}
+
 			return acc;
 		}, {} as SearchFilters);
 
 		onSearch?.(activeFilters);
 	};
 
+	// Limpiar todos los filtros
 	const handleReset = () => {
 		setFilters({
 			name: "",

@@ -1,5 +1,4 @@
 "use client";
-
 import AppBreadcrumb from "@/components/app-breadcrumb";
 import SearchEstacionForm from "@/components/search-estacion-form";
 import SearchResultsTable from "@/components/search-results-table";
@@ -26,9 +25,12 @@ interface Station {
 }
 
 export default function BuscadorEstaciones() {
+	// Estado para almacenar los resultados de búsqueda
 	const [stations, setStations] = useState<Station[]>([]);
+	// Estado para las posiciones de las estaciones en el mapa
 	const [positions, setPositions] = useState<{ lat: number; lng: number; name: string }[]>([]);
 
+	// Manejar la búsqueda de estaciones con los filtros proporcionados
 	const handleSearch = async (filters: {
 		name?: string;
 		type?: string;
@@ -46,10 +48,12 @@ export default function BuscadorEstaciones() {
 
 		try {
 			const response = await fetch(`http://localhost:5005/api/search?${query.toString()}`);
+
 			if (response.ok) {
 				const data: Station[] = await response.json();
-				console.log(data);
 				setStations(data);
+
+				// Extraer posiciones válidas para el mapa
 				const newPositions = data
 					.filter((s) => s.latitude && s.longitude)
 					.map((s) => ({ lat: s.latitude!, lng: s.longitude!, name: s.name }));

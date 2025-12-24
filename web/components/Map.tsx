@@ -1,9 +1,9 @@
 "use client";
-
 import L from "leaflet";
 import { useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
+// Configuración del icono de marcador estándar de Leaflet
 const icon = L.icon({
 	iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
 	iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -19,6 +19,7 @@ interface MapProps {
 }
 
 export default function Map({ positions }: MapProps) {
+	// Calcular los límites del mapa para ajustar la vista a todos los marcadores
 	const bounds = useMemo(() => {
 		if (positions.length > 0) {
 			const latLngs = positions.map((pos) => L.latLng(pos.lat, pos.lng));
@@ -27,7 +28,8 @@ export default function Map({ positions }: MapProps) {
 		return null;
 	}, [positions]);
 
-	const center = positions.length > 0 ? undefined : [40.4168, -3.7038]; // Madrid coordinates as default
+	// Centro por defecto en Madrid si no hay posiciones
+	const center: [number, number] | undefined = positions.length > 0 ? undefined : [40.4168, -3.7038];
 
 	return (
 		<MapContainer
@@ -40,6 +42,7 @@ export default function Map({ positions }: MapProps) {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
+
 			{positions.map((pos, index) => (
 				<Marker key={index} position={[pos.lat, pos.lng]} icon={icon}>
 					<Popup>{pos.name || `Estación ITV (${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)})`}</Popup>
