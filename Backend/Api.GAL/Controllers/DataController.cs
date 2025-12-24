@@ -7,8 +7,13 @@ namespace Backend.Api.GAL.Controllers
 {
     [ApiController]
     [Route("api/gal")]
+    [ApiExplorerSettings(GroupName = "GAL")]
     public class DataController : ControllerBase
     {
+        /// <summary>
+        /// Transforma los datos de estaciones ITV de Galicia desde formato CSV a JSON estructurado.
+        /// </summary>
+        /// <returns>Datos transformados de estaciones ITV de Galicia incluyendo metadatos del proceso.</returns>
         [HttpGet("transform")]
         public IActionResult Transform()
         {

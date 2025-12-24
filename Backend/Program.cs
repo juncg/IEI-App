@@ -1,5 +1,6 @@
 using Backend;
 using Serilog;
+using System.IO;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -42,7 +43,11 @@ static async Task StartCatApi()
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "API Cataluña - Transformación XML", Version = "v1" });
+        c.SwaggerDoc("CAT", new() { Title = "API Cataluña - Transformación XML", Version = "v1" });
+        c.DocInclusionPredicate((name, api) => api.GroupName == name);
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
     });
 
     var app = builder.Build();
@@ -50,7 +55,7 @@ static async Task StartCatApi()
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CAT v1");
+        c.SwaggerEndpoint("/swagger/CAT/swagger.json", "API CAT v1");
     });
 
     app.MapControllers();
@@ -71,7 +76,11 @@ static async Task StartCvApi()
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "API Comunidad Valenciana - Transformación JSON", Version = "v1" });
+        c.SwaggerDoc("CV", new() { Title = "API Comunidad Valenciana - Transformación JSON", Version = "v1" });
+        c.DocInclusionPredicate((name, api) => api.GroupName == name);
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
     });
 
     var app = builder.Build();
@@ -79,7 +88,7 @@ static async Task StartCvApi()
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API CV v1");
+        c.SwaggerEndpoint("/swagger/CV/swagger.json", "API CV v1");
     });
 
     app.MapControllers();
@@ -100,7 +109,11 @@ static async Task StartGalApi()
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "API Galicia - Transformación CSV", Version = "v1" });
+        c.SwaggerDoc("GAL", new() { Title = "API Galicia - Transformación CSV", Version = "v1" });
+        c.DocInclusionPredicate((name, api) => api.GroupName == name);
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
     });
 
     var app = builder.Build();
@@ -108,7 +121,7 @@ static async Task StartGalApi()
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API GAL v1");
+        c.SwaggerEndpoint("/swagger/GAL/swagger.json", "API GAL v1");
     });
 
     app.MapControllers();
@@ -128,10 +141,15 @@ static async Task StartLoadApi()
     builder.Services.AddControllers();
     builder.Services.AddHttpClient();
     builder.Services.AddCors();
+    builder.Services.AddScoped<Backend.Api.Carga.Logic.LoadService>();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "API Carga - ETL", Version = "v1" });
+        c.SwaggerDoc("Load", new() { Title = "API Carga - ETL", Version = "v1" });
+        c.DocInclusionPredicate((name, api) => api.GroupName == name);
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
     });
 
     var app = builder.Build();
@@ -140,7 +158,7 @@ static async Task StartLoadApi()
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Carga v1");
+        c.SwaggerEndpoint("/swagger/Load/swagger.json", "API Carga v1");
     });
 
     app.MapControllers();
@@ -162,7 +180,11 @@ static async Task StartSearchApi()
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "API Búsqueda", Version = "v1" });
+        c.SwaggerDoc("Search", new() { Title = "API Búsqueda", Version = "v1" });
+        c.DocInclusionPredicate((name, api) => api.GroupName == name);
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
     });
 
     var app = builder.Build();
@@ -170,7 +192,7 @@ static async Task StartSearchApi()
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Búsqueda v1");
+        c.SwaggerEndpoint("/swagger/Search/swagger.json", "API Búsqueda v1");
     });
 
     app.MapControllers();

@@ -6,6 +6,7 @@ namespace Backend.Api.Busqueda.Controllers
 {
     [ApiController]
     [Route("api/search")]
+    [ApiExplorerSettings(GroupName = "Search")]
     public class SearchController : ControllerBase
     {
         private readonly SearchService _searchService;
@@ -15,6 +16,15 @@ namespace Backend.Api.Busqueda.Controllers
             _searchService = searchService;
         }
 
+        /// <summary>
+        /// Busca estaciones de ITV basándose en criterios opcionales de filtrado.
+        /// </summary>
+        /// <param name="name">Nombre de la estación (búsqueda parcial, case-insensitive).</param>
+        /// <param name="type">Tipo de estación (0: Fija, 1: Móvil, 2: Otros).</param>
+        /// <param name="locality">Nombre de la localidad (búsqueda parcial, case-insensitive).</param>
+        /// <param name="postalCode">Código postal (búsqueda parcial).</param>
+        /// <param name="province">Nombre de la provincia (búsqueda parcial, case-insensitive).</param>
+        /// <returns>Lista de estaciones que coinciden con los criterios de búsqueda.</returns>
         [HttpGet]
         public IActionResult Search([FromQuery] string? name, [FromQuery] int? type, [FromQuery] string? locality, [FromQuery] string? postalCode, [FromQuery] string? province)
         {
@@ -30,6 +40,10 @@ namespace Backend.Api.Busqueda.Controllers
             }
         }
 
+        /// <summary>
+        /// Obtiene todas las estaciones de ITV que tienen coordenadas (latitud y longitud) definidas.
+        /// </summary>
+        /// <returns>Lista de todas las estaciones con coordenadas para precargar en el mapa.</returns>
         [HttpGet("stations")]
         public IActionResult GetStations()
         {

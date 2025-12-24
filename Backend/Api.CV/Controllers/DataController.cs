@@ -7,8 +7,13 @@ namespace Backend.Api.CV.Controllers
 {
     [ApiController]
     [Route("api/cv")]
+    [ApiExplorerSettings(GroupName = "CV")]
     public class DataController : ControllerBase
     {
+        /// <summary>
+        /// Transforma los datos de estaciones ITV de Comunidad Valenciana desde formato JSON a JSON estructurado.
+        /// </summary>
+        /// <returns>Datos transformados de estaciones ITV de Comunidad Valenciana incluyendo metadatos del proceso.</returns>
         [HttpGet("transform")]
         public IActionResult Transform()
         {
