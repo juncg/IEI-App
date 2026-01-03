@@ -18,6 +18,7 @@ interface Station {
 
 interface SearchResultsTableProps {
 	stations: Station[];
+	hasSearched: boolean;
 }
 
 const getStationType = (type: number): string => {
@@ -33,7 +34,11 @@ const getStationType = (type: number): string => {
 	}
 };
 
-export default function SearchResultsTable({ stations }: SearchResultsTableProps) {
+export default function SearchResultsTable({ stations, hasSearched }: SearchResultsTableProps) {
+	if (!hasSearched) {
+		return null;
+	}
+
 	if (stations.length === 0) {
 		return (
 			<div className="text-center py-8 text-muted-foreground">
