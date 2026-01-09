@@ -5,7 +5,7 @@ import SearchResultsTable from "@/components/search-results-table";
 import { H1 } from "@/components/ui/typography";
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
@@ -47,7 +47,7 @@ export default function BuscadorEstaciones() {
 						.map((s) => ({ lat: s.latitude!, lng: s.longitude!, name: s.name }));
 					setPositions(newPositions);
 				} else {
-					console.error("Error fetching initial stations");
+					console.error("Error obteniendo estaciones");
 				}
 			} catch (error) {
 				console.error("Error:", error);

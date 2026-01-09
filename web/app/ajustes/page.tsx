@@ -113,7 +113,7 @@ export default function CargaAlmacen() {
 
 				toast.success("Datos cargados correctamente");
 			} else {
-				console.error("Error loading data");
+				console.error("Error cargando datos");
 				toast.error("Error al cargar los datos");
 			}
 		} catch (error) {
@@ -136,10 +136,10 @@ export default function CargaAlmacen() {
 				method: "POST",
 			});
 			if (response.ok) {
-				console.log("Data cleared");
+				console.log("Datos borrados");
 				toast.success("Datos borrados correctamente");
 			} else {
-				console.error("Error clearing data");
+				console.error("Error borrando datos");
 				toast.error("Error al borrar los datos");
 			}
 		} catch (error) {
