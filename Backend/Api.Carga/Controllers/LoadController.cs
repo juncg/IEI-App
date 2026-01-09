@@ -20,6 +20,7 @@ namespace Backend.Api.Carga.Controllers
         /// Carga datos de estaciones desde las APIs de transformación (CAT, CV, GAL) y los inserta en la base de datos.
         /// </summary>
         /// <param name="sources">Lista de fuentes de datos a cargar (ej: ["CAT", "CV", "GAL"]).</param>
+        /// <param name="validateExistingCoordinates">Si es true, valida las coordenadas existentes usando Selenium.</param>
         /// <returns>Resultado del proceso de carga incluyendo estadísticas de registros procesados, reparados y descartados.</returns>
         [HttpPost("load")]
         public async Task<IActionResult> LoadData([FromBody] List<string> sources, [FromQuery] bool validateExistingCoordinates = false)
