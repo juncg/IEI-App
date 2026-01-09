@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Backend.Helpers
+namespace Backend.Api.GAL.Helpers
 {
     public static class EncodingHelper
     {

@@ -1,6 +1,6 @@
 using Backend.Models;
 
-namespace Backend.Converters
+namespace Backend.Api.Busqueda.Converters
 {
     public static class StationConverter
     {

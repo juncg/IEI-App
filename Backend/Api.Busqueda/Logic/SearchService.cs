@@ -1,4 +1,4 @@
-using Backend.Converters;
+using Backend.Api.Busqueda.Converters;
 using Backend.Models;
 using Backend.Repositories;
 using Microsoft.Data.Sqlite;

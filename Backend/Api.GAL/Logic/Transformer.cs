@@ -1,11 +1,23 @@
 using Backend;
 using Serilog;
 using System.IO;
+using Backend.Api.GAL.Helpers;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Newtonsoft.Json;
+using System.Globalization;
+using System.Text.Json;
+using System.Text;
 
 namespace Backend.Api.GAL.Logic
 {
     public static class Transformer
     {
+        static Transformer()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+
         public static object Transform()
         {
             Log.Information("API GAL: Iniciando transformación de datos de Galicia (CSV)");
@@ -19,7 +31,7 @@ namespace Backend.Api.GAL.Logic
                 throw new FileNotFoundException("Archivo Estacions_ITV.csv no encontrado");
             }
 
-            var galData = Transformations.ConvertGalCsvToJson(galCsvPath);
+            var galData = ConvertGalCsvToJson(galCsvPath);
 
             Log.Information("API GAL: Transformación completada.");
 
@@ -30,6 +42,34 @@ namespace Backend.Api.GAL.Logic
                 timestamp = DateTime.UtcNow,
                 data = galData
             };
+        }
+
+        public static JsonElement ConvertGalCsvToJson(string path)
+        {
+            try
+            {
+                using var reader = new StreamReader(path, EncodingHelper.DetectEncoding(path));
+                using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    Delimiter = ";",
+                    BadDataFound = null,
+                    MissingFieldFound = null
+                });
+
+                var records = csv.GetRecords<dynamic>().ToList();
+                
+                var wrapper = new { establishments = records };
+                
+                string jsonText = JsonConvert.SerializeObject(wrapper);
+                
+                using var document = JsonDocument.Parse(jsonText);
+                return document.RootElement.Clone();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error converting GAL CSV to JSON");
+                throw;
+            }
         }
     }
 }
