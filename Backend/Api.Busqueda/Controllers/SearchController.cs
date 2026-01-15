@@ -11,6 +11,10 @@ namespace Backend.Api.Busqueda.Controllers
     {
         private readonly SearchService _searchService;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de SearchController
+        /// </summary>
+        /// <param name="searchService">Servicio de búsqueda de estaciones</param>
         public SearchController(SearchService searchService)
         {
             _searchService = searchService;

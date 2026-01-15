@@ -11,6 +11,10 @@ namespace Backend.Api.Carga.Controllers
     {
         private readonly LoadService _loadService;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de LoadController
+        /// </summary>
+        /// <param name="loadService">Servicio de carga de datos</param>
         public LoadController(LoadService loadService)
         {
             _loadService = loadService;
