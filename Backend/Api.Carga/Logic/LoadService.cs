@@ -159,7 +159,11 @@ namespace Backend.Api.Carga.Logic
             loadResult.RecordsLoadedCorrectly = insertResult.RecordsLoadedCorrectly;
             loadResult.RecordsRepaired = loadResult.RepairedRecords.Count;
             loadResult.DiscardedRecords.AddRange(insertResult.DiscardedRecords);
-            loadResult.RecordsDiscarded += insertResult.RecordsDiscarded;
+            loadResult.RecordsDiscarded += insertResult.DiscardedRecords.Count;
+
+            var discardedNames = new HashSet<string>(loadResult.DiscardedRecords.Select(d => d.Name));
+            loadResult.RepairedRecords = loadResult.RepairedRecords.Where(r => !discardedNames.Contains(r.Name)).ToList();
+            loadResult.RecordsRepaired = loadResult.RepairedRecords.Count;
 
             return loadResult;
         }
