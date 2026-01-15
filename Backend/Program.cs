@@ -39,10 +39,11 @@ finally
 static async Task StartCatApi()
 {
     var builder = WebApplication.CreateBuilder();
-    builder.WebHost.UseUrls("http://localhost:5001");
+    builder.WebHost.UseUrls("http://0.0.0.0:5001");
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddCors();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -55,6 +56,7 @@ static async Task StartCatApi()
 
     var app = builder.Build();
 
+    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -75,10 +77,11 @@ static async Task StartCatApi()
 static async Task StartCvApi()
 {
     var builder = WebApplication.CreateBuilder();
-    builder.WebHost.UseUrls("http://localhost:5002");
+    builder.WebHost.UseUrls("http://0.0.0.0:5002");
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddCors();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -91,6 +94,7 @@ static async Task StartCvApi()
 
     var app = builder.Build();
 
+    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -111,10 +115,11 @@ static async Task StartCvApi()
 static async Task StartGalApi()
 {
     var builder = WebApplication.CreateBuilder();
-    builder.WebHost.UseUrls("http://localhost:5003");
+    builder.WebHost.UseUrls("http://0.0.0.0:5003");
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
+    builder.Services.AddCors();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -127,6 +132,7 @@ static async Task StartGalApi()
 
     var app = builder.Build();
 
+    app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -147,7 +153,7 @@ static async Task StartGalApi()
 static async Task StartLoadApi()
 {
     var builder = WebApplication.CreateBuilder();
-    builder.WebHost.UseUrls("http://localhost:5004");
+    builder.WebHost.UseUrls("http://0.0.0.0:5004");
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();
@@ -187,7 +193,7 @@ static async Task StartLoadApi()
 static async Task StartSearchApi()
 {
     var builder = WebApplication.CreateBuilder();
-    builder.WebHost.UseUrls("http://localhost:5005");
+    builder.WebHost.UseUrls("http://0.0.0.0:5005");
 
     builder.Host.UseSerilog();
     builder.Services.AddControllers();

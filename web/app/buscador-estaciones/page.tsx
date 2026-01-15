@@ -3,6 +3,7 @@ import AppBreadcrumb from "@/components/app-breadcrumb";
 import SearchEstacionForm from "@/components/search-estacion-form";
 import SearchResultsTable from "@/components/search-results-table";
 import { H1 } from "@/components/ui/typography";
+import { API_URLS } from "@/lib/config";
 import "leaflet/dist/leaflet.css";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
@@ -36,7 +37,7 @@ export default function BuscadorEstaciones() {
 	useEffect(() => {
 		const loadInitialStations = async () => {
 			try {
-				const response = await fetch("http://localhost:5005/api/search/stations");
+				const response = await fetch(`${API_URLS.SEARCH}/api/search/stations`);
 
 				if (response.ok) {
 					const data: Station[] = await response.json();
@@ -75,7 +76,7 @@ export default function BuscadorEstaciones() {
 		if (filters.postalCode) query.append("postalCode", filters.postalCode);
 
 		try {
-			const response = await fetch(`http://localhost:5005/api/search?${query.toString()}`);
+			const response = await fetch(`${API_URLS.SEARCH}/api/search?${query.toString()}`);
 
 			if (response.ok) {
 				const data: Station[] = await response.json();

@@ -14,6 +14,7 @@ import {
 import { Label } from "@/components/ui/label";
 
 import { H1, H3, H4, P } from "@/components/ui/typography";
+import { API_URLS } from "@/lib/config";
 import "leaflet/dist/leaflet.css";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -77,7 +78,7 @@ export default function CargaAlmacen() {
 		const apiSources = selectedSources.map((s) => sourceMap[s]);
 
 		try {
-			const url = `http://localhost:5004/api/load${useSelenium ? "?validateExistingCoordinates=true" : ""}`;
+			const url = `${API_URLS.LOAD}/api/load${useSelenium ? "?validateExistingCoordinates=true" : ""}`;
 
 			const response = await fetch(url, {
 				method: "POST",
@@ -132,7 +133,7 @@ export default function CargaAlmacen() {
 		setShowConfirmClear(false);
 
 		try {
-			const response = await fetch("http://localhost:5004/api/clear", {
+			const response = await fetch(`${API_URLS.LOAD}/api/clear`, {
 				method: "POST",
 			});
 			if (response.ok) {
