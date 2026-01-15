@@ -10,6 +10,9 @@ namespace Backend.Services
         private readonly LocationRepository _locationRepository;
         private readonly StationRepository _stationRepository;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de DataInserter
+        /// </summary>
         public DataInserter()
         {
             _locationRepository = new LocationRepository();
