@@ -1,16 +1,35 @@
-using Backend.Models;
-using Microsoft.Data.Sqlite;
+ using Backend.Models;
+ using Microsoft.Data.Sqlite;
+ using System.Globalization;
+ using System.Text;
 
-namespace Backend.Repositories
-{
-    public class StationRepository
-    {
+ namespace Backend.Repositories
+ {
+     public class StationRepository
+     {
+         private static string RemoveAccents(string text)
+         {
+             if (string.IsNullOrEmpty(text)) return text;
+             var normalizedString = text.Normalize(NormalizationForm.FormD);
+             var stringBuilder = new StringBuilder();
+             foreach (var c in normalizedString)
+             {
+                 var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                 if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                 {
+                     stringBuilder.Append(c);
+                 }
+             }
+             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+         }
         public string InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
+            conn.CreateFunction("RemoveAccents", (string text) => RemoveAccents(text ?? ""));
+
             using (var checkCmd = conn.CreateCommand())
             {
                 checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT COUNT(*) FROM Estacion WHERE nombre = @nombre AND tipo = @tipo";
+                checkCmd.CommandText = "SELECT COUNT(*) FROM Estacion WHERE UPPER(RemoveAccents(TRIM(nombre))) = UPPER(RemoveAccents(TRIM(@nombre))) AND tipo = @tipo";
                 checkCmd.Parameters.AddWithValue("@nombre", s.name ?? "");
                 checkCmd.Parameters.AddWithValue("@tipo", (int)s.type);
                 var count = Convert.ToInt32(checkCmd.ExecuteScalar());
