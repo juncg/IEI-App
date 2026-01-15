@@ -7,24 +7,10 @@
  {
      public class StationRepository
      {
-         private static string RemoveAccents(string text)
-         {
-             if (string.IsNullOrEmpty(text)) return text;
-             var normalizedString = text.Normalize(NormalizationForm.FormD);
-             var stringBuilder = new StringBuilder();
-             foreach (var c in normalizedString)
-             {
-                 var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                 if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                 {
-                     stringBuilder.Append(c);
-                 }
-             }
-             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-         }
+
         public string InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
-            conn.CreateFunction("RemoveAccents", (string text) => RemoveAccents(text ?? ""));
+            conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));
 
             using (var checkCmd = conn.CreateCommand())
             {

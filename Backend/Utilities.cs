@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Text;
 using OpenQA.Selenium;
 using Backend.Services.Mappers;
 
@@ -39,7 +40,22 @@ public class Utilities
 
     #endregion
     #region Public Methods
-    
+
+    public static string RemoveAccents(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        var normalizedString = text.Normalize(NormalizationForm.FormD);
+        var stringBuilder = new StringBuilder();
+        foreach (var c in normalizedString)
+        {
+            var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+    }
 
     public static string NormalizeLocalityName(string localityName)
     {

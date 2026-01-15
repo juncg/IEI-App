@@ -1,15 +1,20 @@
 using Microsoft.Data.Sqlite;
+using System.Globalization;
+using System.Text;
 
 namespace Backend.Repositories
 {
     public class LocationRepository
     {
+
         public int GetOrInsertProvince(SqliteConnection conn, string name, SqliteTransaction trans)
         {
+            conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));
+
             using (var checkCmd = conn.CreateCommand())
             {
                 checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT codigo FROM Provincia WHERE nombre = @nombre";
+                checkCmd.CommandText = "SELECT codigo FROM Provincia WHERE UPPER(RemoveAccents(TRIM(nombre))) = UPPER(RemoveAccents(TRIM(@nombre)))";
                 checkCmd.Parameters.AddWithValue("@nombre", name);
                 var result = checkCmd.ExecuteScalar();
                 if (result != null) return Convert.ToInt32(result);
@@ -24,10 +29,12 @@ namespace Backend.Repositories
 
         public int GetOrInsertLocality(SqliteConnection conn, string name, int provinceId, SqliteTransaction trans)
         {
+            conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));
+
             using (var checkCmd = conn.CreateCommand())
             {
                 checkCmd.Transaction = trans;
-                checkCmd.CommandText = "SELECT codigo FROM Localidad WHERE nombre = @nombre AND en_provincia = @provId";
+                checkCmd.CommandText = "SELECT codigo FROM Localidad WHERE UPPER(RemoveAccents(TRIM(nombre))) = UPPER(RemoveAccents(TRIM(@nombre))) AND en_provincia = @provId";
                 checkCmd.Parameters.AddWithValue("@nombre", name);
                 checkCmd.Parameters.AddWithValue("@provId", provinceId);
                 var result = checkCmd.ExecuteScalar();
