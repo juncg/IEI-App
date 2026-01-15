@@ -16,6 +16,11 @@ namespace Backend.Services
             _stationRepository = new StationRepository();
         }
 
+        /// <summary>
+        /// Inserta datos de estaciones unificadas en la base de datos
+        /// </summary>
+        /// <param name="data">Lista de datos unificados a insertar</param>
+        /// <returns>Objeto LoadResultDto con estadísticas de la inserción</returns>
         public LoadResultDto Run(List<UnifiedData> data)
         {
             var result = new LoadResultDto();

@@ -16,6 +16,10 @@ namespace Backend.Api.CAT.Logic
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        /// <summary>
+        /// Transforma el archivo XML de estaciones de Cataluña en un objeto JSON estructurado
+        /// </summary>
+        /// <returns>Objeto con los datos transformados y metadatos</returns>
         public static object Transform()
         {
             Log.Information("API CAT: Iniciando transformación de datos de Cataluña (XML)");
@@ -42,6 +46,11 @@ namespace Backend.Api.CAT.Logic
             };
         }
 
+        /// <summary>
+        /// Convierte un archivo XML de Cataluña a formato JsonElement
+        /// </summary>
+        /// <param name="path">Ruta del archivo XML</param>
+        /// <returns>JsonElement con el contenido del archivo</returns>
         public static JsonElement ConvertCatXmlToJson(string path)
         {
             try

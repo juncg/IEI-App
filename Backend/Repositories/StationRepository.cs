@@ -8,6 +8,14 @@
      public class StationRepository
      {
 
+        /// <summary>
+        /// Inserta una estación en la base de datos si no existe duplicada
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <param name="s">Objeto Station con los datos de la estación</param>
+        /// <param name="localityId">ID de la localidad a la que pertenece la estación</param>
+        /// <param name="trans">Transacción de base de datos activa</param>
+        /// <returns>"inserted" si se insertó correctamente, "duplicated" si ya existe</returns>
         public string InsertStation(SqliteConnection conn, Station s, int? localityId, SqliteTransaction trans)
         {
             conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));
@@ -50,6 +58,16 @@
             }
         }
 
+        /// <summary>
+        /// Busca estaciones en la base de datos aplicando filtros opcionales
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <param name="name">Nombre de la estación (búsqueda parcial, opcional)</param>
+        /// <param name="type">Tipo de estación (opcional)</param>
+        /// <param name="locality">Nombre de la localidad (búsqueda parcial, opcional)</param>
+        /// <param name="postalCode">Código postal (búsqueda parcial, opcional)</param>
+        /// <param name="province">Nombre de la provincia (búsqueda parcial, opcional)</param>
+        /// <returns>Lista de estaciones que cumplen con los criterios de búsqueda</returns>
         public List<Station> SearchStations(SqliteConnection conn, string? name, int? type, string? locality, string? postalCode, string? province)
         {
             var results = new List<Station>();
@@ -119,6 +137,11 @@
             return results;
         }
 
+        /// <summary>
+        /// Obtiene todas las estaciones que tienen coordenadas geográficas válidas
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <returns>Lista de estaciones con coordenadas definidas</returns>
         public List<Station> GetStationsWithCoordinates(SqliteConnection conn)
         {
             var results = new List<Station>();

@@ -7,6 +7,15 @@ namespace Backend.Services.Mappers
 {
     public class CATMapper : IMapper
     {
+        /// <summary>
+        /// Transforma datos de estaciones ITV de Cataluña en formato JSON al modelo unificado
+        /// </summary>
+        /// <param name="json">Cadena JSON con los datos de estaciones de Cataluña</param>
+        /// <param name="validateExistingCoordinates">Si true, valida coordenadas con Selenium</param>
+        /// <param name="processCV">No utilizado en este mapper</param>
+        /// <param name="processGAL">No utilizado en este mapper</param>
+        /// <param name="processCAT">Si false, retorna resultado vacío</param>
+        /// <returns>Objeto MapResult con datos unificados de Cataluña</returns>
         public MapResult Map(string json, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
             var result = new MapResult();

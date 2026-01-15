@@ -41,6 +41,11 @@ public class Utilities
     #endregion
     #region Public Methods
 
+    /// <summary>
+    /// Elimina los acentos de una cadena de texto
+    /// </summary>
+    /// <param name="text">Texto del cual eliminar los acentos</param>
+    /// <returns>Texto sin acentos</returns>
     public static string RemoveAccents(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
@@ -57,6 +62,11 @@ public class Utilities
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 
+    /// <summary>
+    /// Normaliza el nombre de una localidad eliminando paréntesis y reordenando artículos gallegos
+    /// </summary>
+    /// <param name="localityName">Nombre de la localidad a normalizar</param>
+    /// <returns>Nombre de la localidad normalizado</returns>
     public static string NormalizeLocalityName(string localityName)
     {
         if (string.IsNullOrWhiteSpace(localityName))
@@ -76,6 +86,11 @@ public class Utilities
         return normalized;
     }
 
+    /// <summary>
+    /// Convierte coordenadas en formato grados y minutos a formato decimal
+    /// </summary>
+    /// <param name="coords">Cadena con coordenadas en formato grados minutos</param>
+    /// <returns>Tupla con latitud y longitud en formato decimal, o null si falla</returns>
     public static (double lat, double lon)? ParseDegreesMinutesCoordinates(string coords)
     {
         var regex = new Regex(@"([+-]?\d+)°\s*([\d\.]+)',?\s*([+-]?\d+)°\s*([\d\.]+)'");
@@ -98,8 +113,12 @@ public class Utilities
         return (lat, lon);
     }
 
-    // función para calcular la similitud entre cadenas utilizando la distancia de Levenshtein
-    // la similitud se mide como un valor entre 0 y 1, donde 1 indica cadenas idénticas
+    /// <summary>
+    /// Calcula la similitud entre dos cadenas utilizando el algoritmo de distancia de Levenshtein
+    /// </summary>
+    /// <param name="source">Primera cadena a comparar</param>
+    /// <param name="target">Segunda cadena a comparar</param>
+    /// <returns>Valor de similitud entre 0 y 1, donde 1 indica cadenas idénticas</returns>
     public static double CalculateSimilarity(string source, string target)
     {
         source = source.ToLower();
@@ -130,6 +149,11 @@ public class Utilities
         return 1.0 - (double)levenshteinDistance / Math.Max(source.Length, target.Length);
     }
 
+    /// <summary>
+    /// Normaliza el nombre de una provincia buscando la mejor coincidencia con la lista de provincias españolas
+    /// </summary>
+    /// <param name="provinceName">Nombre de la provincia a normalizar</param>
+    /// <returns>Nombre de la provincia normalizado o "Desconocida" si no se encuentra</returns>
     public static string NormalizeProvinceName(string provinceName)
     {
         if (string.IsNullOrWhiteSpace(provinceName))
@@ -163,6 +187,11 @@ public class Utilities
     }
 
 
+    /// <summary>
+    /// Verifica si una cadena de texto representa una URL válida
+    /// </summary>
+    /// <param name="text">Texto a verificar</param>
+    /// <returns>True si es una URL válida, False en caso contrario</returns>
     public static bool IsUrl(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -174,6 +203,12 @@ public class Utilities
                Regex.IsMatch(text, @"^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}");
     }
 
+    /// <summary>
+    /// Verifica si un código postal es válido para una comunidad autónoma específica
+    /// </summary>
+    /// <param name="postalCode">Código postal a validar</param>
+    /// <param name="comunidad">Nombre de la comunidad autónoma</param>
+    /// <returns>True si el código postal pertenece a la comunidad, False en caso contrario</returns>
     public static bool IsValidPostalCodeForCommunity(string postalCode, string comunidad)
     {
         if (string.IsNullOrWhiteSpace(postalCode))
@@ -192,6 +227,11 @@ public class Utilities
         return false;
     }
 
+    /// <summary>
+    /// Obtiene el nombre de la provincia a partir de un código postal
+    /// </summary>
+    /// <param name="postalCode">Código postal de 5 dígitos</param>
+    /// <returns>Nombre de la provincia o null si no se encuentra</returns>
     public static string? GetProvinceFromPostalCode(string postalCode)
     {
         if (string.IsNullOrWhiteSpace(postalCode) || postalCode.Length < 2)
@@ -207,6 +247,12 @@ public class Utilities
         return null;
     }
 
+    /// <summary>
+    /// Valida si las coordenadas geográficas proporcionadas son válidas
+    /// </summary>
+    /// <param name="latitude">Latitud en grados decimales</param>
+    /// <param name="longitude">Longitud en grados decimales</param>
+    /// <returns>True si las coordenadas son válidas, False en caso contrario</returns>
     public static bool AreValidCoordinates(double? latitude, double? longitude)
     {
         if (!latitude.HasValue || !longitude.HasValue)
@@ -227,6 +273,18 @@ public class Utilities
         return true;
     }
 
+    /// <summary>
+    /// Compara una dirección física con coordenadas geográficas utilizando Selenium y Google Maps
+    /// </summary>
+    /// <param name="driver">Instancia del WebDriver de Selenium</param>
+    /// <param name="address">Dirección física a comparar</param>
+    /// <param name="lat">Latitud de las coordenadas a comparar</param>
+    /// <param name="lon">Longitud de las coordenadas a comparar</param>
+    /// <param name="cookiesAccepted">Referencia para indicar si se han aceptado las cookies</param>
+    /// <param name="postalCode">Código postal de la dirección (opcional)</param>
+    /// <param name="localityName">Nombre de la localidad (opcional)</param>
+    /// <param name="provinceName">Nombre de la provincia (opcional)</param>
+    /// <returns>True si la dirección y coordenadas coinciden dentro de 10km, False en caso contrario</returns>
     public static bool CompareAddressWithCoordinates(IWebDriver driver, string address, double? lat, double? lon, ref bool cookiesAccepted, string postalCode = "", string localityName = "", string provinceName = "")
     {
         var (newLat, newLon) = SeleniumGeocoder.GetCoordinates(
@@ -254,6 +312,11 @@ public class Utilities
         return DistanceInKm(lat ?? -9999, lon ?? -9999, newLat ?? 9999, newLon ?? 9999) < 10; // menos de 10 km
     }
 
+    /// <summary>
+    /// Extrae el nombre limpio de una estación eliminando prefijos estándar
+    /// </summary>
+    /// <param name="rawName">Nombre original de la estación</param>
+    /// <returns>Nombre de la estación sin prefijos</returns>
     public static string ExtractStationNameWithSimilarity(string rawName)
     {
         if (string.IsNullOrWhiteSpace(rawName))
@@ -296,6 +359,11 @@ public class Utilities
         return name.Trim();
     }
 
+    /// <summary>
+    /// Normaliza direcciones de Galicia y la Comunidad Valenciana expandiendo abreviaturas
+    /// </summary>
+    /// <param name="address">Dirección a normalizar</param>
+    /// <returns>Dirección normalizada en formato estándar</returns>
     public static string NormalizeAddressGalAndCv(string address)
     {
         if (string.IsNullOrWhiteSpace(address))
@@ -345,6 +413,11 @@ public class Utilities
         return normalized;
     }
 
+    /// <summary>
+    /// Normaliza direcciones de Cataluña expandiendo abreviaturas en catalán
+    /// </summary>
+    /// <param name="address">Dirección a normalizar</param>
+    /// <returns>Dirección normalizada en catalán estándar</returns>
     public static string NormalizeAddressCAT(string address)
     {
         if (string.IsNullOrWhiteSpace(address))
@@ -394,6 +467,11 @@ public class Utilities
         return normalized;
     }
 
+    /// <summary>
+    /// Extrae el subtipo de estación (Móvil, Agrícola) de una dirección
+    /// </summary>
+    /// <param name="address">Dirección que puede contener el tipo de estación</param>
+    /// <returns>Tipo de estación encontrado o "General" por defecto</returns>
     public static string ExtractStationSubtype(string address)
     {
         if (string.IsNullOrWhiteSpace(address))

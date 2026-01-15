@@ -7,6 +7,13 @@ namespace Backend.Repositories
     public class LocationRepository
     {
 
+        /// <summary>
+        /// Obtiene el ID de una provincia existente o inserta una nueva si no existe
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <param name="name">Nombre de la provincia</param>
+        /// <param name="trans">Transacción de base de datos activa</param>
+        /// <returns>ID de la provincia (existente o recién insertada)</returns>
         public int GetOrInsertProvince(SqliteConnection conn, string name, SqliteTransaction trans)
         {
             conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));
@@ -27,6 +34,14 @@ namespace Backend.Repositories
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
+        /// <summary>
+        /// Obtiene el ID de una localidad existente o inserta una nueva si no existe
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <param name="name">Nombre de la localidad</param>
+        /// <param name="provinceId">ID de la provincia a la que pertenece la localidad</param>
+        /// <param name="trans">Transacción de base de datos activa</param>
+        /// <returns>ID de la localidad (existente o recién insertada)</returns>
         public int GetOrInsertLocality(SqliteConnection conn, string name, int provinceId, SqliteTransaction trans)
         {
             conn.CreateFunction("RemoveAccents", (string text) => Utilities.RemoveAccents(text ?? ""));

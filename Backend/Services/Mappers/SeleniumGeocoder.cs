@@ -9,6 +9,10 @@ namespace Backend.Services.Mappers
 {
     public static class SeleniumGeocoder
     {
+        /// <summary>
+        /// Crea y configura una instancia de WebDriver de Chrome para Selenium
+        /// </summary>
+        /// <returns>Instancia configurada de IWebDriver en modo headless</returns>
         public static IWebDriver CreateDriver()
         {
             var options = new ChromeOptions();
@@ -24,6 +28,16 @@ namespace Backend.Services.Mappers
             return new ChromeDriver(options);
         }
 
+        /// <summary>
+        /// Obtiene coordenadas geográficas de una dirección usando Google Maps y Selenium
+        /// </summary>
+        /// <param name="driver">Instancia del WebDriver de Selenium</param>
+        /// <param name="address">Dirección física a geocodificar</param>
+        /// <param name="cookiesAccepted">Referencia para indicar si se han aceptado las cookies</param>
+        /// <param name="postalCode">Código postal para refinar la búsqueda (opcional)</param>
+        /// <param name="localityName">Nombre de la localidad para refinar la búsqueda (opcional)</param>
+        /// <param name="provinceName">Nombre de la provincia para refinar la búsqueda (opcional)</param>
+        /// <returns>Tupla con latitud y longitud en grados decimales, o null si falla</returns>
         public static (double? lat, double? lon) GetCoordinates(IWebDriver driver, string address, ref bool cookiesAccepted, string postalCode = "", string localityName = "", string provinceName = "")
         {
             string fullAddress = $"{address} {postalCode} {localityName} {provinceName} España".Trim();
@@ -68,6 +82,10 @@ namespace Backend.Services.Mappers
             }
         }
 
+        /// <summary>
+        /// Acepta automáticamente las cookies de Google Maps usando Selenium
+        /// </summary>
+        /// <param name="driver">Instancia del WebDriver de Selenium</param>
         private static void AcceptCookies(IWebDriver driver)
         {
             try

@@ -4,6 +4,11 @@ namespace Backend.Api.Busqueda.Converters
 {
     public static class StationConverter
     {
+        /// <summary>
+        /// Convierte un objeto Station en un objeto StationDto
+        /// </summary>
+        /// <param name="station">Objeto Station a convertir</param>
+        /// <returns>Objeto StationDto con los mismos datos</returns>
         public static StationDto Convert(Station station)
         {
             return new StationDto

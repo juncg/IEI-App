@@ -9,6 +9,11 @@ namespace Backend.Api.CAT.Helpers
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        /// <summary>
+        /// Detecta la codificación de un archivo analizando los bytes iniciales
+        /// </summary>
+        /// <param name="file">Ruta del archivo a analizar</param>
+        /// <returns>Codificación detectada del archivo</returns>
         public static Encoding DetectEncoding(string file)
         {
             byte[] buffer = new byte[1024];
@@ -50,6 +55,11 @@ namespace Backend.Api.CAT.Helpers
             return Encoding.GetEncoding("Windows-1252");
         }
 
+        /// <summary>
+        /// Intenta leer un archivo usando múltiples codificaciones hasta encontrar la correcta
+        /// </summary>
+        /// <param name="file">Ruta del archivo a leer</param>
+        /// <returns>Contenido del archivo como cadena de texto</returns>
         public static string TryReadWithEncodings(string file)
         {
             Encoding[] encodingsToTry = new[]

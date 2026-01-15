@@ -6,6 +6,15 @@ namespace Backend.Services.Mappers
 {
     public class GALMapper : IMapper
     {
+        /// <summary>
+        /// Transforma datos de estaciones ITV de Galicia en formato JSON al modelo unificado
+        /// </summary>
+        /// <param name="json">Cadena JSON con los datos de estaciones de Galicia</param>
+        /// <param name="validateExistingCoordinates">Si true, valida coordenadas con Selenium</param>
+        /// <param name="processCV">No utilizado en este mapper</param>
+        /// <param name="processGAL">Si false, retorna resultado vacío</param>
+        /// <param name="processCAT">No utilizado en este mapper</param>
+        /// <returns>Objeto MapResult con datos unificados de Galicia</returns>
         public MapResult Map(string json, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
             var result = new MapResult();

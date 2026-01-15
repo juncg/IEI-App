@@ -4,6 +4,11 @@ namespace Backend.Services
 {
     public static class DatabaseInitializer
     {
+        /// <summary>
+        /// Inicializa la base de datos creando las tablas necesarias si no existen
+        /// </summary>
+        /// <param name="conn">Conexión a la base de datos SQLite</param>
+        /// <param name="dropIfExists">Si es true, elimina las tablas existentes antes de crearlas</param>
         public static void Initialize(SqliteConnection conn, bool dropIfExists = false)
         {
             using var cmd = conn.CreateCommand();

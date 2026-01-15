@@ -33,6 +33,9 @@ finally
     Log.CloseAndFlush();
 }
 
+/// <summary>
+/// Inicia la API de Cataluña para la transformación de datos XML
+/// </summary>
 static async Task StartCatApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -66,6 +69,9 @@ static async Task StartCatApi()
     await app.RunAsync();
 }
 
+/// <summary>
+/// Inicia la API de la Comunidad Valenciana para la transformación de datos JSON
+/// </summary>
 static async Task StartCvApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -99,6 +105,9 @@ static async Task StartCvApi()
     await app.RunAsync();
 }
 
+/// <summary>
+/// Inicia la API de Galicia para la transformación de datos CSV
+/// </summary>
 static async Task StartGalApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -132,6 +141,9 @@ static async Task StartGalApi()
     await app.RunAsync();
 }
 
+/// <summary>
+/// Inicia la API de carga para el proceso ETL (Extract, Transform, Load)
+/// </summary>
 static async Task StartLoadApi()
 {
     var builder = WebApplication.CreateBuilder();
@@ -169,6 +181,9 @@ static async Task StartLoadApi()
     await app.RunAsync();
 }
 
+/// <summary>
+/// Inicia la API de búsqueda para consultar estaciones ITV
+/// </summary>
 static async Task StartSearchApi()
 {
     var builder = WebApplication.CreateBuilder();

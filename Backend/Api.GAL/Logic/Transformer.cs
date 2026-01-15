@@ -18,6 +18,10 @@ namespace Backend.Api.GAL.Logic
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        /// <summary>
+        /// Transforma el archivo CSV de estaciones de Galicia en un objeto JSON estructurado
+        /// </summary>
+        /// <returns>Objeto con los datos transformados y metadatos</returns>
         public static object Transform()
         {
             Log.Information("API GAL: Iniciando transformación de datos de Galicia (CSV)");
@@ -44,6 +48,11 @@ namespace Backend.Api.GAL.Logic
             };
         }
 
+        /// <summary>
+        /// Convierte un archivo CSV de Galicia a formato JsonElement
+        /// </summary>
+        /// <param name="path">Ruta del archivo CSV</param>
+        /// <returns>JsonElement con el contenido del archivo</returns>
         public static JsonElement ConvertGalCsvToJson(string path)
         {
             try

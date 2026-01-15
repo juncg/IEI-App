@@ -15,6 +15,10 @@ namespace Backend.Api.Carga.Logic
         private readonly LocationRepository _locationRepository;
         private readonly IEnumerable<IMapper> _mappers;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de LoadService
+        /// </summary>
+        /// <param name="httpClientFactory">Factory para crear instancias de HttpClient</param>
         public LoadService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
@@ -30,6 +34,12 @@ namespace Backend.Api.Carga.Logic
             };
         }
 
+        /// <summary>
+        /// Carga datos de estaciones desde múltiples fuentes y los inserta en la base de datos
+        /// </summary>
+        /// <param name="sources">Lista de fuentes de datos (CAT, CV, GAL)</param>
+        /// <param name="validateExistingCoordinates">Si true, valida coordenadas con Selenium</param>
+        /// <returns>LoadResultDto con estadísticas del proceso de carga</returns>
         public async Task<LoadResultDto> LoadDataAsync(List<string> sources, bool validateExistingCoordinates = false)
         {
             Log.Information("Load API: Iniciando carga para fuentes: {Sources}", string.Join(", ", sources));
@@ -168,6 +178,10 @@ namespace Backend.Api.Carga.Logic
             return loadResult;
         }
 
+        /// <summary>
+        /// Elimina todas las tablas de la base de datos y las recrea vacías
+        /// </summary>
+        /// <returns>Mensaje de confirmación de la operación</returns>
         public string ClearDatabase()
         {
             Log.Information("Load API: Iniciando limpieza de la base de datos");
@@ -199,6 +213,11 @@ namespace Backend.Api.Carga.Logic
             }
         }
 
+        /// <summary>
+        /// Obtiene la URL de la API de transformación correspondiente a una fuente de datos
+        /// </summary>
+        /// <param name="source">Nombre de la fuente (CAT, CV, GAL)</param>
+        /// <returns>URL de la API o cadena vacía si no existe</returns>
         private string GetUrlForSource(string source)
         {
             return source.ToUpper() switch

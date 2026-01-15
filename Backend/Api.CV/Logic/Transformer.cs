@@ -14,6 +14,10 @@ namespace Backend.Api.CV.Logic
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
+        /// <summary>
+        /// Transforma el archivo JSON de estaciones de la Comunidad Valenciana en un objeto JSON estructurado
+        /// </summary>
+        /// <returns>Objeto con los datos transformados y metadatos</returns>
         public static object Transform()
         {
             Log.Information("API CV: Iniciando transformación de datos de Comunidad Valenciana (JSON)");
@@ -40,6 +44,11 @@ namespace Backend.Api.CV.Logic
             };
         }
 
+        /// <summary>
+        /// Convierte un archivo JSON de la Comunidad Valenciana a formato JsonElement
+        /// </summary>
+        /// <param name="path">Ruta del archivo JSON</param>
+        /// <returns>JsonElement con el contenido del archivo</returns>
         public static JsonElement ConvertCvJsonToJson(string path)
         {
             try

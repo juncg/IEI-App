@@ -6,6 +6,15 @@ namespace Backend.Services
 {
     public class MapperService
     {
+        /// <summary>
+        /// Ejecuta el proceso de mapeo de datos desde archivos JSON
+        /// </summary>
+        /// <param name="folderPath">Ruta de la carpeta que contiene los archivos JSON</param>
+        /// <param name="validateExistingCoordinates">Si true, valida las coordenadas existentes con Selenium</param>
+        /// <param name="processCV">Si true, procesa datos de Comunidad Valenciana</param>
+        /// <param name="processGAL">Si true, procesa datos de Galicia</param>
+        /// <param name="processCAT">Si true, procesa datos de Cataluña</param>
+        /// <returns>Objeto MapResult con los datos unificados y registros reparados/descartados</returns>
         public async Task<MapResult> ExecuteMapping(string folderPath, bool validateExistingCoordinates, bool processCV, bool processGAL, bool processCAT)
         {
             Log.Information("Paso Mapper: Iniciando mapeo de datos en la carpeta: {FolderPath}", folderPath);
