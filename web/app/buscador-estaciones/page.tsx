@@ -28,8 +28,10 @@ interface Station {
 export default function BuscadorEstaciones() {
 	// Estado para almacenar los resultados de búsqueda
 	const [stations, setStations] = useState<Station[]>([]);
-	// Estado para las posiciones de las estaciones en el mapa
+	// Estado para las posiciones de todas las estaciones en el mapa
 	const [positions, setPositions] = useState<{ lat: number; lng: number; name: string }[]>([]);
+	// Estado para las posiciones de las estaciones filtradas/buscadas
+	const [highlightedPositions, setHighlightedPositions] = useState<{ lat: number; lng: number; name: string }[]>([]);
 	// Estado para saber si se ha realizado una búsqueda
 	const [hasSearched, setHasSearched] = useState(false);
 
@@ -82,11 +84,11 @@ export default function BuscadorEstaciones() {
 				const data: Station[] = await response.json();
 				setStations(data);
 
-				// Extraer posiciones válidas para el mapa
-				const newPositions = data
+				// Actualizar las posiciones destacadas en rojo
+				const newHighlightedPositions = data
 					.filter((s) => s.latitude && s.longitude)
 					.map((s) => ({ lat: s.latitude!, lng: s.longitude!, name: s.name }));
-				setPositions(newPositions);
+				setHighlightedPositions(newHighlightedPositions);
 			} else {
 				console.error("Error fetching stations");
 			}
@@ -110,7 +112,7 @@ export default function BuscadorEstaciones() {
 				</div>
 
 				<div className="w-full mt-8">
-					<Map positions={positions} />
+					<Map positions={positions} highlightedPositions={highlightedPositions} />
 				</div>
 			</main>
 		</div>

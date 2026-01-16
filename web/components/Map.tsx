@@ -3,10 +3,19 @@ import L from "leaflet";
 import { useEffect, useMemo } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 
-// Configuración del icono de marcador estándar de Leaflet
-const icon = L.icon({
-	iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-	iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+// Configuración del icono azul (estaciones normales)
+const blueIcon = L.icon({
+	iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+	shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+	shadowSize: [41, 41],
+});
+
+// Configuración del icono rojo (estaciones buscadas/filtradas)
+const redIcon = L.icon({
+	iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
 	shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 	iconSize: [25, 41],
 	iconAnchor: [12, 41],
@@ -34,9 +43,15 @@ function FitBounds({ positions }: { positions: { lat: number; lng: number; name?
 
 interface MapProps {
 	positions: { lat: number; lng: number; name?: string }[];
+	highlightedPositions?: { lat: number; lng: number; name?: string }[];
 }
 
-export default function Map({ positions }: MapProps) {
+export default function Map({ positions, highlightedPositions = [] }: MapProps) {
+	// Crear un Set con las coordenadas destacadas para búsqueda rápida
+	const highlightedSet = useMemo(() => {
+		return new Set(highlightedPositions.map((p) => `${p.lat},${p.lng}`));
+	}, [highlightedPositions]);
+
 	return (
 		<MapContainer
 			center={[40.4168, -3.7038]}
@@ -50,11 +65,14 @@ export default function Map({ positions }: MapProps) {
 
 			<FitBounds positions={positions} />
 
-			{positions.map((pos, index) => (
-				<Marker key={index} position={[pos.lat, pos.lng]} icon={icon}>
-					<Popup>{pos.name || `Estación ITV (${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)})`}</Popup>
-				</Marker>
-			))}
+			{positions.map((pos, index) => {
+				const isHighlighted = highlightedSet.has(`${pos.lat},${pos.lng}`);
+				return (
+					<Marker key={index} position={[pos.lat, pos.lng]} icon={isHighlighted ? redIcon : blueIcon}>
+						<Popup>{pos.name || `Estación ITV (${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)})`}</Popup>
+					</Marker>
+				);
+			})}
 		</MapContainer>
 	);
 }

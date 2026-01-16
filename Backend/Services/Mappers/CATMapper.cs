@@ -135,7 +135,7 @@ namespace Backend.Services.Mappers
 
                     // información de contacto
                     string correo = (string?)item["correu_electr_nic"] ?? "";
-                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo))
+                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo) && Utilities.IsValidEmail(correo))
                     {
                         u.Station.contact = "Correo: " + correo;
                     }

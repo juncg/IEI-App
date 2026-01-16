@@ -204,6 +204,21 @@ public class Utilities
     }
 
     /// <summary>
+    /// Valida si una cadena es un correo electrónico válido
+    /// </summary>
+    /// <param name="email">Correo electrónico a validar</param>
+    /// <returns>True si es un correo válido, False en caso contrario</returns>
+    public static bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        // Patrón básico de validación de email: debe tener algo antes del @, un @ y algo después con un punto
+        var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return Regex.IsMatch(email, emailPattern);
+    }
+
+    /// <summary>
     /// Verifica si un código postal es válido para una comunidad autónoma específica
     /// </summary>
     /// <param name="postalCode">Código postal a validar</param>

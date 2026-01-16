@@ -138,7 +138,7 @@ namespace Backend.Services.Mappers
                     var contactParts = new List<string>();
                     if (!string.IsNullOrWhiteSpace(telefono))
                         contactParts.Add($"Teléfono: {telefono}");
-                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo))
+                    if (!string.IsNullOrWhiteSpace(correo) && !Utilities.IsUrl(correo) && Utilities.IsValidEmail(correo))
                         contactParts.Add($"Correo: {correo}");
 
                     u.Station.contact = contactParts.Count > 0 ? string.Join(", ", contactParts) : null;
